@@ -103,7 +103,7 @@ class _RecentProjectsState extends State<RecentProjects> {
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: RaisedButton(
-                                        child: Text("Submitß"),
+                                        child: Text("Cancel"),
                                         onPressed: () {
                                           // if (_formKey.currentState.validate()) {
                                           //   _formKey.currentState.save();
