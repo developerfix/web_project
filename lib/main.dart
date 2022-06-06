@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:projectx/recentProject.dart';
+import 'package:projectx/pages/recent_project.dart';
 
 void main() {
   runApp(const MyApp());

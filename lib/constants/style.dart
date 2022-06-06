@@ -27,7 +27,7 @@ Widget txt(
     style: GoogleFonts.montserrat(
       textStyle: TextStyle(
         letterSpacing: letterSpacing ?? 0,
-        color: fontColor ?? Colors.white,
+        color: fontColor ?? const Color(brownishColor),
         fontWeight: fontWeight ?? FontWeight.w600,
       ),
     ),

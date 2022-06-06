@@ -38,6 +38,10 @@ dependencies:
   auto_size_text: ^3.0.0
   google_fonts: ^3.0.1
   adobe_xd: ^2.0.1
+  firebase_core: ^1.17.1
+  firebase_auth: ^3.3.19
+  cloud_firestore: ^3.1.17 
+  firebase_storage: ^10.2.17
 
 dev_dependencies:
   flutter_test:

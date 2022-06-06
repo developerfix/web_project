@@ -41,7 +41,11 @@ class _SeeAllProjectsState extends State<SeeAllProjects> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      txt(txt: 'PROJECTS', fontSize: 40, letterSpacing: 3),
+                      txt(
+                          txt: 'PROJECTS',
+                          fontSize: 40,
+                          letterSpacing: 3,
+                          fontColor: Colors.white),
                     ],
                   ),
                 )),
@@ -79,7 +83,12 @@ class _SeeAllProjectsState extends State<SeeAllProjects> {
           ),
         ],
       ),
-      child: Center(child: txt(txt: text!, fontSize: 30.0, letterSpacing: 2)),
+      child: Center(
+          child: txt(
+              txt: text!,
+              fontSize: 30.0,
+              letterSpacing: 2,
+              fontColor: Colors.white)),
     );
   }
 }
