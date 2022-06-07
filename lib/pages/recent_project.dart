@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:projectx/constants/style.dart';
+import 'package:projectx/pages/profile.dart';
 import 'package:projectx/pages/project_dashboard.dart';
 import 'package:projectx/pages/see_all_projs.dart';
 
@@ -25,6 +27,30 @@ class _RecentProjectsState extends State<RecentProjects> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          Padding(
+            padding: const EdgeInsets.all(50.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const Icon(
+                  Icons.settings,
+                  color: Colors.white,
+                  size: 40,
+                ),
+                SizedBox(
+                  width: screenWidth(context) * 0.01,
+                ),
+                InkWell(
+                  onTap: () {
+                    Get.to(const Profile());
+                  },
+                  child: const CircleAvatar(
+                    backgroundColor: Colors.lightGreen,
+                  ),
+                )
+              ],
+            ),
+          ),
           const Spacer(),
           txt(
               txt: 'PROJECTS',
@@ -57,8 +83,10 @@ class _RecentProjectsState extends State<RecentProjects> {
               SizedBox(
                 width: screenWidth(context) * 0.01,
               ),
-              navigator(
-                page: const SeeAllProjects(),
+              InkWell(
+                onTap: (() {
+                  Get.to(const SeeAllProjects());
+                }),
                 child: Container(
                   width: screenWidth(context) * 0.1,
                   height: screenHeight(context) * 0.18,
@@ -120,8 +148,10 @@ class _RecentProjectsState extends State<RecentProjects> {
 
   SizedBox recentProjectBox({String? text}) {
     return SizedBox(
-      child: navigator(
-        page: const ProjectDashboard(),
+      child: InkWell(
+        onTap: (() {
+          Get.to(const ProjectDashboard());
+        }),
         child: Container(
           width: screenWidth(context) * 0.1,
           height: screenHeight(context) * 0.18,

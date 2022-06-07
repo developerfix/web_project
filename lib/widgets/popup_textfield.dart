@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../constants/style.dart';
 
-Container popUpTextField(
-  BuildContext context,
-) {
+Container popUpTextField(BuildContext context,
+    {TextEditingController? controller, String? hint}) {
   return Container(
     width: screenWidth(context) * 0.2,
     height: screenHeight(context) * 0.05,
@@ -22,9 +22,17 @@ Container popUpTextField(
     child: Padding(
       padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
       child: TextFormField(
-        decoration: const InputDecoration(
+        controller: controller,
+        decoration: InputDecoration(
           border: InputBorder.none,
-          hintText: '...',
+          hintText: hint,
+          hintStyle: GoogleFonts.montserrat(
+            textStyle: const TextStyle(
+              letterSpacing: 2,
+              color: Color(secondaryColor),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ),
     ),
