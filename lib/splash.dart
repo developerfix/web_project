@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:projectx/constants/style.dart';
-import 'package:projectx/pages/auth/login.dart';
+import 'package:projectx/pages/auth/authScreen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -17,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     Timer(const Duration(seconds: 2), () {
-      Get.to(const Login());
+      Get.to(const AuthScreen());
     });
     super.initState();
   }
@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
           Center(
               child: InkWell(
                   onTap: () {
-                    Get.to(const Login());
+                    Get.to(const AuthScreen());
                   },
                   child: SvgPicture.asset('assets/svgs/ava_logo.svg'))),
           SizedBox(height: screenHeight(context) * 0.02),

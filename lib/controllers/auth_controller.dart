@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:projectx/pages/auth/login.dart';
+import 'package:projectx/pages/auth/authScreen.dart';
 import 'package:projectx/pages/recent_project.dart';
+import 'package:projectx/models/user.dart' as model;
+
+import '../constants/style.dart';
 
 class AuthController extends GetxController {
   static AuthController instance = Get.find();
@@ -27,7 +30,7 @@ class AuthController extends GetxController {
       if (user == null) {
         isLoging = false;
         update();
-        Get.offAll(() => const Login());
+        Get.offAll(() => const AuthScreen());
       } else {
         isLoging = true;
         update();
@@ -36,13 +39,26 @@ class AuthController extends GetxController {
     });
   }
 
-  void registerUser(email, password) async {
+  void registerUser({name, email, password}) async {
     try {
       isLoging = true;
       update();
-      await auth.createUserWithEmailAndPassword(
+
+      UserCredential cred = await auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      getSuccessSnackBar("Successfully logged in as ${_user.value!.email}");
+
+      model.User user = model.User(
+          name: name,
+          email: email,
+          uid: cred.user!.uid,
+          profilePhoto: '',
+          noOfProjects: 0);
+      await firestore
+          .collection('users')
+          .doc(cred.user!.uid)
+          .set(user.toJson());
+
+      getSuccessSnackBar("Successfully logged in");
     } on FirebaseAuthException catch (e) {
       //define error
       getErrorSnackBar("Account Creating Failed", e);
@@ -78,8 +94,25 @@ class AuthController extends GetxController {
           accessToken: googleAuth?.accessToken,
           idToken: googleAuth?.idToken,
         );
-        await auth.signInWithCredential(crendentials);
-        getSuccessSnackBar("Successfully logged in as ${_user.value!.email}");
+
+        final UserCredential userCredential =
+            await auth.signInWithCredential(crendentials);
+
+        User? registereduser = userCredential.user;
+
+        model.User user = model.User(
+            name: registereduser!.displayName,
+            email: registereduser.email,
+            uid: registereduser.uid,
+            profilePhoto: '',
+            noOfProjects: 0);
+
+        await firestore
+            .collection('users')
+            .doc(registereduser.uid)
+            .set(user.toJson());
+
+        getSuccessSnackBar("Successfully logged in");
       }
     } on FirebaseAuthException catch (e) {
       getErrorSnackBar("Google Login Failed", e);
@@ -95,42 +128,6 @@ class AuthController extends GetxController {
     } on FirebaseAuthException catch (e) {
       getErrorSnackBar("Error", e);
     }
-  }
-
-  getErrorSnackBar(String message, _) {
-    Get.snackbar(
-      "Error",
-      "$message\n${_.message}",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red.shade300,
-      colorText: Colors.white,
-      borderRadius: 10,
-      margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
-    );
-  }
-
-  getErrorSnackBarNew(String message) {
-    Get.snackbar(
-      "Error",
-      message,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red.shade300,
-      colorText: Colors.white,
-      borderRadius: 10,
-      margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
-    );
-  }
-
-  getSuccessSnackBar(String message) {
-    Get.snackbar(
-      "Success",
-      message,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green.shade300,
-      colorText: Colors.white,
-      borderRadius: 10,
-      margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
-    );
   }
 
   void signOut() async {

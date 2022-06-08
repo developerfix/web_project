@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/pages/recent_project.dart';
 import 'package:projectx/pages/timeline.dart';
@@ -83,16 +84,20 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                   ),
                   Row(
                     children: [
-                      navigator(
-                        page: const RecentProjects(),
+                      InkWell(
+                        onTap: () {
+                          Get.to(const RecentProjects());
+                        },
                         child: const Icon(
                           Icons.home,
                           size: 50,
                         ),
                       ),
                       const Spacer(),
-                      navigator(
-                        page: const Timeline(),
+                      InkWell(
+                        onTap: () {
+                          Get.to(const Timeline());
+                        },
                         child: const Icon(
                           Icons.timeline,
                           size: 50,

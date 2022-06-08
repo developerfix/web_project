@@ -1,14 +1,23 @@
 // import 'package:adobe_xd/page_link.dart';
 import 'package:adobe_xd/page_link.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 const int mainColor = 0xff736879;
 const int secondaryColor = 0xff958890;
 const int brownishColor = 0xff707070;
+
+// FIREBASE
+var firebaseAuth = FirebaseAuth.instance;
+var firebaseStorage = FirebaseStorage.instance;
+var firestore = FirebaseFirestore.instance;
 
 //for all the text in the app
 Widget txt(
@@ -34,14 +43,40 @@ Widget txt(
   );
 }
 
-Widget navigator({Widget? child, Widget? page}) {
-  return PageLink(links: [
-    PageLinkInfo(
-        transition: LinkTransition.Fade,
-        ease: Curves.easeOut,
-        duration: 0.3,
-        pageBuilder: () => page),
-  ], child: child!);
+getErrorSnackBar(String message, _) {
+  Get.snackbar(
+    "Error",
+    "$message\n${_.message}",
+    snackPosition: SnackPosition.BOTTOM,
+    backgroundColor: Colors.red.shade300,
+    colorText: Colors.white,
+    borderRadius: 10,
+    margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
+  );
+}
+
+getErrorSnackBarNew(String message) {
+  Get.snackbar(
+    "Error",
+    message,
+    snackPosition: SnackPosition.BOTTOM,
+    backgroundColor: Colors.red.shade300,
+    colorText: Colors.white,
+    borderRadius: 10,
+    margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
+  );
+}
+
+getSuccessSnackBar(String message) {
+  Get.snackbar(
+    "Success",
+    message,
+    snackPosition: SnackPosition.BOTTOM,
+    backgroundColor: Colors.green.shade300,
+    colorText: Colors.white,
+    borderRadius: 10,
+    margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
+  );
 }
 
 double screenHeight(BuildContext context) {

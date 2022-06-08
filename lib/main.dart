@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:projectx/pages/auth/login.dart';
+import 'package:projectx/pages/auth/authScreen.dart';
 import 'package:projectx/splash.dart';
 
 import 'controllers/auth_controller.dart';
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const Login(),
+      home: const AuthScreen(),
     );
   }
 }
