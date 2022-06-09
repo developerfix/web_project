@@ -14,26 +14,21 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    Timer(const Duration(seconds: 2), () {
-      Get.to(const AuthScreen());
-    });
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   Timer(const Duration(seconds: 2), () {
+  //     Get.to(const AuthScreen());
+  //   });
+  //   super.initState();
+  // }
 
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(mainColor),
+      backgroundColor: Colors.green,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Center(
-              child: InkWell(
-                  onTap: () {
-                    Get.to(const AuthScreen());
-                  },
-                  child: SvgPicture.asset('assets/svgs/ava_logo.svg'))),
+          Center(child: SvgPicture.asset('assets/svgs/ava_logo.svg')),
           SizedBox(height: screenHeight(context) * 0.02),
           txt(
               txt: 'We manage your project from start to finish',

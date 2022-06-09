@@ -269,12 +269,6 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
           ),
         ),
-        // Positioned.fill(
-        //     child: RotatedBox(
-        //   quarterTurns: 2,
-        //   child:
-        //       Opacity(opacity: 0.1, child: txt(txt: "A", fontSize: 1500)),
-        // ))
       ],
     ));
   }
@@ -284,6 +278,15 @@ class _AuthScreenState extends State<AuthScreen> {
     return Expanded(
         child: Stack(
       children: [
+        Align(
+          alignment: const Alignment(0, -0.7),
+          child: Opacity(
+            opacity: 0.1,
+            child: SvgPicture.asset(
+              'assets/svgs/A.svg',
+            ),
+          ),
+        ),
         Positioned.fill(
           child: Center(
             child: SizedBox(
@@ -437,21 +440,6 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
           ),
         ),
-        Align(
-          alignment: Alignment(0.5, 0.6),
-          child: SvgPicture.asset('assets/svgs/A.svg', color: Colors.red),
-          // child: Container(
-          //   height: 300,
-          //   width: 300,
-          //   color: Colors.red,
-          // ),
-        ),
-        // Positioned.fill(
-        //     child: RotatedBox(
-        //   quarterTurns: 2,
-        //   child:
-        //       Opacity(opacity: 0.1, child: txt(txt: "A", fontSize: 1500)),
-        // ))
       ],
     ));
   }
