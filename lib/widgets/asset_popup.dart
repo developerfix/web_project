@@ -124,11 +124,11 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                       InkWell(
                         onTap: () {
                           if (_formKey.currentState!.validate()) {
+                            Get.back();
                             projectController.addNewAsset(
                                 projectId: '23',
                                 path: pathController.text.trim(),
                                 uid: _uid);
-                            Get.back();
                           }
                         },
                         child: Container(

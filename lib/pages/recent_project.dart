@@ -9,6 +9,7 @@ import 'package:projectx/pages/project_dashboard.dart';
 import 'package:projectx/pages/see_all_projs.dart';
 
 import '../widgets/create_project_popup.dart';
+import '../widgets/customAppBar.dart';
 
 class RecentProjects extends StatefulWidget {
   const RecentProjects({Key? key}) : super(key: key);
@@ -24,35 +25,36 @@ class _RecentProjectsState extends State<RecentProjects> {
     return Form(
       key: _formKey,
       child: Scaffold(
+        appBar: customAppBar(context),
         backgroundColor: const Color(mainColor),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(50.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const Icon(
-                    Icons.settings,
-                    color: Colors.white,
-                    size: 40,
-                  ),
-                  SizedBox(
-                    width: screenWidth(context) * 0.01,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Get.to(const Profile());
-                    },
-                    child: const CircleAvatar(
-                      backgroundColor: Colors.lightGreen,
-                    ),
-                  )
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.all(50.0),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.end,
+            //     children: [
+            //       const Icon(
+            //         Icons.settings,
+            //         color: Colors.white,
+            //         size: 40,
+            //       ),
+            //       SizedBox(
+            //         width: screenWidth(context) * 0.01,
+            //       ),
+            //       InkWell(
+            //         onTap: () {
+            //           Get.to(const Profile());
+            //         },
+            //         child: const CircleAvatar(
+            //           backgroundColor: Colors.lightGreen,
+            //         ),
+            //       )
+            //     ],
+            //   ),
+            // ),
             const Spacer(),
             txt(
                 txt: 'PROJECTS',

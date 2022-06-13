@@ -12,7 +12,7 @@
                 "--web-hostname",
                 "localhost",
                 "--web-port",
-                "5000"
+                "5000",
             ]
         },
         {

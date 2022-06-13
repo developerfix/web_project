@@ -27,6 +27,7 @@ Widget txt(
     Color? fontColor,
     double? minFontSize,
     double? letterSpacing,
+    TextOverflow? overflow,
     int? maxLines}) {
   return AutoSizeText(
     txt,
@@ -35,6 +36,7 @@ Widget txt(
     minFontSize: minFontSize ?? fontSize - 5,
     style: GoogleFonts.montserrat(
       textStyle: TextStyle(
+        overflow: overflow ?? TextOverflow.visible,
         letterSpacing: letterSpacing ?? 0,
         color: fontColor ?? const Color(brownishColor),
         fontWeight: fontWeight ?? FontWeight.w600,

@@ -1,13 +1,22 @@
+import 'dart:html';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/auth_controller.dart';
+import 'package:projectx/controllers/profile_controller.dart';
 import 'package:projectx/controllers/project_controller.dart';
+import 'package:projectx/pages/add_new_task.dart';
 import 'package:projectx/pages/profile.dart';
 import 'package:projectx/pages/recent_project.dart';
 import 'package:projectx/pages/timeline.dart';
 import 'package:projectx/widgets/asset_popup.dart';
+
+import '../widgets/customAppBar.dart';
+import 'board.dart';
 
 class ProjectDashboard extends StatefulWidget {
   final String projectId;
@@ -19,13 +28,19 @@ class ProjectDashboard extends StatefulWidget {
 
 class _ProjectDashboardState extends State<ProjectDashboard> {
   final ProjectController projectController = Get.put(ProjectController());
+  final ProfileController profileController = Get.put(ProfileController());
   final _uid = AuthController.instance.user!.uid;
+  final commentController = TextEditingController();
+
+  bool isAssetsRefreshing = false;
+  bool isCommentsRefreshing = false;
 
   @override
   void initState() {
     super.initState();
     projectController.updateProjectAndUserId(
         projectId: widget.projectId, uid: _uid);
+    profileController.updateUserId(_uid);
   }
 
   @override
@@ -39,253 +54,143 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
             );
           } else {
             return Scaffold(
-
-                // drawer: Drawer(
-
-                //   child: ListView(
-                //     padding: EdgeInsets.zero,
-                //     children: <Widget>[
-                //       DrawerHeader(
-                //         margin: EdgeInsets.zero,
-                //         child: Center(
-                //           child: Row(
-                //             children: [
-                //               const Icon(
-                //                 Icons.add,
-                //                 color: Color(brownishColor),
-                //                 size: 30,
-                //               ),
-                //               txt(
-                //                 txt: "ASSETS",
-                //                 fontSize: 30.0,
-                //                 fontColor: const Color(brownishColor),
-                //                 letterSpacing: 5,
-                //                 fontWeight: FontWeight.w700,
-                //               ),
-                //             ],
-                //           ),
-                //         ),
-                //       ),
-                //       ListTile(
-                //         leading: Icon(Icons.location_city),
-                //         title: Text('Partner'),
-                //         onTap: () {},
-                //       ),
-                //       ListTile(
-                //         leading: Icon(Icons.multiline_chart),
-                //         title: Text('Proyek'),
-                //         onTap: () {},
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                appBar: AppBar(
-                  backgroundColor: Color(mainColor),
-                  leading: Padding(
-                    padding: const EdgeInsets.only(left: 30),
-                    child: SvgPicture.asset(
-                      'assets/svgs/ava_logo.svg',
-                      height: 50,
-                    ),
-                  ),
-                  actions: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 50),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Icon(
-                            Icons.settings,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                          SizedBox(
-                            width: screenWidth(context) * 0.01,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              Get.to(const Profile());
-                            },
-                            child: const CircleAvatar(
-                              backgroundColor: Colors.lightGreen,
-                              maxRadius: 20,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                body: Row(
-                  children: [
-                    Drawer(
-                      child: Column(
-                        children: <Widget>[
-                          DrawerHeader(
-                            margin: EdgeInsets.zero,
-                            child: Center(
-                              child: InkWell(
-                                onTap: () {
-                                  addAssetPopUp(context);
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.add,
-                                      color: Color(brownishColor),
-                                      size: 30,
-                                    ),
-                                    txt(
-                                      txt: "ASSETS",
-                                      fontSize: 30.0,
-                                      fontColor: const Color(brownishColor),
-                                      letterSpacing: 5,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ],
+                appBar: customAppBar(context),
+                body: SizedBox(
+                  height: screenHeight(context),
+                  width: screenWidth(context),
+                  child: Row(
+                    children: [
+                      Drawer(
+                        child: Column(
+                          children: <Widget>[
+                            DrawerHeader(
+                              margin: EdgeInsets.zero,
+                              child: Center(
+                                child: InkWell(
+                                  onTap: () {
+                                    addAssetPopUp(context);
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.add,
+                                        color: Color(brownishColor),
+                                        size: 30,
+                                      ),
+                                      txt(
+                                        txt: "ASSETS",
+                                        fontSize: 30.0,
+                                        fontColor: const Color(brownishColor),
+                                        letterSpacing: 5,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.folder),
-                            title: Text(
-                              'https://www.google.com/search?q=+flutter+webapp+drawer&tbm=isch&ved=2ahUKEwj87cv5maH4AhUJdBoKHZYWDEsQ2-cCegQIABAA&oq=+flutter+webapp+drawer&gs_lcp=CgNpbWcQAzoECAAQGFDs9QZYt4YHYMOHB2gBcAB4AIABjgOIAbQOkgEFMi03LjGYAQCgAQGqAQtnd3Mtd2l6LWltZ8ABAQ&sclient=img&ei=NVeiYrz_GYnoaZatsNgE&bih=660&biw=1280',
-                              style: TextStyle(overflow: TextOverflow.ellipsis),
-                            ),
-                            onTap: () {},
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.link),
-                            title: Text(
-                              'https://www.google.com/search?q=+flutter+webapp+drawer&tbm=isch&ved=2ahUKEwj87cv5maH4AhUJdBoKHZYWDEsQ2-cCegQIABAA&oq=+flutter+webapp+drawer&gs_lcp=CgNpbWcQAzoECAAQGFDs9QZYt4YHYMOHB2gBcAB4AIABjgOIAbQOkgEFMi03LjGYAQCgAQGqAQtnd3Mtd2l6LWltZ8ABAQ&sclient=img&ei=NVeiYrz_GYnoaZatsNgE&bih=660&biw=1280',
-                              style: TextStyle(overflow: TextOverflow.ellipsis),
-                            ),
-                            onTap: () {},
-                          ),
-                          Spacer(),
-                          ListTile(
-                            leading: InkWell(
-                              onTap: () {
-                                Get.to(const RecentProjects());
-                              },
-                              child: const Icon(
-                                Icons.home,
-                                size: 50,
+                            Obx(() {
+                              return SizedBox(
+                                height: screenHeight(context) * 0.6,
+                                width: screenWidth(context) * 0.12,
+                                child: projectController.isAssetUpdating.isTrue
+                                    ? Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const CircularProgressIndicator(),
+                                          txt(
+                                              txt:
+                                                  'Please wait\n Asset is being updated',
+                                              fontSize: 14)
+                                        ],
+                                      )
+                                    : ListView.builder(
+                                        itemCount:
+                                            projectController.assets.length,
+                                        itemBuilder: (context, i) {
+                                          String path = projectController
+                                              .assets[i]['path'];
+                                          return ListTile(
+                                            leading: const Icon(
+                                              Icons.link,
+                                            ),
+                                            title: txt(
+                                                txt: path,
+                                                fontSize: 14,
+                                                overflow:
+                                                    TextOverflow.ellipsis),
+                                            trailing: InkWell(
+                                                onTap: () async {
+                                                  setState(() {
+                                                    isAssetsRefreshing = true;
+                                                  });
+                                                  await projectController
+                                                      .deleteProjectAsset(
+                                                          path:
+                                                              projectController
+                                                                      .assets[i]
+                                                                  ['path']);
+                                                  setState(() {
+                                                    isAssetsRefreshing = false;
+                                                  });
+                                                },
+                                                child: const Icon(
+                                                  Icons.delete_sharp,
+                                                )),
+                                            onTap: () {},
+                                          );
+                                        }),
+                              );
+                            }),
+                            const Spacer(),
+                            ListTile(
+                                onTap: () {
+                                  Get.to(AddNewTask(
+                                    projectId: widget.projectId,
+                                  ));
+                                },
+                                leading: const Icon(
+                                  Icons.task,
+                                ),
+                                title: txt(txt: 'Add new task', fontSize: 14)),
+                            ListTile(
+                                leading: const Icon(
+                                  Icons.person_add,
+                                ),
+                                title: txt(
+                                    txt: 'Manage project members',
+                                    fontSize: 14)),
+                            const Divider(),
+                            ListTile(
+                              leading: InkWell(
+                                onTap: () {
+                                  Get.to(const RecentProjects());
+                                },
+                                child: const Icon(
+                                  Icons.home,
+                                  size: 50,
+                                ),
                               ),
-                            ),
-                            trailing: InkWell(
-                              onTap: () {
-                                Get.to(const Timeline());
-                              },
-                              child: const Icon(
-                                Icons.timeline,
-                                size: 50,
+                              trailing: InkWell(
+                                onTap: () {
+                                  Get.to(const Timeline());
+                                },
+                                child: const Icon(
+                                  Icons.timeline,
+                                  size: 50,
+                                ),
                               ),
+                              onTap: null,
                             ),
-                            onTap: null,
-                          ),
-                          SizedBox(height: screenHeight(context) * 0.03)
-                        ],
+                            SizedBox(height: screenHeight(context) * 0.01)
+                          ],
+                        ),
                       ),
-                    ),
-                    // Expanded(
-                    //   child: Container(
-                    //     decoration: const BoxDecoration(
-                    //       color: Colors.white,
-                    //       boxShadow: [
-                    //         BoxShadow(
-                    //           color: Colors.white,
-                    //           offset: Offset(0, 3.0),
-                    //           blurRadius: 9.0,
-                    //         ),
-                    //       ],
-                    //     ),
-                    //     child: Padding(
-                    //       padding: const EdgeInsets.fromLTRB(30, 30, 30, 10),
-                    //       child: Column(
-                    //         children: [
-                    //           Row(
-                    //             mainAxisAlignment: MainAxisAlignment.center,
-                    //             children: [
-                    //               InkWell(
-                    //                 onTap: () {
-                    //                   addAssetPopUp(context);
-                    //                 },
-                    //                 child: SizedBox(
-                    //                   child: Row(
-                    //                     children: [
-                    //                       const Icon(
-                    //                         Icons.add,
-                    //                         color: Color(brownishColor),
-                    //                         size: 30,
-                    //                       ),
-                    //                       txt(
-                    //                         txt: "ASSETS",
-                    //                         fontSize: 30.0,
-                    //                         fontColor:
-                    //                             const Color(brownishColor),
-                    //                         letterSpacing: 5,
-                    //                         fontWeight: FontWeight.w700,
-                    //                       ),
-                    //                     ],
-                    //                   ),
-                    //                 ),
-                    //               ),
-                    //             ],
-                    //           ),
-                    //           SizedBox(
-                    //             height: screenHeight(context) * 0.03,
-                    //           ),
-                    //           Row(
-                    //             children: [
-                    //               SizedBox(
-                    //                 height: screenHeight(context) * 0.7,
-                    //                 width: screenWidth(context) * 0.082,
-                    //                 child: ListView.builder(
-                    //                     itemCount: 6,
-                    //                     itemBuilder: (context, i) {
-                    //                       return txt(
-                    //                           txt: 'LINK 1', fontSize: 30);
-                    //                     }),
-                    //               )
-                    //             ],
-                    //           ),
-                    //           Spacer(),
-                    //           Row(
-                    //             children: [
-                    //               InkWell(
-                    //                 onTap: () {
-                    //                   Get.to(const RecentProjects());
-                    //                 },
-                    //                 child: const Icon(
-                    //                   Icons.home,
-                    //                   size: 50,
-                    //                 ),
-                    //               ),
-                    //               const Spacer(),
-                    //               InkWell(
-                    //                 onTap: () {
-                    //                   Get.to(const Timeline());
-                    //                 },
-                    //                 child: const Icon(
-                    //                   Icons.timeline,
-                    //                   size: 50,
-                    //                 ),
-                    //               )
-                    //             ],
-                    //           ),
-                    //           SizedBox(height: screenHeight(context) * 0.03)
-                    //         ],
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                    Expanded(
-                      flex: 5,
-                      child: SizedBox(
-                        child: SingleChildScrollView(
+                      Expanded(
+                        flex: 5,
+                        child: SizedBox(
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(50, 30, 50, 10),
                             child: Column(
@@ -347,178 +252,205 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                 SizedBox(
                                   height: screenHeight(context) * 0.05,
                                 ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      children: [
-                                        txt(txt: 'TO DO', fontSize: 20),
-                                        SizedBox(
-                                          height: screenHeight(context) * 0.85,
-                                          width: screenWidth(context) * 0.15,
-                                          child: GridView.builder(
-                                              padding:
-                                                  const EdgeInsets.all(20.0),
-                                              gridDelegate:
-                                                  const SliverGridDelegateWithMaxCrossAxisExtent(
-                                                      maxCrossAxisExtent: 200,
-                                                      childAspectRatio: 2 / 2,
-                                                      crossAxisSpacing: 30,
-                                                      mainAxisSpacing: 30),
-                                              itemCount: 200,
-                                              itemBuilder:
-                                                  (BuildContext ctx, index) {
-                                                return // Group: card
-                                                    taskBox();
-                                              }),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      children: [
-                                        txt(txt: 'IN PROGRESS', fontSize: 20),
-                                        SizedBox(
-                                          height: screenHeight(context) * 0.85,
-                                          width: screenWidth(context) * 0.15,
-                                          child: GridView.builder(
-                                              padding:
-                                                  const EdgeInsets.all(20.0),
-                                              gridDelegate:
-                                                  const SliverGridDelegateWithMaxCrossAxisExtent(
-                                                      maxCrossAxisExtent: 200,
-                                                      childAspectRatio: 2 / 2,
-                                                      crossAxisSpacing: 30,
-                                                      mainAxisSpacing: 30),
-                                              itemCount: 200,
-                                              itemBuilder:
-                                                  (BuildContext ctx, index) {
-                                                return // Group: card
-                                                    taskBox();
-                                              }),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      children: [
-                                        txt(txt: 'COMPLETED', fontSize: 20),
-                                        SizedBox(
-                                          height: screenHeight(context) * 0.85,
-                                          width: screenWidth(context) * 0.15,
-                                          child: GridView.builder(
-                                              padding:
-                                                  const EdgeInsets.all(20.0),
-                                              gridDelegate:
-                                                  const SliverGridDelegateWithMaxCrossAxisExtent(
-                                                      maxCrossAxisExtent: 200,
-                                                      childAspectRatio: 2 / 2,
-                                                      crossAxisSpacing: 30,
-                                                      mainAxisSpacing: 30),
-                                              itemCount: 200,
-                                              itemBuilder:
-                                                  (BuildContext ctx, index) {
-                                                return // Group: card
-                                                    taskBox();
-                                              }),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                )
+                                Flexible(
+                                  flex: 3,
+                                  child: BoardSection(),
+                                ),
                               ],
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white,
-                              offset: Offset(0, 3.0),
-                              blurRadius: 9.0,
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(50, 30, 30, 80),
-                          child: Column(
-                            children: [
-                              txt(
-                                txt: 'NOTES',
-                                fontSize: 50,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 5,
-                              ),
-                              SizedBox(
-                                height: screenHeight(context) * 0.03,
-                              ),
-                              SizedBox(
-                                height: screenHeight(context) * 0.55,
-                                child: ListView(
-                                  children: [
-                                    usersMsg(context),
-                                    usersMsg(context),
-                                    usersMsg(context),
-                                    usersMsg(context),
-                                    usersMsg(context),
-                                    usersMsg(context),
-                                    usersMsg(context),
-                                    usersMsg(context),
-                                    usersMsg(context),
-                                    usersMsg(context),
-                                    usersMsg(context),
-                                    usersMsg(context),
-                                  ],
-                                ),
-                              ),
-                              const Spacer(),
-                              Container(
-                                width: screenWidth(context) * 0.2,
-                                height: screenHeight(context) * 0.2,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.16),
-                                      offset: const Offset(0, 3.0),
-                                      blurRadius: 6.0,
+                      GetBuilder<ProfileController>(
+                          init: ProfileController(),
+                          builder: (controller) {
+                            if (controller.user.isEmpty) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            } else {
+                              return Expanded(
+                                flex: 2,
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.white,
+                                        offset: Offset(0, 3.0),
+                                        blurRadius: 9.0,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        50, 30, 30, 80),
+                                    child: Column(
+                                      children: [
+                                        txt(
+                                          txt: 'NOTES',
+                                          fontSize: 50,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 5,
+                                        ),
+                                        SizedBox(
+                                          height: screenHeight(context) * 0.03,
+                                        ),
+                                        Obx(() {
+                                          return SizedBox(
+                                              height:
+                                                  screenHeight(context) * 0.55,
+                                              width: screenWidth(context) * 0.3,
+                                              child: projectController
+                                                      .isUploading.isTrue
+                                                  ? Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        const CircularProgressIndicator(),
+                                                        txt(
+                                                            txt:
+                                                                'Please wait\n Comment is being added',
+                                                            fontSize: 14)
+                                                      ],
+                                                    )
+                                                  : ListView.builder(
+                                                      shrinkWrap: true,
+                                                      reverse: true,
+                                                      itemCount:
+                                                          projectController
+                                                              .comments.length,
+                                                      itemBuilder:
+                                                          (context, i) {
+                                                        String comment =
+                                                            projectController
+                                                                .comments[i]
+                                                                    ['comment']
+                                                                .toString();
+                                                        String type =
+                                                            projectController
+                                                                .comments[i]
+                                                                    ['type']
+                                                                .toString();
+                                                        String username =
+                                                            controller
+                                                                .user['name'];
+                                                        String firstChar = '';
+
+                                                        for (int i = 0;
+                                                            i < username.length;
+                                                            i++) {
+                                                          firstChar +=
+                                                              username[i];
+                                                        }
+
+                                                        return usersMsg(context,
+                                                            username:
+                                                                firstChar[0],
+                                                            type: type,
+                                                            comment: comment);
+                                                      }));
+                                        }),
+                                        const Spacer(),
+                                        Container(
+                                          width: screenWidth(context) * 0.2,
+                                          height: screenHeight(context) * 0.2,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.16),
+                                                offset: const Offset(0, 3.0),
+                                                blurRadius: 6.0,
+                                              ),
+                                            ],
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 15, right: 15, top: 5),
+                                            child: TextFormField(
+                                              maxLines: null,
+                                              controller: commentController,
+                                              decoration: InputDecoration(
+                                                  suffixIcon: SizedBox(
+                                                    width:
+                                                        screenWidth(context) *
+                                                            0.03,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.end,
+                                                      children: [
+                                                        Builder(
+                                                            builder: (context) {
+                                                          return InkWell(
+                                                            onTap: () {
+                                                              projectController
+                                                                  .addNewCommentFile(
+                                                                      projectId:
+                                                                          widget
+                                                                              .projectId,
+                                                                      uid:
+                                                                          _uid);
+                                                            },
+                                                            child: const Icon(
+                                                                Icons
+                                                                    .attach_file,
+                                                                color: Color(
+                                                                    brownishColor)),
+                                                          );
+                                                        }),
+                                                        InkWell(
+                                                          onTap: () async {
+                                                            await projectController
+                                                                .addNewComment(
+                                                                    comment:
+                                                                        commentController
+                                                                            .text,
+                                                                    projectId:
+                                                                        widget
+                                                                            .projectId,
+                                                                    uid: _uid);
+                                                            commentController
+                                                                .clear();
+                                                          },
+                                                          child: const Icon(
+                                                              Icons.send,
+                                                              color: Color(
+                                                                  brownishColor)),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  border: InputBorder.none,
+                                                  hintText: 'Add Comment...',
+                                                  hintStyle: const TextStyle(
+                                                      color:
+                                                          Color(brownishColor),
+                                                      fontWeight:
+                                                          FontWeight.w600)),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 15, right: 15, top: 5),
-                                  child: TextFormField(
-                                    maxLines: null,
-                                    decoration: const InputDecoration(
-                                        suffixIcon: Icon(Icons.send,
-                                            color: Color(brownishColor)),
-                                        border: InputBorder.none,
-                                        hintText: 'Add Comment...',
-                                        hintStyle: TextStyle(
-                                            color: Color(brownishColor),
-                                            fontWeight: FontWeight.w600)),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                              );
+                            }
+                          })
+                    ],
+                  ),
                 ));
           }
         });
   }
 
-  Padding usersMsg(BuildContext context) {
+  Padding usersMsg(BuildContext context,
+      {String? comment, String? type, String? username}) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
       child: Row(
@@ -527,13 +459,60 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
             backgroundColor: const Color(brownishColor),
             maxRadius: 25,
             child: Center(
-              child: txt(txt: 'R', fontSize: 20, fontColor: Colors.white),
+              child: txt(
+                  txt: username!.capitalize.toString(),
+                  fontSize: 20,
+                  fontColor: Colors.white),
             ),
           ),
           SizedBox(
             width: screenWidth(context) * 0.005,
           ),
-          txt(txt: 'we can add some detailing', fontSize: 20)
+          type == 'text'
+              ? Flexible(
+                  child: txt(
+                  txt: comment!,
+                  fontSize: 20,
+                  maxLines: 20,
+                ))
+              : InkWell(
+                  onTap: () {
+                    downloadFile(comment);
+                  },
+                  child: Container(
+                    width: screenWidth(context) * 0.1,
+                    height: screenHeight(context) * 0.05,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      color: const Color(secondaryColor),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.16),
+                          offset: const Offset(0, 3.0),
+                          blurRadius: 6.0,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.download,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            width: screenWidth(context) * 0.005,
+                          ),
+                          txt(
+                              txt: 'click to download',
+                              fontSize: 14,
+                              fontColor: Colors.white),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
         ],
       ),
     );
@@ -553,5 +532,10 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
         ],
       ),
     );
+  }
+
+  downloadFile(url) {
+    AnchorElement anchorElement = new AnchorElement(href: url);
+    anchorElement.click();
   }
 }

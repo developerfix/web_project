@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/auth_controller.dart';
 import 'package:projectx/controllers/profile_controller.dart';
+import 'package:projectx/widgets/customAppBar.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -37,43 +38,7 @@ class _ProfileState extends State<Profile> {
             );
           } else {
             return Scaffold(
-              appBar: AppBar(
-                backgroundColor: Color(mainColor),
-                leading: Padding(
-                  padding: const EdgeInsets.only(left: 30),
-                  child: SvgPicture.asset(
-                    'assets/svgs/ava_logo.svg',
-                    height: 50,
-                  ),
-                ),
-                actions: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 50),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        const Icon(
-                          Icons.settings,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                        SizedBox(
-                          width: screenWidth(context) * 0.01,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Get.to(const Profile());
-                          },
-                          child: const CircleAvatar(
-                            backgroundColor: Colors.lightGreen,
-                            maxRadius: 20,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              appBar: customAppBar(context),
               body: Column(
                 children: [
                   SizedBox(

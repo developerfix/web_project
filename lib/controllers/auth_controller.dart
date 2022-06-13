@@ -9,6 +9,7 @@ import 'package:projectx/pages/recent_project.dart';
 import 'package:projectx/models/user.dart' as model;
 
 import '../constants/style.dart';
+import '../pages/add_new_task.dart';
 
 class AuthController extends GetxController {
   static AuthController instance = Get.find();
@@ -35,6 +36,9 @@ class AuthController extends GetxController {
         isLoging = true;
         update();
         Get.offAll(() => const RecentProjects());
+        // Get.offAll(() => AddNewTask(
+        //       projectId: "23",
+        //     ));
       }
     });
   }

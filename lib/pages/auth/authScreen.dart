@@ -6,8 +6,6 @@ import 'package:get/get.dart' as getx;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/auth_controller.dart';
-import 'package:projectx/pages/auth/reset.dart';
-import 'package:projectx/pages/auth/signup.dart';
 import 'package:projectx/widgets/popup_textfield.dart';
 
 import '../../controllers/input_validators.dart';
