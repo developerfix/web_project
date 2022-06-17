@@ -10,6 +10,7 @@ import 'package:projectx/pages/see_all_projs.dart';
 
 import '../widgets/create_project_popup.dart';
 import '../widgets/customAppBar.dart';
+import '../widgets/custom_drawer.dart';
 
 class RecentProjects extends StatefulWidget {
   const RecentProjects({Key? key}) : super(key: key);
@@ -20,41 +21,21 @@ class RecentProjects extends StatefulWidget {
 
 class _RecentProjectsState extends State<RecentProjects> {
   final _formKey = GlobalKey<FormState>();
+  final GlobalKey<ScaffoldState> _key = GlobalKey();
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
       child: Scaffold(
+        key: _key,
+        drawerEnableOpenDragGesture: false,
         appBar: customAppBar(context),
+        endDrawer: const EndDrawerWidget(),
         backgroundColor: const Color(mainColor),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Padding(
-            //   padding: const EdgeInsets.all(50.0),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.end,
-            //     children: [
-            //       const Icon(
-            //         Icons.settings,
-            //         color: Colors.white,
-            //         size: 40,
-            //       ),
-            //       SizedBox(
-            //         width: screenWidth(context) * 0.01,
-            //       ),
-            //       InkWell(
-            //         onTap: () {
-            //           Get.to(const Profile());
-            //         },
-            //         child: const CircleAvatar(
-            //           backgroundColor: Colors.lightGreen,
-            //         ),
-            //       )
-            //     ],
-            //   ),
-            // ),
             const Spacer(),
             txt(
                 txt: 'PROJECTS',

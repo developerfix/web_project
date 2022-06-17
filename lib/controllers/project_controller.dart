@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:projectx/models/project.dart';
+import 'package:projectx/models/task.dart' as taskModel;
 
 import '../constants/style.dart';
 
@@ -15,9 +16,13 @@ class ProjectController extends GetxController {
 
   RxBool isUploading = false.obs;
   RxBool isAssetUpdating = false.obs;
+  RxBool isTasksUpdating = false.obs;
   RxList<dynamic> comments = <dynamic>[].obs;
   RxList<dynamic> assets = <dynamic>[].obs;
   RxList<dynamic> users = <dynamic>[].obs;
+  RxList<dynamic> toDoTasks = <dynamic>[].obs;
+  RxList<dynamic> inProgressTasks = <dynamic>[].obs;
+  RxList<dynamic> completedTasks = <dynamic>[].obs;
 
   Rx<String> _uid = "".obs;
   Rx<String> _projectId = "".obs;
@@ -27,10 +32,10 @@ class ProjectController extends GetxController {
     _projectId.value = projectId!;
     getProjectData();
     getUsers();
+    getProjectTasks();
   }
 
   getProjectAssets() async {
-    assets.clear();
     QuerySnapshot projectAssets = await firestore
         .collection('users')
         .doc(_uid.value)
@@ -45,6 +50,7 @@ class ProjectController extends GetxController {
   }
 
   getUsers() async {
+    users.clear();
     await firestore
         .collection('users')
         .get()
@@ -58,7 +64,6 @@ class ProjectController extends GetxController {
   deleteProjectAsset({path}) async {
     isAssetUpdating.value = true;
 
-    assets.clear();
     await firestore
         .collection('users')
         .doc(_uid.value)
@@ -71,10 +76,217 @@ class ProjectController extends GetxController {
       for (var doc in querySnapshot.docs) {
         doc.reference.delete();
       }
-    });
+      assets.removeWhere((element) => element['path'] == path);
 
-    getProjectAssets();
-    isAssetUpdating.value = false;
+      isAssetUpdating.value = false;
+    });
+  }
+
+  deleteProjectTask({taskTitle, taskDescription, status}) async {
+    isTasksUpdating.value = true;
+    try {
+      await firestore
+          .collection('users')
+          .doc(_uid.value)
+          .collection('projects')
+          .doc(_projectId.value)
+          .collection('tasks')
+          .where('taskDescription', isEqualTo: taskDescription)
+          .where('taskTitle', isEqualTo: taskTitle)
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          doc.reference.delete();
+        }
+
+        status == 'todo'
+            ? toDoTasks.removeWhere((element) =>
+                element['taskDescription'] == taskDescription &&
+                element['taskTitle'] == taskTitle)
+            : status == 'inProgress'
+                ? inProgressTasks.removeWhere((element) =>
+                    element['taskDescription'] == taskDescription &&
+                    element['taskTitle'] == taskTitle)
+                : completedTasks.removeWhere((element) =>
+                    element['taskDescription'] == taskDescription &&
+                    element['taskTitle'] == taskTitle);
+
+        isTasksUpdating.value = false;
+      });
+    } catch (e) {
+      isTasksUpdating.value = false;
+      //define error
+      getErrorSnackBar("Something went wrong, Please try again", '');
+    }
+  }
+
+  addToInProgress(
+      {uid,
+      projectId,
+      taskTitle,
+      phase,
+      taskDescription,
+      pilot,
+      copilot,
+      startDate,
+      endDate,
+      status,
+      priorityLevel}) async {
+    isTasksUpdating.value = true;
+    taskModel.Task task = taskModel.Task(
+        taskTitle: taskTitle,
+        phase: phase,
+        taskDescription: taskDescription,
+        pilot: pilot,
+        copilot: copilot,
+        startDate: startDate,
+        endDate: endDate,
+        status: 'inProgress',
+        priorityLevel: priorityLevel);
+    try {
+      await firestore
+          .collection('users')
+          .doc(_uid.value)
+          .collection('projects')
+          .doc(_projectId.value)
+          .collection('tasks')
+          .where('taskDescription', isEqualTo: taskDescription)
+          .where('taskTitle', isEqualTo: taskTitle)
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          doc.reference.update({'status': 'inProgress'});
+        }
+
+        status == 'todo'
+            ? toDoTasks.removeWhere((element) =>
+                element['taskDescription'] == taskDescription &&
+                element['taskTitle'] == taskTitle)
+            : completedTasks.removeWhere((element) =>
+                element['taskDescription'] == taskDescription &&
+                element['taskTitle'] == taskTitle);
+
+        inProgressTasks.add(task.toJson());
+        isTasksUpdating.value = false;
+      });
+      getSuccessSnackBar("Task updated successfully");
+    } catch (e) {
+      isTasksUpdating.value = false;
+      //define error
+      getErrorSnackBar("Something went wrong, Please try again", '');
+    }
+  }
+
+  addToTodo(
+      {uid,
+      projectId,
+      taskTitle,
+      phase,
+      taskDescription,
+      pilot,
+      copilot,
+      startDate,
+      endDate,
+      status,
+      priorityLevel}) async {
+    isTasksUpdating.value = true;
+    taskModel.Task task = taskModel.Task(
+        taskTitle: taskTitle,
+        phase: phase,
+        taskDescription: taskDescription,
+        pilot: pilot,
+        copilot: copilot,
+        startDate: startDate,
+        endDate: endDate,
+        status: 'todo',
+        priorityLevel: priorityLevel);
+    try {
+      await firestore
+          .collection('users')
+          .doc(_uid.value)
+          .collection('projects')
+          .doc(_projectId.value)
+          .collection('tasks')
+          .where('taskDescription', isEqualTo: taskDescription)
+          .where('taskTitle', isEqualTo: taskTitle)
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          doc.reference.update({'status': 'todo'});
+        }
+
+        status == 'inProgress'
+            ? inProgressTasks.removeWhere((element) =>
+                element['taskDescription'] == taskDescription &&
+                element['taskTitle'] == taskTitle)
+            : completedTasks.removeWhere((element) =>
+                element['taskDescription'] == taskDescription &&
+                element['taskTitle'] == taskTitle);
+
+        toDoTasks.add(task.toJson());
+        isTasksUpdating.value = false;
+      });
+      getSuccessSnackBar("Task updated successfully");
+    } catch (e) {
+      //define error
+      getErrorSnackBar("Something went wrong, Please try again", '');
+    }
+  }
+
+  addToCompleted(
+      {uid,
+      projectId,
+      taskTitle,
+      phase,
+      taskDescription,
+      pilot,
+      copilot,
+      startDate,
+      endDate,
+      status,
+      priorityLevel}) async {
+    isTasksUpdating.value = true;
+    taskModel.Task task = taskModel.Task(
+        taskTitle: taskTitle,
+        phase: phase,
+        taskDescription: taskDescription,
+        pilot: pilot,
+        copilot: copilot,
+        startDate: startDate,
+        endDate: endDate,
+        status: 'completed',
+        priorityLevel: priorityLevel);
+    try {
+      await firestore
+          .collection('users')
+          .doc(_uid.value)
+          .collection('projects')
+          .doc(_projectId.value)
+          .collection('tasks')
+          .where('taskDescription', isEqualTo: taskDescription)
+          .where('taskTitle', isEqualTo: taskTitle)
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          doc.reference.update({'status': 'completed'});
+        }
+
+        status == 'todo'
+            ? toDoTasks.removeWhere((element) =>
+                element['taskDescription'] == taskDescription &&
+                element['taskTitle'] == taskTitle)
+            : inProgressTasks.removeWhere((element) =>
+                element['taskDescription'] == taskDescription &&
+                element['taskTitle'] == taskTitle);
+
+        completedTasks.add(task.toJson());
+        isTasksUpdating.value = false;
+      });
+      getSuccessSnackBar("Task updated successfully");
+    } catch (e) {
+      //define error
+      getErrorSnackBar("Something went wrong, Please try again", '');
+    }
   }
 
   getProjectData() async {
@@ -134,10 +346,10 @@ class ProjectController extends GetxController {
           .collection('projects')
           .doc(projectId)
           .collection('assets')
-          .add({"type": type, "path": path});
-
-      getProjectAssets();
-      isAssetUpdating.value = false;
+          .add({"type": type, "path": path}).then((value) {
+        assets.add({"type": type, "path": path});
+        isAssetUpdating.value = false;
+      });
 
       getSuccessSnackBar("asset added successfully");
     } catch (e) {
@@ -157,6 +369,31 @@ class ProjectController extends GetxController {
 
     for (var comment in projectComments.docs) {
       comments.add((comment.data() as dynamic));
+    }
+  }
+
+  getProjectTasks() async {
+    toDoTasks.clear();
+    inProgressTasks.clear();
+    completedTasks.clear();
+    QuerySnapshot projectTasks = await firestore
+        .collection('users')
+        .doc(_uid.value)
+        .collection('projects')
+        .doc(_projectId.value)
+        .collection('tasks')
+        .get();
+
+    for (var tasks in projectTasks.docs) {
+      var task = tasks.data() as dynamic;
+
+      if (task['status'] == 'todo') {
+        toDoTasks.add(task);
+      } else if (task['status'] == 'inProgress') {
+        inProgressTasks.add(task);
+      } else {
+        completedTasks.add(task);
+      }
     }
   }
 
@@ -248,12 +485,110 @@ class ProjectController extends GetxController {
               (value) {
         comments
             .add({"type": 'text', "comment": comment, "username": username});
+
         isUploading.value = false;
       });
 
       getSuccessSnackBar("comment added successfully");
     } catch (e) {
       isUploading.value = false;
+      //define error
+      getErrorSnackBar("Something went wrong, Please try again", '');
+    }
+  }
+
+  addNewTask(
+      {uid,
+      projectId,
+      taskTitle,
+      phase,
+      taskDescription,
+      pilot,
+      copilot,
+      startDate,
+      endDate,
+      status,
+      priorityLevel}) async {
+    isTasksUpdating.value = true;
+    taskModel.Task task = taskModel.Task(
+        taskTitle: taskTitle,
+        phase: phase,
+        taskDescription: taskDescription,
+        pilot: pilot,
+        copilot: copilot,
+        startDate: startDate,
+        endDate: endDate,
+        status: status,
+        priorityLevel: priorityLevel);
+    try {
+      await firestore
+          .collection('users')
+          .doc(uid)
+          .collection('projects')
+          .doc(projectId)
+          .collection('tasks')
+          .add(task.toJson())
+          .then((value) {
+        // toDoTasks.add(task.toJson());
+        getProjectTasks();
+        isTasksUpdating.value = false;
+      });
+
+      getSuccessSnackBar("task added successfully");
+    } catch (e) {
+      isTasksUpdating.value = false;
+      //define error
+      getErrorSnackBar("Something went wrong, Please try again", '');
+    }
+  }
+
+  updateTask(
+      {uid,
+      projectId,
+      taskTitle,
+      oldTaskTitle,
+      phase,
+      taskDescription,
+      oldTaskDescription,
+      pilot,
+      copilot,
+      startDate,
+      endDate,
+      status,
+      priorityLevel}) async {
+    isTasksUpdating.value = true;
+    taskModel.Task task = taskModel.Task(
+        taskTitle: taskTitle,
+        phase: phase,
+        taskDescription: taskDescription,
+        pilot: pilot,
+        copilot: copilot,
+        startDate: startDate,
+        endDate: endDate,
+        status: status,
+        priorityLevel: priorityLevel);
+    try {
+      await firestore
+          .collection('users')
+          .doc(uid)
+          .collection('projects')
+          .doc(projectId)
+          .collection('tasks')
+          .where('taskDescription', isEqualTo: oldTaskDescription)
+          .where('taskTitle', isEqualTo: oldTaskTitle)
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          doc.reference.update(task.toJson());
+        }
+        getProjectTasks();
+
+        isTasksUpdating.value = false;
+      });
+
+      getSuccessSnackBar("task updated successfully");
+    } catch (e) {
+      isTasksUpdating.value = false;
       //define error
       getErrorSnackBar("Something went wrong, Please try again", '');
     }

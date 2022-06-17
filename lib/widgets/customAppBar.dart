@@ -30,15 +30,17 @@ AppBar customAppBar(BuildContext context) {
             SizedBox(
               width: screenWidth(context) * 0.01,
             ),
-            InkWell(
-              onTap: () {
-                Get.to(const Profile());
-              },
-              child: const CircleAvatar(
-                backgroundColor: Color(secondaryColor),
-                maxRadius: 20,
+            Builder(
+              builder: (context) => InkWell(
+                onTap: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+                child: const CircleAvatar(
+                  backgroundColor: Color(secondaryColor),
+                  maxRadius: 20,
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),

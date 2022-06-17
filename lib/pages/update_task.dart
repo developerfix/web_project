@@ -16,17 +16,38 @@ import 'package:projectx/widgets/popup_textfield.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/select_task_members_popup.dart';
 
-class AddNewTask extends StatefulWidget {
-  final String projectId;
-  const AddNewTask({Key? key, required this.projectId}) : super(key: key);
+class UpdateTask extends StatefulWidget {
+  final String? projectId;
+  final String? taskTitle;
+  final String? phase;
+  final String? taskDescription;
+  final String? pilot;
+  final String? copilot;
+  final String? startDate;
+  final String? endDate;
+  final String? status;
+  final int? priorityLevel;
+
+  const UpdateTask(
+      {Key? key,
+      this.projectId,
+      this.taskTitle,
+      this.phase,
+      this.taskDescription,
+      this.pilot,
+      this.copilot,
+      this.startDate,
+      this.endDate,
+      this.status,
+      this.priorityLevel})
+      : super(key: key);
 
   @override
-  State<AddNewTask> createState() => _AddNewTaskState();
+  State<UpdateTask> createState() => _UpdateTaskState();
 }
 
-class _AddNewTaskState extends State<AddNewTask> {
+class _UpdateTaskState extends State<UpdateTask> {
   final ProjectController projectController = Get.find();
-  // final ProfileController profileController = Get.put(ProfileController());
   final _uid = AuthController.instance.user!.uid;
   int _value = 1;
 
@@ -35,19 +56,11 @@ class _AddNewTaskState extends State<AddNewTask> {
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   projectController.updateProjectAndUserId(
-  //       projectId: widget.projectId, uid: _uid);
-  //   // profileController.updateUserId(_uid);
-  // }
-
-  String phaseValue = '3D Design';
+  String phaseValue = '';
   DateTime startdate = DateTime.now();
   DateTime endDate = DateTime.now();
-  String taskPilot = 'Select from members';
-  String taskCoPilot = 'Select from members';
+  String taskPilot = '';
+  String taskCoPilot = '';
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +78,7 @@ class _AddNewTaskState extends State<AddNewTask> {
                 height: screenHeight(context) * 0.05,
               ),
               txt(
-                  txt: 'Add New Task Details',
+                  txt: 'Edit task details here',
                   fontSize: 30,
                   fontColor: const Color(secondaryColor)),
               SizedBox(
@@ -86,7 +99,7 @@ class _AddNewTaskState extends State<AddNewTask> {
                     width: screenWidth(context) * 0.04,
                   ),
                   popUpTextField(context,
-                      hint: '...', controller: titleController),
+                      hint: widget.taskTitle, controller: titleController),
                 ],
               ),
               SizedBox(
@@ -122,6 +135,7 @@ class _AddNewTaskState extends State<AddNewTask> {
                     ),
                     child: Center(
                       child: DropdownButtonFormField(
+                        hint: txt(txt: widget.phase!, fontSize: 14),
                         // itemHeight: 15,
                         // menuMaxHeight: 30,
                         items: <String>['3D Design', 'Optical Design']
@@ -195,10 +209,10 @@ class _AddNewTaskState extends State<AddNewTask> {
                       child: TextFormField(
                         maxLines: null,
                         controller: descriptionController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: '...',
-                            hintStyle: TextStyle(
+                            hintText: widget.taskDescription,
+                            hintStyle: const TextStyle(
                                 color: Color(brownishColor),
                                 fontWeight: FontWeight.w600)),
                       ),
@@ -261,7 +275,8 @@ class _AddNewTaskState extends State<AddNewTask> {
                               suffixIcon: const Icon(Icons.person_add),
                               suffixIconColor: const Color(secondaryColor),
                               border: InputBorder.none,
-                              hintText: taskPilot,
+                              hintText:
+                                  taskPilot == '' ? widget.pilot : taskPilot,
                               hintStyle: const TextStyle(
                                   color: Color(brownishColor),
                                   fontWeight: FontWeight.w600)),
@@ -324,7 +339,9 @@ class _AddNewTaskState extends State<AddNewTask> {
                               suffixIcon: const Icon(Icons.person_add),
                               suffixIconColor: const Color(secondaryColor),
                               border: InputBorder.none,
-                              hintText: taskCoPilot,
+                              hintText: taskCoPilot == ''
+                                  ? widget.copilot
+                                  : taskCoPilot,
                               hintStyle: const TextStyle(
                                   color: Color(brownishColor),
                                   fontWeight: FontWeight.w600)),
@@ -394,8 +411,9 @@ class _AddNewTaskState extends State<AddNewTask> {
                               suffixIcon: const Icon(Icons.date_range),
                               suffixIconColor: const Color(secondaryColor),
                               border: InputBorder.none,
-                              hintText:
-                                  '${startdate.year}/${startdate.month}/${startdate.day}',
+                              hintText: startdate == DateTime.now()
+                                  ? widget.startDate
+                                  : '${startdate.year}/${startdate.month}/${startdate.day}',
                               hintStyle: const TextStyle(
                                   color: Color(brownishColor),
                                   fontWeight: FontWeight.w600)),
@@ -465,8 +483,9 @@ class _AddNewTaskState extends State<AddNewTask> {
                               suffixIcon: const Icon(Icons.date_range),
                               suffixIconColor: const Color(secondaryColor),
                               border: InputBorder.none,
-                              hintText:
-                                  '${endDate.year}/${endDate.month}/${endDate.day}',
+                              hintText: endDate == DateTime.now()
+                                  ? widget.endDate
+                                  : '${endDate.year}/${endDate.month}/${endDate.day}',
                               hintStyle: const TextStyle(
                                   color: Color(brownishColor),
                                   fontWeight: FontWeight.w600)),
@@ -574,30 +593,45 @@ class _AddNewTaskState extends State<AddNewTask> {
                   children: [
                     InkWell(
                       onTap: () {
-                        if (titleController.text.isNotEmpty &&
-                            descriptionController.text.isNotEmpty &&
-                            taskCoPilot != 'Select from members' &&
-                            taskPilot != 'Select from members' &&
-                            startdate != endDate) {
-                          projectController.addNewTask(
-                              taskTitle: titleController.text,
-                              phase: phaseValue,
-                              taskDescription: descriptionController.text,
-                              uid: _uid,
-                              projectId: widget.projectId,
-                              pilot: taskPilot,
-                              copilot: taskCoPilot,
-                              startDate:
-                                  '${startdate.year}/${startdate.month}/${startdate.day}',
-                              endDate:
-                                  '${endDate.year}/${endDate.month}/${endDate.day}',
-                              status: 'todo',
-                              priorityLevel: _value);
-                          Get.back();
-                        } else {
-                          // getErrorSnackBar(
-                          //     "Please fillout all the details", '');
-                        }
+                        print(titleController.text);
+                        // if (titleController.text.isNotEmpty &&
+                        //     descriptionController.text.isNotEmpty &&
+                        //     taskCoPilot != widget.copilot &&
+                        //     taskPilot != widget.pilot &&
+                        //     '${startdate!.year}/${startdate!.month}/${startdate!.day}' !=
+                        //         widget.startDate &&
+                        //     '${endDate!.year}/${endDate!.month}/${endDate!.day}' !=
+                        //         widget.endDate &&
+                        //     phaseValue != widget.phase &&
+                        //     _value != widget.priorityLevel) {
+                        projectController.updateTask(
+                            oldTaskDescription: widget.taskDescription,
+                            oldTaskTitle: widget.taskTitle,
+                            taskTitle: titleController.text.isEmpty
+                                ? widget.taskTitle
+                                : titleController.text,
+                            phase: phaseValue == '' ? widget.phase : phaseValue,
+                            taskDescription: descriptionController.text.isEmpty
+                                ? widget.taskDescription
+                                : descriptionController.text,
+                            uid: _uid,
+                            projectId: widget.projectId,
+                            pilot: taskPilot == '' ? widget.pilot : taskPilot,
+                            copilot: taskCoPilot == ''
+                                ? widget.copilot
+                                : taskCoPilot,
+                            startDate:
+                                '${startdate.year}/${startdate.month}/${startdate.day}',
+                            endDate:
+                                '${endDate.year}/${endDate.month}/${endDate.day}',
+                            status: widget.status,
+                            priorityLevel: _value);
+                        Get.back();
+                        // } else {
+                        //   print('Please make some changes first');
+                        //   // getErrorSnackBar(
+                        //   //     "Please fillout all the details", '');
+                        // }
                       },
                       child: Container(
                         width: screenWidth(context) * 0.1,
@@ -615,7 +649,7 @@ class _AddNewTaskState extends State<AddNewTask> {
                         ),
                         child: Center(
                             child: txt(
-                                txt: 'Add Task',
+                                txt: 'Edit Task',
                                 fontSize: 15,
                                 fontColor: Colors.white)),
                       ),
