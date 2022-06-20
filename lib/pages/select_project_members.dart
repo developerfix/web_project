@@ -11,6 +11,7 @@ import 'package:projectx/controllers/auth_controller.dart';
 import 'package:projectx/controllers/profile_controller.dart';
 import 'package:projectx/controllers/project_controller.dart';
 import 'package:projectx/widgets/customAppBar.dart';
+import 'package:projectx/widgets/loadingIndicator.dart';
 import 'package:projectx/widgets/popup_textfield.dart';
 
 import '../widgets/custom_drawer.dart';
@@ -45,8 +46,22 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
 
   String taskPilot = 'Select from members';
   String taskCoPilot = 'Select from members';
+  String taskPilotId = '';
+  String taskCoPilotId = '';
 
-  List<String> users = [];
+  List<String> userIDs = [];
+
+  void onUserSelected(bool selected, userId) {
+    if (selected == true) {
+      setState(() {
+        userIDs.add(userId);
+      });
+    } else {
+      setState(() {
+        userIDs.remove(userId);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +92,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                     child: txt(
                       minFontSize: 18,
                       maxLines: 1,
-                      txt: 'Pilot:',
+                      txt: 'Lead:',
                       fontSize: 30,
                     ),
                   ),
@@ -108,7 +123,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                               .then((value) {
                             if (value != null) {
                               setState(() {
-                                taskPilot = '@$value';
+                                taskPilot = value;
                               });
                             }
                           });
@@ -122,7 +137,9 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                               suffixIcon: const Icon(Icons.person_add),
                               suffixIconColor: const Color(secondaryColor),
                               border: InputBorder.none,
-                              hintText: taskPilot,
+                              hintText: taskPilot != 'Select from members'
+                                  ? '@$taskPilot'
+                                  : taskPilot,
                               hintStyle: const TextStyle(
                                   color: Color(brownishColor),
                                   fontWeight: FontWeight.w600)),
@@ -173,7 +190,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                               .then((value) {
                             if (value != null) {
                               setState(() {
-                                taskCoPilot = '@$value';
+                                taskCoPilot = value;
                               });
                             }
                           });
@@ -185,7 +202,9 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                               suffixIcon: const Icon(Icons.person_add),
                               suffixIconColor: const Color(secondaryColor),
                               border: InputBorder.none,
-                              hintText: taskCoPilot,
+                              hintText: taskCoPilot != 'Select from members'
+                                  ? '@$taskCoPilot'
+                                  : taskCoPilot,
                               hintStyle: const TextStyle(
                                   color: Color(brownishColor),
                                   fontWeight: FontWeight.w600)),
@@ -206,19 +225,32 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                       itemCount: projectController.users.length,
                       itemBuilder: (context, i) {
                         String username = projectController.users[i]['name'];
-                        return CheckboxListTile(
-                          side: const BorderSide(color: Color(secondaryColor)),
-                          checkColor: Colors.white,
-                          activeColor: Color(secondaryColor),
-                          title: txt(
-                              txt: username,
-                              fontSize: 18,
-                              fontColor: Color(secondaryColor)),
-                          value: true,
-                          onChanged: (value) {
-                            users.add(username);
-                          },
-                        );
+                        String userId = projectController.users[i]['uid'];
+                        if (username == taskPilot) {
+                          taskPilotId = userId;
+                        }
+                        if (username == taskCoPilot) {
+                          taskCoPilotId = userId;
+                        }
+
+                        return username == taskPilot ||
+                                username == taskCoPilot ||
+                                userId == _uid
+                            ? Container()
+                            : CheckboxListTile(
+                                side: const BorderSide(
+                                    color: Color(secondaryColor)),
+                                checkColor: Colors.white,
+                                activeColor: Color(secondaryColor),
+                                title: txt(
+                                    txt: username,
+                                    fontSize: 18,
+                                    fontColor: Color(secondaryColor)),
+                                value: userIDs.contains(userId),
+                                onChanged: (value) {
+                                  onUserSelected(value!, userId);
+                                },
+                              );
                       });
                 }),
               ),
@@ -232,30 +264,21 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                   children: [
                     InkWell(
                       onTap: () {
-                        // if (titleController.text.isNotEmpty &&
-                        //     descriptionController.text.isNotEmpty &&
-                        //     taskCoPilot != 'Select from members' &&
-                        //     taskPilot != 'Select from members' &&
-                        //     startdate != endDate) {
-                        //   projectController.addNewTask(
-                        //       taskTitle: titleController.text,
-                        //       phase: phaseValue,
-                        //       taskDescription: descriptionController.text,
-                        //       uid: _uid,
-                        //       projectId: widget.projectId,
-                        //       pilot: taskPilot,
-                        //       copilot: taskCoPilot,
-                        //       startDate:
-                        //           '${startdate.year}/${startdate.month}/${startdate.day}',
-                        //       endDate:
-                        //           '${endDate.year}/${endDate.month}/${endDate.day}',
-                        //       status: 'todo',
-                        //       priorityLevel: _value);
-                        //   Get.back();
-                        // } else {
-                        //   // getErrorSnackBar(
-                        //   //     "Please fillout all the details", '');
-                        // }
+                        if (taskPilot == 'Select from members' ||
+                            taskCoPilot == 'Select from members') {
+                          print('please select pilot and copilot first');
+                        } else {
+                          userIDs.add(taskPilotId);
+                          userIDs.add(taskCoPilotId);
+
+                          projectController.manageProjectMemebers(
+                              copilot: taskCoPilot,
+                              lead: taskPilot,
+                              membersUids: userIDs,
+                              subtitle: projectController.project['subtitle'],
+                              title: projectController.project['title']);
+                        }
+                        Get.back();
                       },
                       child: Container(
                         width: screenWidth(context) * 0.1,
@@ -273,7 +296,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                         ),
                         child: Center(
                             child: txt(
-                                txt: 'Proceed',
+                                txt: 'Done',
                                 fontSize: 15,
                                 fontColor: Colors.white)),
                       ),
@@ -287,22 +310,22 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
       ),
     );
   }
+}
 
-  Container dropdownContainer(BuildContext context) {
-    return Container(
-      width: screenWidth(context) * 0.2,
-      height: screenHeight(context) * 0.05,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.16),
-            offset: const Offset(0, 3.0),
-            blurRadius: 6.0,
-          ),
-        ],
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-    );
-  }
+Container dropdownContainer(BuildContext context) {
+  return Container(
+    width: screenWidth(context) * 0.2,
+    height: screenHeight(context) * 0.05,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.16),
+          offset: const Offset(0, 3.0),
+          blurRadius: 6.0,
+        ),
+      ],
+      borderRadius: BorderRadius.circular(10.0),
+    ),
+  );
 }

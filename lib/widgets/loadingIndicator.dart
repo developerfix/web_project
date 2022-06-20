@@ -3,13 +3,14 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:projectx/constants/style.dart';
 
 class LoadingIndicator extends StatelessWidget {
-  const LoadingIndicator({Key? key}) : super(key: key);
+  final Color? color;
+  const LoadingIndicator({Key? key, this.color}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: SpinKitFadingCircle(
-        color: Color(mainColor),
+        color: color ?? const Color(mainColor),
         size: 50.0,
       ),
     );

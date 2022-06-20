@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:projectx/constants/style.dart';
+import 'package:projectx/pages/project_dashboard.dart';
+import 'package:projectx/widgets/customAppBar.dart';
+
+import '../controllers/profile_controller.dart';
+import '../widgets/custom_drawer.dart';
 
 class SeeAllProjects extends StatefulWidget {
   const SeeAllProjects({Key? key}) : super(key: key);
@@ -12,60 +18,52 @@ class SeeAllProjects extends StatefulWidget {
 }
 
 class _SeeAllProjectsState extends State<SeeAllProjects> {
+  final GlobalKey<ScaffoldState> _key = GlobalKey();
+  final ProfileController profileController = Get.find();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(secondaryColor),
-      body: SizedBox(
-        height: screenHeight(context),
-        width: screenWidth(context),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-                height: screenHeight(context) * 0.08,
-                width: screenWidth(context),
-                decoration: BoxDecoration(
-                  color: const Color(mainColor),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.23),
-                      offset: const Offset(0, 3.0),
-                      blurRadius: 9.0,
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      txt(
-                          txt: 'PROJECTS',
-                          fontSize: 40,
-                          letterSpacing: 3,
-                          fontColor: Colors.white),
-                    ],
-                  ),
-                )),
-            Expanded(
-              child: GridView.builder(
-                  padding: const EdgeInsets.all(20.0),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 200,
-                      childAspectRatio: 2 / 2,
-                      crossAxisSpacing: 30,
-                      mainAxisSpacing: 30),
-                  itemCount: 200,
-                  itemBuilder: (BuildContext ctx, index) {
-                    return recentProjectBox(text: 'Project x');
-                  }),
-            ),
-          ],
+    return Obx(() {
+      return Scaffold(
+        key: _key,
+        endDrawer: const EndDrawerWidget(),
+        appBar: customAppBar(
+          context,
+          title: txt(
+              txt: 'List of projects', fontSize: 18, fontColor: Colors.white),
         ),
-      ),
-    );
+        backgroundColor: const Color(secondaryColor),
+        body: SizedBox(
+          height: screenHeight(context),
+          width: screenWidth(context),
+          child: Expanded(
+            child: GridView.builder(
+                padding: const EdgeInsets.all(20.0),
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
+                    childAspectRatio: 2 / 2,
+                    crossAxisSpacing: 30,
+                    mainAxisSpacing: 30),
+                itemCount: profileController.projects.length,
+                itemBuilder: (BuildContext ctx, index) {
+                  String projectTitle =
+                      profileController.projects[index]['title'];
+                  String projectId =
+                      profileController.projects[index]['projectId'];
+                  return InkWell(
+                      onTap: (() {
+                        Get.to(ProjectDashboard(
+                          projectId: projectId,
+                        ));
+                      }),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: recentProjectBox(text: projectTitle),
+                      ));
+                }),
+          ),
+        ),
+      );
+    });
   }
 
   Container recentProjectBox({String? text}) {
@@ -87,7 +85,10 @@ class _SeeAllProjectsState extends State<SeeAllProjects> {
           child: txt(
               txt: text!,
               fontSize: 30.0,
+              maxLines: 1,
+              minFontSize: 24,
               letterSpacing: 2,
+              overflow: TextOverflow.ellipsis,
               fontColor: Colors.white)),
     );
   }

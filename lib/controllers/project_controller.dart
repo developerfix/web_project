@@ -17,6 +17,7 @@ class ProjectController extends GetxController {
   RxBool isUploading = false.obs;
   RxBool isAssetUpdating = false.obs;
   RxBool isTasksUpdating = false.obs;
+  RxBool isMembersUpdating = false.obs;
   RxList<dynamic> comments = <dynamic>[].obs;
   RxList<dynamic> assets = <dynamic>[].obs;
   RxList<dynamic> users = <dynamic>[].obs;
@@ -121,17 +122,19 @@ class ProjectController extends GetxController {
   }
 
   addToInProgress(
-      {uid,
-      projectId,
-      taskTitle,
-      phase,
-      taskDescription,
-      pilot,
-      copilot,
-      startDate,
-      endDate,
-      status,
-      priorityLevel}) async {
+      {String? uid,
+      String? projectId,
+      String? taskTitle,
+      String? oldTaskTitle,
+      String? phase,
+      String? taskDescription,
+      String? oldTaskDescription,
+      String? pilot,
+      String? copilot,
+      String? startDate,
+      String? endDate,
+      String? status,
+      int? priorityLevel}) async {
     isTasksUpdating.value = true;
     taskModel.Task task = taskModel.Task(
         taskTitle: taskTitle,
@@ -178,17 +181,19 @@ class ProjectController extends GetxController {
   }
 
   addToTodo(
-      {uid,
-      projectId,
-      taskTitle,
-      phase,
-      taskDescription,
-      pilot,
-      copilot,
-      startDate,
-      endDate,
-      status,
-      priorityLevel}) async {
+      {String? uid,
+      String? projectId,
+      String? taskTitle,
+      String? oldTaskTitle,
+      String? phase,
+      String? taskDescription,
+      String? oldTaskDescription,
+      String? pilot,
+      String? copilot,
+      String? startDate,
+      String? endDate,
+      String? status,
+      int? priorityLevel}) async {
     isTasksUpdating.value = true;
     taskModel.Task task = taskModel.Task(
         taskTitle: taskTitle,
@@ -234,17 +239,19 @@ class ProjectController extends GetxController {
   }
 
   addToCompleted(
-      {uid,
-      projectId,
-      taskTitle,
-      phase,
-      taskDescription,
-      pilot,
-      copilot,
-      startDate,
-      endDate,
-      status,
-      priorityLevel}) async {
+      {String? uid,
+      String? projectId,
+      String? taskTitle,
+      String? oldTaskTitle,
+      String? phase,
+      String? taskDescription,
+      String? oldTaskDescription,
+      String? pilot,
+      String? copilot,
+      String? startDate,
+      String? endDate,
+      String? status,
+      int? priorityLevel}) async {
     isTasksUpdating.value = true;
     taskModel.Task task = taskModel.Task(
         taskTitle: taskTitle,
@@ -315,7 +322,12 @@ class ProjectController extends GetxController {
     update();
   }
 
-  void newProject({title, subtitle, uid, projectId}) async {
+  void newProject(
+      {String? title,
+      String? subtitle,
+      String? uid,
+      String? projectId,
+      String? username}) async {
     try {
       Project project = Project(
           copilot: 'assign co-pilot',
@@ -328,7 +340,16 @@ class ProjectController extends GetxController {
           .doc(uid)
           .collection('projects')
           .doc(projectId)
-          .set(project.toJson());
+          .set(project.toJson())
+          .then((value) async {
+        await firestore
+            .collection('users')
+            .doc(uid)
+            .collection('projects')
+            .doc(projectId)
+            .collection('members')
+            .add({"username": username, "uid": uid});
+      });
 
       getSuccessSnackBar("Project created successfully");
     } catch (e) {
@@ -498,17 +519,19 @@ class ProjectController extends GetxController {
   }
 
   addNewTask(
-      {uid,
-      projectId,
-      taskTitle,
-      phase,
-      taskDescription,
-      pilot,
-      copilot,
-      startDate,
-      endDate,
-      status,
-      priorityLevel}) async {
+      {String? uid,
+      String? projectId,
+      String? taskTitle,
+      String? oldTaskTitle,
+      String? phase,
+      String? taskDescription,
+      String? oldTaskDescription,
+      String? pilot,
+      String? copilot,
+      String? startDate,
+      String? endDate,
+      String? status,
+      int? priorityLevel}) async {
     isTasksUpdating.value = true;
     taskModel.Task task = taskModel.Task(
         taskTitle: taskTitle,
@@ -543,19 +566,19 @@ class ProjectController extends GetxController {
   }
 
   updateTask(
-      {uid,
-      projectId,
-      taskTitle,
-      oldTaskTitle,
-      phase,
-      taskDescription,
-      oldTaskDescription,
-      pilot,
-      copilot,
-      startDate,
-      endDate,
-      status,
-      priorityLevel}) async {
+      {String? uid,
+      String? projectId,
+      String? taskTitle,
+      String? oldTaskTitle,
+      String? phase,
+      String? taskDescription,
+      String? oldTaskDescription,
+      String? pilot,
+      String? copilot,
+      String? startDate,
+      String? endDate,
+      String? status,
+      int? priorityLevel}) async {
     isTasksUpdating.value = true;
     taskModel.Task task = taskModel.Task(
         taskTitle: taskTitle,
@@ -590,6 +613,127 @@ class ProjectController extends GetxController {
     } catch (e) {
       isTasksUpdating.value = false;
       //define error
+      getErrorSnackBar("Something went wrong, Please try again", '');
+    }
+  }
+
+  manageProjectMemebers({
+    String? lead,
+    String? copilot,
+    String? title,
+    String? subtitle,
+    List? membersUids,
+  }) async {
+    isMembersUpdating.value = true;
+    try {
+      for (var memberUid in membersUids!) {
+        await firestore
+            .collection('users')
+            .doc(_uid.value)
+            .collection('projects')
+            .doc(_projectId.value)
+            .update({
+          'copilot': copilot,
+          'lead': lead,
+        }).then((value) async {
+          await firestore
+              .collection('users')
+              .doc(_uid.value)
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('members')
+              .where('uid', isEqualTo: memberUid)
+              .get()
+              .then((QuerySnapshot querySnapshot) async {
+            for (var element in querySnapshot.docs) {
+              if (element.exists) {
+              } else {
+                await firestore
+                    .collection('users')
+                    .doc(_uid.value)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('members')
+                    .add({'uid': memberUid});
+              }
+            }
+          });
+        });
+
+        await firestore
+            .collection('users')
+            .doc(memberUid)
+            .collection('projects')
+            .doc(_projectId.value)
+            .get()
+            .then((DocumentSnapshot documentSnapshot) async {
+          if (documentSnapshot.exists) {
+            await firestore
+                .collection('users')
+                .doc(memberUid)
+                .collection('projects')
+                .doc(_projectId.value)
+                .update({
+              'copilot': copilot,
+              'lead': lead,
+            }).then((value) async {
+              await firestore
+                  .collection('users')
+                  .doc(_uid.value)
+                  .collection('projects')
+                  .doc(_projectId.value)
+                  .collection('members')
+                  .where('uid', isEqualTo: memberUid)
+                  .get()
+                  .then((QuerySnapshot querySnapshot) async {
+                for (var element in querySnapshot.docs) {
+                  if (element.exists) {
+                  } else {
+                    await firestore
+                        .collection('users')
+                        .doc(_uid.value)
+                        .collection('projects')
+                        .doc(_projectId.value)
+                        .collection('members')
+                        .add({'uid': memberUid});
+                  }
+                }
+              });
+            });
+          } else {
+            Project project = Project(
+                copilot: copilot,
+                lead: lead,
+                projectId: _projectId.value,
+                subtitle: subtitle,
+                title: title);
+
+            await firestore
+                .collection('users')
+                .doc(memberUid)
+                .collection('projects')
+                .doc(_projectId.value)
+                .set(project.toJson())
+                .then((value) async {
+              await firestore
+                  .collection('users')
+                  .doc(memberUid)
+                  .collection('projects')
+                  .doc(_projectId.value)
+                  .collection('members')
+                  .add({'uid': memberUid});
+            });
+          }
+        });
+      }
+
+      getProjectData();
+
+      isMembersUpdating.value = false;
+
+      getSuccessSnackBar("Members updated successfully");
+    } catch (e) {
+      isMembersUpdating.value = false;
       getErrorSnackBar("Something went wrong, Please try again", '');
     }
   }

@@ -6,12 +6,15 @@ import '../constants/style.dart';
 class ProfileController extends GetxController {
   final Rx<Map<String, dynamic>> _user = Rx<Map<String, dynamic>>({});
   Map<String, dynamic> get user => _user.value;
+  RxList<dynamic> projects = <dynamic>[].obs;
+  RxBool isFetchingProjects = false.obs;
 
   Rx<String> _uid = "".obs;
 
   updateUserId(String uid) {
     _uid.value = uid;
     getUserData();
+    getProjects();
   }
 
   getUserData() async {
@@ -30,5 +33,21 @@ class ProfileController extends GetxController {
       'noOfProjects': noOfProjects,
     };
     update();
+  }
+
+  getProjects() async {
+    isFetchingProjects.value = true;
+    projects.clear();
+    await firestore
+        .collection('users')
+        .doc(_uid.value)
+        .collection('projects')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      for (var project in querySnapshot.docs) {
+        projects.add((project.data() as dynamic));
+      }
+    });
+    isFetchingProjects.value = false;
   }
 }

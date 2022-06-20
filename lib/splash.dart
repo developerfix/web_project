@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:projectx/constants/style.dart';
+import 'package:projectx/main.dart';
 import 'package:projectx/pages/auth/authScreen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -24,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green,
+      backgroundColor: Color(mainColor),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
