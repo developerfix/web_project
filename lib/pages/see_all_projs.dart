@@ -28,6 +28,7 @@ class _SeeAllProjectsState extends State<SeeAllProjects> {
         endDrawer: const EndDrawerWidget(),
         appBar: customAppBar(
           context,
+          username: profileController.user['name'],
           title: txt(
               txt: 'List of projects', fontSize: 18, fontColor: Colors.white),
         ),

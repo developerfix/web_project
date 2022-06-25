@@ -9,7 +9,7 @@ Container popUpTextField(
   String? hint,
 }) {
   return Container(
-    width: screenWidth(context) * 0.2,
+    // width: screenWidth(context) * 0.2,
     height: screenHeight(context) * 0.05,
     decoration: BoxDecoration(
       color: Colors.white,

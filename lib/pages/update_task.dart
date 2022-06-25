@@ -48,6 +48,7 @@ class UpdateTask extends StatefulWidget {
 
 class _UpdateTaskState extends State<UpdateTask> {
   final ProjectController projectController = Get.find();
+  final ProfileController profileController = Get.find();
   final _uid = AuthController.instance.user!.uid;
   int _value = 1;
 
@@ -66,7 +67,7 @@ class _UpdateTaskState extends State<UpdateTask> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _key,
-      appBar: customAppBar(context),
+      appBar: customAppBar(context, username: profileController.user['name']),
       endDrawer: const EndDrawerWidget(),
       body: SingleChildScrollView(
         child: Padding(
@@ -614,8 +615,6 @@ class _UpdateTaskState extends State<UpdateTask> {
                             taskDescription: descriptionController.text.isEmpty
                                 ? widget.taskDescription
                                 : descriptionController.text,
-                            uid: _uid,
-                            projectId: widget.projectId,
                             pilot: taskPilot == '' ? widget.pilot : taskPilot,
                             copilot: taskCoPilot == ''
                                 ? widget.copilot

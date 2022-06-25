@@ -1,5 +1,4 @@
 // import 'package:adobe_xd/page_link.dart';
-import 'package:adobe_xd/page_link.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,41 +28,32 @@ Widget txt(
     double? letterSpacing,
     TextOverflow? overflow,
     int? maxLines}) {
-  return AutoSizeText(
-    txt,
-    maxLines: maxLines ?? 2,
-    maxFontSize: fontSize,
-    minFontSize: minFontSize ?? fontSize - 5,
-    style: GoogleFonts.montserrat(
-      textStyle: TextStyle(
-        overflow: overflow ?? TextOverflow.visible,
-        letterSpacing: letterSpacing ?? 0,
-        color: fontColor ?? const Color(brownishColor),
-        fontWeight: fontWeight ?? FontWeight.w600,
+  return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+    return AutoSizeText(
+      txt,
+      maxLines: maxLines ?? (constraints.maxWidth < 600 ? 2 : 10),
+      maxFontSize: fontSize,
+      minFontSize: minFontSize ?? fontSize - 5,
+      style: GoogleFonts.montserrat(
+        textStyle: TextStyle(
+          overflow: overflow ?? TextOverflow.visible,
+          letterSpacing: letterSpacing ?? 0,
+          color: fontColor ?? const Color(brownishColor),
+          fontWeight: fontWeight ?? FontWeight.w600,
+        ),
       ),
-    ),
-  );
+    );
+  });
 }
 
-getErrorSnackBar(String message, _) {
+getErrorSnackBar(String message) {
   Get.snackbar(
-    "Error",
-    "$message\n${_.message}",
-    snackPosition: SnackPosition.BOTTOM,
-    backgroundColor: Colors.red.shade300,
-    colorText: Colors.white,
-    borderRadius: 10,
-    margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
-  );
-}
-
-getErrorSnackBarNew(String message) {
-  Get.snackbar(
-    "Error",
     message,
+    '',
     snackPosition: SnackPosition.BOTTOM,
-    backgroundColor: Colors.red.shade300,
-    colorText: Colors.white,
+    backgroundColor: Colors.red.shade100,
+    colorText: Colors.black87,
     borderRadius: 10,
     margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
   );
@@ -71,10 +61,10 @@ getErrorSnackBarNew(String message) {
 
 getSuccessSnackBar(String message) {
   Get.snackbar(
-    "Success",
     message,
+    '',
     snackPosition: SnackPosition.BOTTOM,
-    backgroundColor: Colors.green.shade300,
+    backgroundColor: const Color(0xffCBCBCB),
     colorText: Colors.white,
     borderRadius: 10,
     margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),

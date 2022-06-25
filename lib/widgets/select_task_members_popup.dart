@@ -36,18 +36,31 @@ Future<dynamic> selectTaskMembersPopup(BuildContext context, {String? title}) {
                         itemCount: projectController.users.length,
                         itemBuilder: (context, i) {
                           String username = projectController.users[i]['name'];
-                          return ListTile(
-                            leading: const Icon(
-                              Icons.person,
-                            ),
-                            title: txt(
-                                txt: username,
-                                fontSize: 14,
-                                overflow: TextOverflow.ellipsis),
-                            onTap: () {
-                              Get.back(result: username);
-                            },
-                          );
+                          return screenWidth(context) < 600
+                              ? InkWell(
+                                  onTap: () {
+                                    Get.back(result: username);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 20),
+                                    child: txt(
+                                        txt: username,
+                                        fontSize: 14,
+                                        overflow: TextOverflow.ellipsis),
+                                  ),
+                                )
+                              : ListTile(
+                                  leading: const Icon(
+                                    Icons.person,
+                                  ),
+                                  title: txt(
+                                      txt: username,
+                                      fontSize: 14,
+                                      overflow: TextOverflow.ellipsis),
+                                  onTap: () {
+                                    Get.back(result: username);
+                                  },
+                                );
                         });
                   }),
                 ),

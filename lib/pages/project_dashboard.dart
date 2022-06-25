@@ -1,6 +1,7 @@
 import 'dart:html';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:projectx/constants/style.dart';
@@ -8,6 +9,7 @@ import 'package:projectx/controllers/auth_controller.dart';
 import 'package:projectx/controllers/profile_controller.dart';
 import 'package:projectx/controllers/project_controller.dart';
 import 'package:projectx/pages/add_new_task.dart';
+import 'package:projectx/pages/projectMembers.dart';
 import 'package:projectx/pages/select_project_members.dart';
 import 'package:projectx/pages/update_task.dart';
 import 'package:projectx/pages/recent_project.dart';
@@ -32,8 +34,10 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   final _uid = AuthController.instance.user!.uid;
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   final commentController = TextEditingController();
-  ScrollController _scrollController =
-      ScrollController(initialScrollOffset: 0.0);
+  final ScrollController _scrollController = ScrollController(
+    initialScrollOffset: 0.0,
+    keepScrollOffset: true,
+  );
 
   bool isAssetsRefreshing = false;
   bool isCommentsRefreshing = false;
@@ -48,755 +52,1095 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ProjectController>(
-        init: ProjectController(),
-        builder: (controller) {
-          if (controller.project.isEmpty) {
-            return const LoadingIndicator();
-          } else {
-            return Obx(() {
-              return Scaffold(
-                  key: _key,
-                  appBar: customAppBar(context),
-                  endDrawer: const EndDrawerWidget(),
-                  body: controller.isMembersUpdating.isTrue
-                      ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const LoadingIndicator(),
-                            SizedBox(
-                              height: screenHeight(context) * 0.02,
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+            duration: Duration(milliseconds: 300), curve: Curves.easeOut);
+      }
+    });
+
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+      return GetBuilder<ProjectController>(
+          init: ProjectController(),
+          builder: (controller) {
+            if (controller.project.isEmpty) {
+              return const LoadingIndicator();
+            } else {
+              return Obx(() {
+                return Scaffold(
+                    key: _key,
+                    drawerEnableOpenDragGesture: false,
+                    appBar: AppBar(
+                      backgroundColor: const Color(mainColor),
+                      leadingWidth: screenWidth(context) > 1000
+                          ? screenWidth(context) * 0.04
+                          : null,
+                      leading: constraints.maxWidth < 1800
+                          ? Row(
+                              children: [
+                                Expanded(
+                                    child: InkWell(
+                                        onTap: () {
+                                          Scaffold.of(context).openDrawer();
+                                        },
+                                        child: Icon(Icons.menu))),
+                                Expanded(
+                                  child: InkWell(
+                                      onTap: () {
+                                        Get.to(const RecentProjects());
+                                      },
+                                      child: Image.asset(
+                                        'assets/images/logoMini.png',
+                                      )),
+                                ),
+                              ],
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.only(left: 30),
+                              child: InkWell(
+                                  onTap: () {
+                                    Get.to(const RecentProjects());
+                                  },
+                                  child: Image.asset(
+                                    'assets/images/logoMini.png',
+                                  )),
                             ),
-                            txt(
-                                txt: 'Please wait, members are being updated',
-                                fontSize: 14)
-                          ],
-                        )
-                      : SizedBox(
-                          height: screenHeight(context),
-                          width: screenWidth(context),
-                          child: Row(
-                            children: [
-                              Drawer(
-                                child: Column(
-                                  children: <Widget>[
-                                    DrawerHeader(
-                                      margin: EdgeInsets.zero,
-                                      child: Center(
-                                        child: InkWell(
-                                          onTap: () {
-                                            addAssetPopUp(context);
-                                          },
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(
-                                                Icons.add,
-                                                color: Color(brownishColor),
-                                                size: 30,
+                      actions: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 50),
+                          child: Builder(
+                            builder: (context) => InkWell(
+                              onTap: () {
+                                Scaffold.of(context).openEndDrawer();
+                              },
+                              child: CircleAvatar(
+                                backgroundColor: const Color(secondaryColor),
+                                maxRadius: 25,
+                                child: Center(
+                                  child: txt(
+                                      txt: profileController.user['name']
+                                          .toString()[0]
+                                          .capitalizeFirst!,
+                                      fontSize: 20,
+                                      fontColor: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    drawer: Drawer(
+                      child: Column(
+                        children: <Widget>[
+                          DrawerHeader(
+                            margin: EdgeInsets.zero,
+                            child: Center(
+                              child: InkWell(
+                                onTap: () {
+                                  addAssetPopUp(context);
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.add,
+                                      color: Color(brownishColor),
+                                      size: 30,
+                                    ),
+                                    txt(
+                                      txt: "ASSETS",
+                                      fontSize: 30.0,
+                                      fontColor: const Color(brownishColor),
+                                      letterSpacing: 5,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Obx(() {
+                            return SizedBox(
+                              height: screenHeight(context) * 0.6,
+                              width: screenWidth(context) * 0.12,
+                              child: projectController.isAssetUpdating.isTrue
+                                  ? Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const LoadingIndicator(),
+                                        txt(
+                                            txt:
+                                                'Please wait\n Asset is being updated',
+                                            fontSize: 14)
+                                      ],
+                                    )
+                                  : projectController.assets.isEmpty
+                                      ? Center(
+                                          child: txt(
+                                              txt: 'Add assets here',
+                                              fontSize: 14),
+                                        )
+                                      : ListView.builder(
+                                          itemCount:
+                                              projectController.assets.length,
+                                          itemBuilder: (context, i) {
+                                            String path = projectController
+                                                .assets[i]['path'];
+                                            return ListTile(
+                                              leading: const Icon(
+                                                Icons.link,
                                               ),
-                                              txt(
-                                                txt: "ASSETS",
-                                                fontSize: 30.0,
-                                                fontColor:
-                                                    const Color(brownishColor),
-                                                letterSpacing: 5,
-                                                fontWeight: FontWeight.w700,
+                                              title: txt(
+                                                  txt: path,
+                                                  fontSize: 14,
+                                                  overflow:
+                                                      TextOverflow.ellipsis),
+                                              trailing: InkWell(
+                                                  onTap: () async {
+                                                    setState(() {
+                                                      isAssetsRefreshing = true;
+                                                    });
+                                                    await projectController
+                                                        .deleteProjectAsset(
+                                                            path:
+                                                                projectController
+                                                                        .assets[
+                                                                    i]['path']);
+                                                    setState(() {
+                                                      isAssetsRefreshing =
+                                                          false;
+                                                    });
+                                                  },
+                                                  child: const Icon(
+                                                    Icons.delete_sharp,
+                                                  )),
+                                              onTap: () {},
+                                            );
+                                          }),
+                            );
+                          }),
+                          const Spacer(),
+                          ListTile(
+                              onTap: () {
+                                Get.to(AddNewTask(
+                                  projectId: widget.projectId,
+                                ));
+                              },
+                              leading: const Icon(
+                                Icons.task,
+                              ),
+                              title: txt(txt: 'Add new task', fontSize: 14)),
+                          ListTile(
+                              onTap: () {
+                                Get.to(const ProjectMembersList());
+                              },
+                              leading: const Icon(
+                                Icons.person_add,
+                              ),
+                              title: txt(
+                                  txt: 'Manage project members', fontSize: 14)),
+                          const Divider(),
+                          ListTile(
+                            leading: InkWell(
+                              onTap: () {
+                                Get.to(const RecentProjects());
+                              },
+                              child: const Icon(
+                                Icons.home,
+                                size: 50,
+                              ),
+                            ),
+                            trailing: InkWell(
+                              onTap: () {
+                                Get.to(const Timeline());
+                              },
+                              child: const Icon(
+                                Icons.timeline,
+                                size: 50,
+                              ),
+                            ),
+                            onTap: null,
+                          ),
+                          SizedBox(height: screenHeight(context) * 0.01)
+                        ],
+                      ),
+                    ),
+                    endDrawer: const EndDrawerWidget(),
+                    body: SizedBox(
+                      height: screenHeight(context),
+                      width: screenWidth(context),
+                      child: Row(
+                        children: [
+                          constraints.maxWidth > 1800
+                              ? Drawer(
+                                  child: Column(
+                                    children: <Widget>[
+                                      DrawerHeader(
+                                        margin: EdgeInsets.zero,
+                                        child: Center(
+                                          child: InkWell(
+                                            onTap: () {
+                                              addAssetPopUp(context);
+                                            },
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(
+                                                  Icons.add,
+                                                  color: Color(brownishColor),
+                                                  size: 30,
+                                                ),
+                                                txt(
+                                                  txt: "ASSETS",
+                                                  fontSize: 30.0,
+                                                  fontColor: const Color(
+                                                      brownishColor),
+                                                  letterSpacing: 5,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Obx(() {
+                                        return SizedBox(
+                                          height: screenHeight(context) * 0.6,
+                                          width: screenWidth(context) * 0.12,
+                                          child: projectController
+                                                  .isAssetUpdating.isTrue
+                                              ? Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    const LoadingIndicator(),
+                                                    txt(
+                                                        txt:
+                                                            'Please wait\n Asset is being updated',
+                                                        fontSize: 14)
+                                                  ],
+                                                )
+                                              : projectController.assets.isEmpty
+                                                  ? Center(
+                                                      child: txt(
+                                                          txt:
+                                                              'Add assets here',
+                                                          fontSize: 14),
+                                                    )
+                                                  : ListView.builder(
+                                                      itemCount:
+                                                          projectController
+                                                              .assets.length,
+                                                      itemBuilder:
+                                                          (context, i) {
+                                                        String path =
+                                                            projectController
+                                                                    .assets[i]
+                                                                ['path'];
+                                                        return ListTile(
+                                                          leading: const Icon(
+                                                            Icons.link,
+                                                          ),
+                                                          title: txt(
+                                                              txt: path,
+                                                              fontSize: 14,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis),
+                                                          trailing: InkWell(
+                                                              onTap: () async {
+                                                                setState(() {
+                                                                  isAssetsRefreshing =
+                                                                      true;
+                                                                });
+                                                                await projectController.deleteProjectAsset(
+                                                                    path: projectController
+                                                                            .assets[i]
+                                                                        [
+                                                                        'path']);
+                                                                setState(() {
+                                                                  isAssetsRefreshing =
+                                                                      false;
+                                                                });
+                                                              },
+                                                              child: const Icon(
+                                                                Icons
+                                                                    .delete_sharp,
+                                                              )),
+                                                          onTap: () {},
+                                                        );
+                                                      }),
+                                        );
+                                      }),
+                                      const Spacer(),
+                                      ListTile(
+                                          onTap: () {
+                                            Get.to(AddNewTask(
+                                              projectId: widget.projectId,
+                                            ));
+                                          },
+                                          leading: const Icon(
+                                            Icons.task,
+                                          ),
+                                          title: txt(
+                                              txt: 'Add new task',
+                                              fontSize: 14)),
+                                      ListTile(
+                                          onTap: () {
+                                            Get.to(const ProjectMembersList());
+                                          },
+                                          leading: const Icon(
+                                            Icons.person_add,
+                                          ),
+                                          title: txt(
+                                              txt: 'Manage project members',
+                                              fontSize: 14)),
+                                      const Divider(),
+                                      ListTile(
+                                        leading: InkWell(
+                                          onTap: () {
+                                            Get.to(const RecentProjects());
+                                          },
+                                          child: const Icon(
+                                            Icons.home,
+                                            size: 50,
+                                          ),
+                                        ),
+                                        trailing: InkWell(
+                                          onTap: () {
+                                            Get.to(const Timeline());
+                                          },
+                                          child: const Icon(
+                                            Icons.timeline,
+                                            size: 50,
+                                          ),
+                                        ),
+                                        onTap: null,
+                                      ),
+                                      SizedBox(
+                                          height: screenHeight(context) * 0.01)
+                                    ],
+                                  ),
+                                )
+                              : Container(),
+                          Expanded(
+                            flex: 5,
+                            child: SizedBox(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(50, 30, 50, 10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        SizedBox(
+                                          width: screenWidth(context) * 0.47,
+                                          child: txt(
+                                            txt: projectController
+                                                .project['title'],
+                                            fontSize: 60,
+                                            maxLines: 1,
+                                            minFontSize: 14,
+                                            overflow: TextOverflow.ellipsis,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 5,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: screenWidth(context) * 0.1,
+                                          child: Row(
+                                            children: [
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  txt(
+                                                    txt: 'LEAD :',
+                                                    fontSize: 20,
+                                                  ),
+                                                  txt(
+                                                    txt: 'CO-PILOT :',
+                                                    fontSize: 20,
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                width: screenWidth(context) *
+                                                    0.005,
+                                              ),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  txt(
+                                                    txt: projectController
+                                                        .project['lead'],
+                                                    fontSize: 20,
+                                                  ),
+                                                  txt(
+                                                    txt: projectController
+                                                        .project['copilot'],
+                                                    fontSize: 20,
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                    Obx(() {
-                                      return SizedBox(
-                                        height: screenHeight(context) * 0.6,
-                                        width: screenWidth(context) * 0.12,
-                                        child: projectController
-                                                .isAssetUpdating.isTrue
-                                            ? Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  const LoadingIndicator(),
-                                                  txt(
-                                                      txt:
-                                                          'Please wait\n Asset is being updated',
-                                                      fontSize: 14)
-                                                ],
-                                              )
-                                            : projectController.assets.isEmpty
-                                                ? Center(
-                                                    child: txt(
-                                                        txt: 'Add assets here',
-                                                        fontSize: 14),
-                                                  )
-                                                : ListView.builder(
-                                                    itemCount: projectController
-                                                        .assets.length,
-                                                    itemBuilder: (context, i) {
-                                                      String path =
-                                                          projectController
-                                                                  .assets[i]
-                                                              ['path'];
-                                                      return ListTile(
-                                                        leading: const Icon(
-                                                          Icons.link,
-                                                        ),
-                                                        title: txt(
-                                                            txt: path,
-                                                            fontSize: 14,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis),
-                                                        trailing: InkWell(
-                                                            onTap: () async {
-                                                              setState(() {
-                                                                isAssetsRefreshing =
-                                                                    true;
-                                                              });
-                                                              await projectController
-                                                                  .deleteProjectAsset(
-                                                                      path: projectController
-                                                                              .assets[i]
-                                                                          [
-                                                                          'path']);
-                                                              setState(() {
-                                                                isAssetsRefreshing =
-                                                                    false;
-                                                              });
-                                                            },
-                                                            child: const Icon(
-                                                              Icons
-                                                                  .delete_sharp,
-                                                            )),
-                                                        onTap: () {},
-                                                      );
-                                                    }),
-                                      );
-                                    }),
-                                    const Spacer(),
-                                    ListTile(
-                                        onTap: () {
-                                          Get.to(AddNewTask(
-                                            projectId: widget.projectId,
-                                          ));
-                                        },
-                                        leading: const Icon(
-                                          Icons.task,
-                                        ),
-                                        title: txt(
-                                            txt: 'Add new task', fontSize: 14)),
-                                    ListTile(
-                                        onTap: () {
-                                          Get.to(const SelectProjectMembers());
-                                        },
-                                        leading: const Icon(
-                                          Icons.person_add,
-                                        ),
-                                        title: txt(
-                                            txt: 'Manage project members',
-                                            fontSize: 14)),
-                                    const Divider(),
-                                    ListTile(
-                                      leading: InkWell(
-                                        onTap: () {
-                                          Get.to(const RecentProjects());
-                                        },
-                                        child: const Icon(
-                                          Icons.home,
-                                          size: 50,
-                                        ),
-                                      ),
-                                      trailing: InkWell(
-                                        onTap: () {
-                                          Get.to(const Timeline());
-                                        },
-                                        child: const Icon(
-                                          Icons.timeline,
-                                          size: 50,
-                                        ),
-                                      ),
-                                      onTap: null,
+                                      ],
                                     ),
                                     SizedBox(
-                                        height: screenHeight(context) * 0.01)
+                                      width: screenWidth(context) * 0.47,
+                                      child: txt(
+                                        txt: projectController
+                                            .project['subtitle'],
+                                        fontSize: 30,
+                                        minFontSize: 14,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: screenHeight(context) * 0.05,
+                                    ),
+                                    // BoardSection(),
+                                    Obx(() {
+                                      return Expanded(
+                                          child: projectController
+                                                      .toDoTasks.isEmpty &&
+                                                  projectController
+                                                      .inProgressTasks
+                                                      .isEmpty &&
+                                                  projectController
+                                                      .completedTasks.isEmpty
+                                              ? Center(
+                                                  child: txt(
+                                                      txt:
+                                                          'Added tasks will be listed here',
+                                                      fontSize: 14),
+                                                )
+                                              : Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
+                                                  children: [
+                                                    Column(
+                                                      children: [
+                                                        statusContainer(
+                                                            context, 'TODO'),
+                                                        SizedBox(
+                                                          height: screenHeight(
+                                                                  context) *
+                                                              0.02,
+                                                        ),
+                                                        Container(
+                                                          height: screenHeight(
+                                                                  context) *
+                                                              0.73,
+                                                          width: screenWidth(
+                                                                  context) *
+                                                              0.15,
+                                                          decoration:
+                                                              const BoxDecoration(
+                                                            color: Color(
+                                                                0xfff0f2f5),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .only(
+                                                              topLeft: Radius
+                                                                  .circular(10),
+                                                              topRight: Radius
+                                                                  .circular(10),
+                                                            ),
+                                                          ),
+                                                          child: projectController
+                                                                  .isTasksUpdating
+                                                                  .isTrue
+                                                              ? Column(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    const LoadingIndicator(),
+                                                                    txt(
+                                                                        txt:
+                                                                            'Please wait\n Task is being updated',
+                                                                        fontSize:
+                                                                            14)
+                                                                  ],
+                                                                )
+                                                              : projectController
+                                                                      .toDoTasks
+                                                                      .isEmpty
+                                                                  ? Center(
+                                                                      child: txt(
+                                                                          txt:
+                                                                              'No task in Todo list',
+                                                                          fontSize:
+                                                                              14),
+                                                                    )
+                                                                  : ListView
+                                                                      .builder(
+                                                                      // shrinkWrap: true,
+                                                                      // reverse: true,
+                                                                      itemCount: projectController
+                                                                          .toDoTasks
+                                                                          .length,
+
+                                                                      itemBuilder:
+                                                                          (context,
+                                                                              i) {
+                                                                        final String
+                                                                            taskTitle =
+                                                                            projectController.toDoTasks[i]['taskTitle'];
+                                                                        final String
+                                                                            phase =
+                                                                            projectController.toDoTasks[i]['phase'];
+                                                                        final String
+                                                                            taskDescription =
+                                                                            projectController.toDoTasks[i]['taskDescription'];
+                                                                        final String
+                                                                            pilot =
+                                                                            projectController.toDoTasks[i]['pilot'];
+                                                                        final String
+                                                                            copilot =
+                                                                            projectController.toDoTasks[i]['copilot'];
+                                                                        final String
+                                                                            startDate =
+                                                                            projectController.toDoTasks[i]['startDate'];
+                                                                        final String
+                                                                            endDate =
+                                                                            projectController.toDoTasks[i]['endDate'];
+
+                                                                        final int
+                                                                            priorityLevel =
+                                                                            projectController.toDoTasks[i]['priorityLevel'];
+                                                                        final String
+                                                                            status =
+                                                                            projectController.toDoTasks[i]['status'];
+                                                                        return listOfTasks(
+                                                                            context,
+                                                                            'todo',
+                                                                            taskTitle,
+                                                                            phase,
+                                                                            taskDescription,
+                                                                            pilot,
+                                                                            copilot,
+                                                                            priorityLevel,
+                                                                            status,
+                                                                            startDate,
+                                                                            endDate);
+                                                                      },
+                                                                    ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Column(
+                                                      children: [
+                                                        statusContainer(context,
+                                                            'INPROGRESS'),
+                                                        SizedBox(
+                                                          height: screenHeight(
+                                                                  context) *
+                                                              0.02,
+                                                        ),
+                                                        Container(
+                                                          height: screenHeight(
+                                                                  context) *
+                                                              0.73,
+                                                          width: screenWidth(
+                                                                  context) *
+                                                              0.15,
+                                                          decoration:
+                                                              const BoxDecoration(
+                                                            color: Color(
+                                                                0xfff0f2f5),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .only(
+                                                              topLeft: Radius
+                                                                  .circular(10),
+                                                              topRight: Radius
+                                                                  .circular(10),
+                                                            ),
+                                                          ),
+                                                          child: projectController
+                                                                  .isTasksUpdating
+                                                                  .isTrue
+                                                              ? Column(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    const LoadingIndicator(),
+                                                                    txt(
+                                                                        txt:
+                                                                            'Please wait\n Task is being updated',
+                                                                        fontSize:
+                                                                            14)
+                                                                  ],
+                                                                )
+                                                              : projectController
+                                                                      .inProgressTasks
+                                                                      .isEmpty
+                                                                  ? Center(
+                                                                      child: txt(
+                                                                          txt:
+                                                                              'No task in progress',
+                                                                          fontSize:
+                                                                              14),
+                                                                    )
+                                                                  : ListView
+                                                                      .builder(
+                                                                      // shrinkWrap: true,
+                                                                      // reverse: true,
+                                                                      itemCount: projectController
+                                                                          .inProgressTasks
+                                                                          .length,
+
+                                                                      itemBuilder:
+                                                                          (context,
+                                                                              i) {
+                                                                        final String
+                                                                            taskTitle =
+                                                                            projectController.inProgressTasks[i]['taskTitle'];
+                                                                        final String
+                                                                            phase =
+                                                                            projectController.inProgressTasks[i]['phase'];
+                                                                        final String
+                                                                            taskDescription =
+                                                                            projectController.inProgressTasks[i]['taskDescription'];
+                                                                        final String
+                                                                            pilot =
+                                                                            projectController.inProgressTasks[i]['pilot'];
+                                                                        final String
+                                                                            copilot =
+                                                                            projectController.inProgressTasks[i]['copilot'];
+                                                                        final String
+                                                                            startDate =
+                                                                            projectController.inProgressTasks[i]['startDate'];
+                                                                        final String
+                                                                            endDate =
+                                                                            projectController.inProgressTasks[i]['endDate'];
+
+                                                                        final int
+                                                                            priorityLevel =
+                                                                            projectController.inProgressTasks[i]['priorityLevel'];
+                                                                        final String
+                                                                            status =
+                                                                            projectController.inProgressTasks[i]['status'];
+                                                                        return listOfTasks(
+                                                                            context,
+                                                                            'inProgress',
+                                                                            taskTitle,
+                                                                            phase,
+                                                                            taskDescription,
+                                                                            pilot,
+                                                                            copilot,
+                                                                            priorityLevel,
+                                                                            status,
+                                                                            startDate,
+                                                                            endDate);
+                                                                      },
+                                                                    ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Column(
+                                                      children: [
+                                                        statusContainer(context,
+                                                            'COMPLETED'),
+                                                        SizedBox(
+                                                          height: screenHeight(
+                                                                  context) *
+                                                              0.02,
+                                                        ),
+                                                        Container(
+                                                          height: screenHeight(
+                                                                  context) *
+                                                              0.73,
+                                                          width: screenWidth(
+                                                                  context) *
+                                                              0.15,
+                                                          decoration:
+                                                              const BoxDecoration(
+                                                            color: Color(
+                                                                0xfff0f2f5),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .only(
+                                                              topLeft: Radius
+                                                                  .circular(10),
+                                                              topRight: Radius
+                                                                  .circular(10),
+                                                            ),
+                                                          ),
+                                                          child: projectController
+                                                                  .isTasksUpdating
+                                                                  .isTrue
+                                                              ? Column(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    const LoadingIndicator(),
+                                                                    txt(
+                                                                        txt:
+                                                                            'Please wait\n Task is being updated',
+                                                                        fontSize:
+                                                                            14)
+                                                                  ],
+                                                                )
+                                                              : projectController
+                                                                      .completedTasks
+                                                                      .isEmpty
+                                                                  ? Center(
+                                                                      child: txt(
+                                                                          txt:
+                                                                              'No task in completed list',
+                                                                          fontSize:
+                                                                              14),
+                                                                    )
+                                                                  : ListView
+                                                                      .builder(
+                                                                      // shrinkWrap: true,
+                                                                      // reverse: true,
+                                                                      itemCount: projectController
+                                                                          .completedTasks
+                                                                          .length,
+
+                                                                      itemBuilder:
+                                                                          (context,
+                                                                              i) {
+                                                                        final String
+                                                                            taskTitle =
+                                                                            projectController.completedTasks[i]['taskTitle'];
+                                                                        final String
+                                                                            phase =
+                                                                            projectController.completedTasks[i]['phase'];
+                                                                        final String
+                                                                            taskDescription =
+                                                                            projectController.completedTasks[i]['taskDescription'];
+                                                                        final String
+                                                                            pilot =
+                                                                            projectController.completedTasks[i]['pilot'];
+                                                                        final String
+                                                                            copilot =
+                                                                            projectController.completedTasks[i]['copilot'];
+                                                                        final String
+                                                                            startDate =
+                                                                            projectController.completedTasks[i]['startDate'];
+                                                                        final String
+                                                                            endDate =
+                                                                            projectController.completedTasks[i]['endDate'];
+
+                                                                        final int
+                                                                            priorityLevel =
+                                                                            projectController.completedTasks[i]['priorityLevel'];
+                                                                        final String
+                                                                            status =
+                                                                            projectController.completedTasks[i]['status'];
+                                                                        return listOfTasks(
+                                                                            context,
+                                                                            'completed',
+                                                                            taskTitle,
+                                                                            phase,
+                                                                            taskDescription,
+                                                                            pilot,
+                                                                            copilot,
+                                                                            priorityLevel,
+                                                                            status,
+                                                                            startDate,
+                                                                            endDate);
+                                                                      },
+                                                                    ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ));
+                                    }),
                                   ],
                                 ),
                               ),
-                              Expanded(
-                                flex: 5,
-                                child: SizedBox(
-                                  child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        50, 30, 50, 10),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: GetBuilder<ProfileController>(
+                                init: ProfileController(),
+                                builder: (controller) {
+                                  if (controller.user.isEmpty) {
+                                    return const LoadingIndicator();
+                                  } else {
+                                    return Container(
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.white,
+                                            offset: Offset(0, 3.0),
+                                            blurRadius: 9.0,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            50, 30, 30, 80),
+                                        child: Column(
                                           children: [
-                                            SizedBox(
-                                              width:
-                                                  screenWidth(context) * 0.47,
+                                            InkWell(
+                                              onTap: () {
+                                                _scrollController.animateTo(
+                                                    _scrollController.position
+                                                        .maxScrollExtent,
+                                                    duration:
+                                                        Duration(seconds: 2),
+                                                    curve: Curves.easeOut);
+                                              },
                                               child: txt(
-                                                txt: projectController
-                                                    .project['title'],
-                                                fontSize: 60,
-                                                maxLines: 1,
-                                                minFontSize: 14,
-                                                overflow: TextOverflow.ellipsis,
+                                                txt: 'NOTES',
+                                                fontSize: 50,
                                                 fontWeight: FontWeight.bold,
                                                 letterSpacing: 5,
                                               ),
                                             ),
                                             SizedBox(
-                                              width: screenWidth(context) * 0.1,
-                                              child: Row(
-                                                children: [
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      txt(
-                                                        txt: 'LEAD :',
-                                                        fontSize: 20,
-                                                      ),
-                                                      txt(
-                                                        txt: 'CO-PILOT :',
-                                                        fontSize: 20,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    width:
-                                                        screenWidth(context) *
-                                                            0.005,
-                                                  ),
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      txt(
-                                                        txt: projectController
-                                                            .project['lead'],
-                                                        fontSize: 20,
-                                                      ),
-                                                      txt(
-                                                        txt: projectController
-                                                            .project['copilot'],
-                                                        fontSize: 20,
-                                                      ),
-                                                    ],
+                                              height:
+                                                  screenHeight(context) * 0.03,
+                                            ),
+                                            Obx(() {
+                                              return SizedBox(
+                                                  height:
+                                                      screenHeight(context) *
+                                                          0.55,
+                                                  width: screenWidth(context) *
+                                                      0.3,
+                                                  child: projectController
+                                                          .isUploading.isTrue
+                                                      ? Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            const LoadingIndicator(),
+                                                            txt(
+                                                                txt:
+                                                                    'Please wait\n Comment is being added',
+                                                                fontSize: 14)
+                                                          ],
+                                                        )
+                                                      : projectController
+                                                              .comments.isEmpty
+                                                          ? Center(
+                                                              child: txt(
+                                                                  txt:
+                                                                      'Add comments here',
+                                                                  fontSize: 14),
+                                                            )
+                                                          : ListView.builder(
+                                                              controller:
+                                                                  _scrollController,
+                                                              // shrinkWrap:
+                                                              //     true,
+                                                              // reverse:
+                                                              //     true,
+                                                              itemCount:
+                                                                  projectController
+                                                                      .comments
+                                                                      .length,
+                                                              itemBuilder:
+                                                                  (context, i) {
+                                                                String comment =
+                                                                    projectController
+                                                                        .comments[
+                                                                            i][
+                                                                            'comment']
+                                                                        .toString();
+                                                                String type =
+                                                                    projectController
+                                                                        .comments[
+                                                                            i][
+                                                                            'type']
+                                                                        .toString();
+                                                                String
+                                                                    username =
+                                                                    projectController
+                                                                        .comments[
+                                                                            i][
+                                                                            'username']
+                                                                        .toString();
+                                                                String
+                                                                    firstChar =
+                                                                    '';
+
+                                                                for (int i = 0;
+                                                                    i <
+                                                                        username
+                                                                            .length;
+                                                                    i++) {
+                                                                  firstChar +=
+                                                                      username[
+                                                                          i];
+                                                                }
+
+                                                                return usersMsg(
+                                                                    context,
+                                                                    username:
+                                                                        firstChar[
+                                                                            0],
+                                                                    type: type,
+                                                                    comment:
+                                                                        comment);
+                                                              }));
+                                            }),
+                                            const Spacer(),
+                                            Container(
+                                              width: screenWidth(context) * 0.2,
+                                              height:
+                                                  screenHeight(context) * 0.2,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(0.16),
+                                                    offset:
+                                                        const Offset(0, 3.0),
+                                                    blurRadius: 6.0,
                                                   ),
                                                 ],
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                              ),
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 15,
+                                                    right: 15,
+                                                    top: 5),
+                                                child: TextFormField(
+                                                  maxLines: null,
+                                                  controller: commentController,
+                                                  decoration: InputDecoration(
+                                                      suffixIcon: SizedBox(
+                                                        width: screenWidth(
+                                                                context) *
+                                                            0.03,
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .end,
+                                                          children: [
+                                                            Builder(builder:
+                                                                (context) {
+                                                              return InkWell(
+                                                                onTap:
+                                                                    () async {
+                                                                  await projectController
+                                                                      .addNewCommentFile(
+                                                                    username: profileController
+                                                                            .user[
+                                                                        'name'],
+                                                                  );
+
+                                                                  WidgetsBinding
+                                                                      .instance
+                                                                      .addPostFrameCallback(
+                                                                          (_) {
+                                                                    if (_scrollController
+                                                                        .hasClients) {
+                                                                      _scrollController.animateTo(
+                                                                          _scrollController
+                                                                              .position
+                                                                              .maxScrollExtent,
+                                                                          duration: Duration(
+                                                                              milliseconds:
+                                                                                  300),
+                                                                          curve:
+                                                                              Curves.easeOut);
+                                                                    }
+                                                                  });
+                                                                },
+                                                                child: const Icon(
+                                                                    Icons
+                                                                        .attach_file,
+                                                                    color: Color(
+                                                                        brownishColor)),
+                                                              );
+                                                            }),
+                                                            InkWell(
+                                                              onTap: () async {
+                                                                await projectController
+                                                                    .addNewComment(
+                                                                  comment:
+                                                                      commentController
+                                                                          .text,
+                                                                  username: profileController
+                                                                          .user[
+                                                                      'name'],
+                                                                );
+
+                                                                commentController
+                                                                    .clear();
+
+                                                                WidgetsBinding
+                                                                    .instance
+                                                                    .addPostFrameCallback(
+                                                                        (_) {
+                                                                  if (_scrollController
+                                                                      .hasClients) {
+                                                                    _scrollController.animateTo(
+                                                                        _scrollController
+                                                                            .position
+                                                                            .maxScrollExtent,
+                                                                        duration: Duration(
+                                                                            milliseconds:
+                                                                                300),
+                                                                        curve: Curves
+                                                                            .easeOut);
+                                                                  }
+                                                                });
+                                                              },
+                                                              child: const Icon(
+                                                                  Icons.send,
+                                                                  color: Color(
+                                                                      brownishColor)),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      border: InputBorder.none,
+                                                      hintText:
+                                                          'Add Comment...',
+                                                      hintStyle: const TextStyle(
+                                                          color: Color(
+                                                              brownishColor),
+                                                          fontWeight:
+                                                              FontWeight.w600)),
+                                                ),
                                               ),
                                             ),
                                           ],
                                         ),
-                                        SizedBox(
-                                          width: screenWidth(context) * 0.47,
-                                          child: txt(
-                                            txt: projectController
-                                                .project['subtitle'],
-                                            fontSize: 30,
-                                            minFontSize: 14,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: screenHeight(context) * 0.05,
-                                        ),
-                                        // BoardSection(),
-                                        Obx(() {
-                                          return Expanded(
-                                              child:
-                                                  projectController.toDoTasks
-                                                              .isEmpty &&
-                                                          projectController
-                                                              .inProgressTasks
-                                                              .isEmpty &&
-                                                          projectController
-                                                              .completedTasks
-                                                              .isEmpty
-                                                      ? Center(
-                                                          child: txt(
-                                                              txt:
-                                                                  'Added tasks will be listed here',
-                                                              fontSize: 14),
-                                                        )
-                                                      : Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceEvenly,
-                                                          children: [
-                                                            Column(
-                                                              children: [
-                                                                statusContainer(
-                                                                    context,
-                                                                    'TODO'),
-                                                                SizedBox(
-                                                                  height: screenHeight(
-                                                                          context) *
-                                                                      0.02,
-                                                                ),
-                                                                Container(
-                                                                  height: screenHeight(
-                                                                          context) *
-                                                                      0.73,
-                                                                  width: screenWidth(
-                                                                          context) *
-                                                                      0.15,
-                                                                  decoration:
-                                                                      const BoxDecoration(
-                                                                    color: Color(
-                                                                        0xfff0f2f5),
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .only(
-                                                                      topLeft: Radius
-                                                                          .circular(
-                                                                              10),
-                                                                      topRight:
-                                                                          Radius.circular(
-                                                                              10),
-                                                                    ),
-                                                                  ),
-                                                                  child: projectController
-                                                                          .isTasksUpdating
-                                                                          .isTrue
-                                                                      ? Column(
-                                                                          mainAxisAlignment:
-                                                                              MainAxisAlignment.center,
-                                                                          children: [
-                                                                            const LoadingIndicator(),
-                                                                            txt(
-                                                                                txt: 'Please wait\n Task is being updated',
-                                                                                fontSize: 14)
-                                                                          ],
-                                                                        )
-                                                                      : projectController
-                                                                              .toDoTasks
-                                                                              .isEmpty
-                                                                          ? Center(
-                                                                              child: txt(txt: 'No task in Todo list', fontSize: 14),
-                                                                            )
-                                                                          : ListView
-                                                                              .builder(
-                                                                              // shrinkWrap: true,
-                                                                              // reverse: true,
-                                                                              itemCount: projectController.toDoTasks.length,
-
-                                                                              itemBuilder: (context, i) {
-                                                                                final String taskTitle = projectController.toDoTasks[i]['taskTitle'];
-                                                                                final String phase = projectController.toDoTasks[i]['phase'];
-                                                                                final String taskDescription = projectController.toDoTasks[i]['taskDescription'];
-                                                                                final String pilot = projectController.toDoTasks[i]['pilot'];
-                                                                                final String copilot = projectController.toDoTasks[i]['copilot'];
-                                                                                final String startDate = projectController.toDoTasks[i]['startDate'];
-                                                                                final String endDate = projectController.toDoTasks[i]['endDate'];
-
-                                                                                final int priorityLevel = projectController.toDoTasks[i]['priorityLevel'];
-                                                                                final String status = projectController.toDoTasks[i]['status'];
-                                                                                return listOfTasks(context, 'todo', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
-                                                                              },
-                                                                            ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            Column(
-                                                              children: [
-                                                                statusContainer(
-                                                                    context,
-                                                                    'INPROGRESS'),
-                                                                SizedBox(
-                                                                  height: screenHeight(
-                                                                          context) *
-                                                                      0.02,
-                                                                ),
-                                                                Container(
-                                                                  height: screenHeight(
-                                                                          context) *
-                                                                      0.73,
-                                                                  width: screenWidth(
-                                                                          context) *
-                                                                      0.15,
-                                                                  decoration:
-                                                                      const BoxDecoration(
-                                                                    color: Color(
-                                                                        0xfff0f2f5),
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .only(
-                                                                      topLeft: Radius
-                                                                          .circular(
-                                                                              10),
-                                                                      topRight:
-                                                                          Radius.circular(
-                                                                              10),
-                                                                    ),
-                                                                  ),
-                                                                  child: projectController
-                                                                          .isTasksUpdating
-                                                                          .isTrue
-                                                                      ? Column(
-                                                                          mainAxisAlignment:
-                                                                              MainAxisAlignment.center,
-                                                                          children: [
-                                                                            const LoadingIndicator(),
-                                                                            txt(
-                                                                                txt: 'Please wait\n Task is being updated',
-                                                                                fontSize: 14)
-                                                                          ],
-                                                                        )
-                                                                      : projectController
-                                                                              .inProgressTasks
-                                                                              .isEmpty
-                                                                          ? Center(
-                                                                              child: txt(txt: 'No task in progress', fontSize: 14),
-                                                                            )
-                                                                          : ListView
-                                                                              .builder(
-                                                                              // shrinkWrap: true,
-                                                                              // reverse: true,
-                                                                              itemCount: projectController.inProgressTasks.length,
-
-                                                                              itemBuilder: (context, i) {
-                                                                                final String taskTitle = projectController.inProgressTasks[i]['taskTitle'];
-                                                                                final String phase = projectController.inProgressTasks[i]['phase'];
-                                                                                final String taskDescription = projectController.inProgressTasks[i]['taskDescription'];
-                                                                                final String pilot = projectController.inProgressTasks[i]['pilot'];
-                                                                                final String copilot = projectController.inProgressTasks[i]['copilot'];
-                                                                                final String startDate = projectController.inProgressTasks[i]['startDate'];
-                                                                                final String endDate = projectController.inProgressTasks[i]['endDate'];
-
-                                                                                final int priorityLevel = projectController.inProgressTasks[i]['priorityLevel'];
-                                                                                final String status = projectController.inProgressTasks[i]['status'];
-                                                                                return listOfTasks(context, 'inProgress', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
-                                                                              },
-                                                                            ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            Column(
-                                                              children: [
-                                                                statusContainer(
-                                                                    context,
-                                                                    'COMPLETED'),
-                                                                SizedBox(
-                                                                  height: screenHeight(
-                                                                          context) *
-                                                                      0.02,
-                                                                ),
-                                                                Container(
-                                                                  height: screenHeight(
-                                                                          context) *
-                                                                      0.73,
-                                                                  width: screenWidth(
-                                                                          context) *
-                                                                      0.15,
-                                                                  decoration:
-                                                                      const BoxDecoration(
-                                                                    color: Color(
-                                                                        0xfff0f2f5),
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .only(
-                                                                      topLeft: Radius
-                                                                          .circular(
-                                                                              10),
-                                                                      topRight:
-                                                                          Radius.circular(
-                                                                              10),
-                                                                    ),
-                                                                  ),
-                                                                  child: projectController
-                                                                          .isTasksUpdating
-                                                                          .isTrue
-                                                                      ? Column(
-                                                                          mainAxisAlignment:
-                                                                              MainAxisAlignment.center,
-                                                                          children: [
-                                                                            const LoadingIndicator(),
-                                                                            txt(
-                                                                                txt: 'Please wait\n Task is being updated',
-                                                                                fontSize: 14)
-                                                                          ],
-                                                                        )
-                                                                      : projectController
-                                                                              .completedTasks
-                                                                              .isEmpty
-                                                                          ? Center(
-                                                                              child: txt(txt: 'No task in completed list', fontSize: 14),
-                                                                            )
-                                                                          : ListView
-                                                                              .builder(
-                                                                              // shrinkWrap: true,
-                                                                              // reverse: true,
-                                                                              itemCount: projectController.completedTasks.length,
-
-                                                                              itemBuilder: (context, i) {
-                                                                                final String taskTitle = projectController.completedTasks[i]['taskTitle'];
-                                                                                final String phase = projectController.completedTasks[i]['phase'];
-                                                                                final String taskDescription = projectController.completedTasks[i]['taskDescription'];
-                                                                                final String pilot = projectController.completedTasks[i]['pilot'];
-                                                                                final String copilot = projectController.completedTasks[i]['copilot'];
-                                                                                final String startDate = projectController.completedTasks[i]['startDate'];
-                                                                                final String endDate = projectController.completedTasks[i]['endDate'];
-
-                                                                                final int priorityLevel = projectController.completedTasks[i]['priorityLevel'];
-                                                                                final String status = projectController.completedTasks[i]['status'];
-                                                                                return listOfTasks(context, 'completed', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
-                                                                              },
-                                                                            ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ],
-                                                        ));
-                                        }),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: GetBuilder<ProfileController>(
-                                    init: ProfileController(),
-                                    builder: (controller) {
-                                      if (controller.user.isEmpty) {
-                                        return const LoadingIndicator();
-                                      } else {
-                                        return Container(
-                                          decoration: const BoxDecoration(
-                                            color: Colors.white,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.white,
-                                                offset: Offset(0, 3.0),
-                                                blurRadius: 9.0,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                50, 30, 30, 80),
-                                            child: Column(
-                                              children: [
-                                                txt(
-                                                  txt: 'NOTES',
-                                                  fontSize: 50,
-                                                  fontWeight: FontWeight.bold,
-                                                  letterSpacing: 5,
-                                                ),
-                                                SizedBox(
-                                                  height:
-                                                      screenHeight(context) *
-                                                          0.03,
-                                                ),
-                                                Obx(() {
-                                                  return SizedBox(
-                                                      height: screenHeight(
-                                                              context) *
-                                                          0.55,
-                                                      width:
-                                                          screenWidth(context) *
-                                                              0.3,
-                                                      child: projectController
-                                                              .isUploading
-                                                              .isTrue
-                                                          ? Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                const LoadingIndicator(),
-                                                                txt(
-                                                                    txt:
-                                                                        'Please wait\n Comment is being added',
-                                                                    fontSize:
-                                                                        14)
-                                                              ],
-                                                            )
-                                                          : projectController
-                                                                  .comments
-                                                                  .isEmpty
-                                                              ? Center(
-                                                                  child: txt(
-                                                                      txt:
-                                                                          'Add comments here',
-                                                                      fontSize:
-                                                                          14),
-                                                                )
-                                                              : ListView
-                                                                  .builder(
-                                                                      controller:
-                                                                          _scrollController,
-                                                                      // shrinkWrap:
-                                                                      //     true,
-                                                                      // reverse:
-                                                                      //     true,
-                                                                      itemCount: projectController
-                                                                          .comments
-                                                                          .length,
-                                                                      itemBuilder:
-                                                                          (context,
-                                                                              i) {
-                                                                        String
-                                                                            comment =
-                                                                            projectController.comments[i]['comment'].toString();
-                                                                        String
-                                                                            type =
-                                                                            projectController.comments[i]['type'].toString();
-                                                                        String
-                                                                            username =
-                                                                            controller.user['name'];
-                                                                        String
-                                                                            firstChar =
-                                                                            '';
-
-                                                                        for (int i =
-                                                                                0;
-                                                                            i < username.length;
-                                                                            i++) {
-                                                                          firstChar +=
-                                                                              username[i];
-                                                                        }
-
-                                                                        return usersMsg(
-                                                                            context,
-                                                                            username: firstChar[
-                                                                                0],
-                                                                            type:
-                                                                                type,
-                                                                            comment:
-                                                                                comment);
-                                                                      }));
-                                                }),
-                                                const Spacer(),
-                                                Container(
-                                                  width: screenWidth(context) *
-                                                      0.2,
-                                                  height:
-                                                      screenHeight(context) *
-                                                          0.2,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.black
-                                                            .withOpacity(0.16),
-                                                        offset: const Offset(
-                                                            0, 3.0),
-                                                        blurRadius: 6.0,
-                                                      ),
-                                                    ],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10.0),
-                                                  ),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 15,
-                                                            right: 15,
-                                                            top: 5),
-                                                    child: TextFormField(
-                                                      maxLines: null,
-                                                      controller:
-                                                          commentController,
-                                                      decoration:
-                                                          InputDecoration(
-                                                              suffixIcon:
-                                                                  SizedBox(
-                                                                width: screenWidth(
-                                                                        context) *
-                                                                    0.03,
-                                                                child: Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .end,
-                                                                  children: [
-                                                                    Builder(builder:
-                                                                        (context) {
-                                                                      return InkWell(
-                                                                        onTap:
-                                                                            () {
-                                                                          _scrollController.animateTo(
-                                                                              _scrollController.position.maxScrollExtent,
-                                                                              duration: Duration(milliseconds: 3),
-                                                                              curve: Curves.easeOut);
-                                                                          projectController.addNewCommentFile(
-                                                                              projectId: widget.projectId,
-                                                                              uid: _uid);
-                                                                        },
-                                                                        child: const Icon(
-                                                                            Icons
-                                                                                .attach_file,
-                                                                            color:
-                                                                                Color(brownishColor)),
-                                                                      );
-                                                                    }),
-                                                                    InkWell(
-                                                                      onTap:
-                                                                          () async {
-                                                                        _scrollController.animateTo(
-                                                                            _scrollController
-                                                                                .position.maxScrollExtent,
-                                                                            duration:
-                                                                                Duration(milliseconds: 3),
-                                                                            curve: Curves.easeOut);
-                                                                        await projectController.addNewComment(
-                                                                            comment:
-                                                                                commentController.text,
-                                                                            projectId: widget.projectId,
-                                                                            uid: _uid);
-                                                                        commentController
-                                                                            .clear();
-                                                                      },
-                                                                      child: const Icon(
-                                                                          Icons
-                                                                              .send,
-                                                                          color:
-                                                                              Color(brownishColor)),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              border:
-                                                                  InputBorder
-                                                                      .none,
-                                                              hintText:
-                                                                  'Add Comment...',
-                                                              hintStyle: const TextStyle(
-                                                                  color: Color(
-                                                                      brownishColor),
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600)),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    }),
-                              )
-                            ],
-                          ),
-                        ));
-            });
-          }
-        });
+                                      ),
+                                    );
+                                  }
+                                }),
+                          )
+                        ],
+                      ),
+                    ));
+              });
+            }
+          });
+    });
   }
 
   Container statusContainer(BuildContext context, String title) {
@@ -882,8 +1226,6 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                           if (value == 1) {
                             status == 'todo'
                                 ? projectController.addToInProgress(
-                                    uid: _uid,
-                                    projectId: widget.projectId,
                                     copilot: copilot,
                                     endDate: endDate,
                                     phase: phase,
@@ -895,8 +1237,6 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                     taskTitle: taskTitle)
                                 : status == 'inProgress'
                                     ? projectController.addToTodo(
-                                        uid: _uid,
-                                        projectId: widget.projectId,
                                         copilot: copilot,
                                         endDate: endDate,
                                         phase: phase,
@@ -907,8 +1247,6 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                         taskDescription: taskDescription,
                                         taskTitle: taskTitle)
                                     : projectController.addToTodo(
-                                        uid: _uid,
-                                        projectId: widget.projectId,
                                         copilot: copilot,
                                         endDate: endDate,
                                         phase: phase,
@@ -921,8 +1259,6 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                           } else if (value == 2) {
                             status == 'todo'
                                 ? projectController.addToCompleted(
-                                    uid: _uid,
-                                    projectId: widget.projectId,
                                     copilot: copilot,
                                     endDate: endDate,
                                     phase: phase,
@@ -934,8 +1270,6 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                     taskTitle: taskTitle)
                                 : status == 'inProgress'
                                     ? projectController.addToCompleted(
-                                        uid: _uid,
-                                        projectId: widget.projectId,
                                         copilot: copilot,
                                         endDate: endDate,
                                         phase: phase,
@@ -946,8 +1280,6 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                         taskDescription: taskDescription,
                                         taskTitle: taskTitle)
                                     : projectController.addToInProgress(
-                                        uid: _uid,
-                                        projectId: widget.projectId,
                                         copilot: copilot,
                                         endDate: endDate,
                                         phase: phase,

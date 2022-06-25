@@ -65,7 +65,9 @@ class AuthController extends GetxController {
       getSuccessSnackBar("Successfully logged in");
     } on FirebaseAuthException catch (e) {
       //define error
-      getErrorSnackBar("Account Creating Failed", e);
+      getErrorSnackBar(
+        "Account Creating Failed",
+      );
     }
   }
 
@@ -77,7 +79,9 @@ class AuthController extends GetxController {
       getSuccessSnackBar("Successfully logged in as ${_user.value!.email}");
     } on FirebaseAuthException catch (e) {
       //define error
-      getErrorSnackBar("Login Failed", e);
+      getErrorSnackBar(
+        "Login Failed",
+      );
     }
   }
 
@@ -119,9 +123,13 @@ class AuthController extends GetxController {
         getSuccessSnackBar("Successfully logged in");
       }
     } on FirebaseAuthException catch (e) {
-      getErrorSnackBar("Google Login Failed", e);
+      getErrorSnackBar(
+        "Google Login Failed",
+      );
     } on PlatformException catch (e) {
-      getErrorSnackBar("Google Login Failed", e);
+      getErrorSnackBar(
+        "Google Login Failed",
+      );
     }
   }
 
@@ -130,7 +138,9 @@ class AuthController extends GetxController {
       await auth.sendPasswordResetEmail(email: email);
       getSuccessSnackBar("Reset mail sent successfully. Check mail!");
     } on FirebaseAuthException catch (e) {
-      getErrorSnackBar("Error", e);
+      getErrorSnackBar(
+        "Error",
+      );
     }
   }
 

@@ -14,9 +14,9 @@ Future<dynamic> createProjectPopUp(
 ) {
   final titleController = TextEditingController();
   final subTitleController = TextEditingController();
-  final pIDController = TextEditingController();
 
   final projectController = Get.put(ProjectController());
+
   final uid = AuthController.instance.user!.uid;
 
   final formKey = GlobalKey<FormState>();
@@ -88,11 +88,6 @@ Future<dynamic> createProjectPopUp(
                                         hint: '...',
                                         controller: subTitleController,
                                       ),
-                                      popUpTextField(
-                                        context,
-                                        hint: 'enter project ID',
-                                        controller: pIDController,
-                                      ),
                                     ],
                                   ),
                                 )
@@ -136,15 +131,11 @@ Future<dynamic> createProjectPopUp(
                                   onTap: () {
                                     if (formKey.currentState!.validate()) {
                                       projectController.newProject(
-                                          username: controller.user['name'],
-                                          title: titleController.text,
-                                          projectId: pIDController.text,
-                                          subtitle: subTitleController.text,
-                                          uid: uid);
-                                      Get.back();
-                                      Get.to(ProjectDashboard(
-                                        projectId: pIDController.text,
-                                      ));
+                                        username: controller.user['name'],
+                                        uid: uid,
+                                        title: titleController.text,
+                                        subtitle: subTitleController.text,
+                                      );
                                     }
                                   },
                                   child: Container(

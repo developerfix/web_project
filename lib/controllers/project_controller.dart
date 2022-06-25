@@ -6,7 +6,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:projectx/models/project.dart';
+import 'package:projectx/models/projectMember.dart';
 import 'package:projectx/models/task.dart' as taskModel;
+import 'package:projectx/pages/project_dashboard.dart';
 
 import '../constants/style.dart';
 
@@ -21,6 +23,7 @@ class ProjectController extends GetxController {
   RxList<dynamic> comments = <dynamic>[].obs;
   RxList<dynamic> assets = <dynamic>[].obs;
   RxList<dynamic> users = <dynamic>[].obs;
+  RxList<dynamic> projectMembers = <dynamic>[].obs;
   RxList<dynamic> toDoTasks = <dynamic>[].obs;
   RxList<dynamic> inProgressTasks = <dynamic>[].obs;
   RxList<dynamic> completedTasks = <dynamic>[].obs;
@@ -50,6 +53,22 @@ class ProjectController extends GetxController {
     }
   }
 
+  getProjectMembers() async {
+    await firestore
+        .collection('users')
+        .doc(_uid.value)
+        .collection('projects')
+        .doc(_projectId.value)
+        .collection('members')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      for (var member in querySnapshot.docs) {
+        var memberr = (member.data() as dynamic);
+        projectMembers.add(memberr);
+      }
+    });
+  }
+
   getUsers() async {
     users.clear();
     await firestore
@@ -64,67 +83,70 @@ class ProjectController extends GetxController {
 
   deleteProjectAsset({path}) async {
     isAssetUpdating.value = true;
-
-    await firestore
-        .collection('users')
-        .doc(_uid.value)
-        .collection('projects')
-        .doc(_projectId.value)
-        .collection('assets')
-        .where('path', isEqualTo: path)
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      for (var doc in querySnapshot.docs) {
-        doc.reference.delete();
-      }
-      assets.removeWhere((element) => element['path'] == path);
-
-      isAssetUpdating.value = false;
-    });
-  }
-
-  deleteProjectTask({taskTitle, taskDescription, status}) async {
-    isTasksUpdating.value = true;
-    try {
+    for (var i = 0; i < projectMembers.length; i++) {
       await firestore
           .collection('users')
-          .doc(_uid.value)
+          .doc(projectMembers[i]['uid'])
           .collection('projects')
           .doc(_projectId.value)
-          .collection('tasks')
-          .where('taskDescription', isEqualTo: taskDescription)
-          .where('taskTitle', isEqualTo: taskTitle)
+          .collection('assets')
+          .where('path', isEqualTo: path)
           .get()
           .then((QuerySnapshot querySnapshot) {
         for (var doc in querySnapshot.docs) {
           doc.reference.delete();
         }
-
-        status == 'todo'
-            ? toDoTasks.removeWhere((element) =>
-                element['taskDescription'] == taskDescription &&
-                element['taskTitle'] == taskTitle)
-            : status == 'inProgress'
-                ? inProgressTasks.removeWhere((element) =>
-                    element['taskDescription'] == taskDescription &&
-                    element['taskTitle'] == taskTitle)
-                : completedTasks.removeWhere((element) =>
-                    element['taskDescription'] == taskDescription &&
-                    element['taskTitle'] == taskTitle);
-
-        isTasksUpdating.value = false;
       });
+    }
+    assets.removeWhere((element) => element['path'] == path);
+
+    isAssetUpdating.value = false;
+  }
+
+  deleteProjectTask({taskTitle, taskDescription, status}) async {
+    isTasksUpdating.value = true;
+    try {
+      for (var i = 0; i < projectMembers.length; i++) {
+        await firestore
+            .collection('users')
+            .doc(projectMembers[i]['uid'])
+            .collection('projects')
+            .doc(_projectId.value)
+            .collection('tasks')
+            .where('taskDescription', isEqualTo: taskDescription)
+            .where('taskTitle', isEqualTo: taskTitle)
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          for (var doc in querySnapshot.docs) {
+            doc.reference.delete();
+          }
+        });
+      }
+
+      status == 'todo'
+          ? toDoTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle)
+          : status == 'inProgress'
+              ? inProgressTasks.removeWhere((element) =>
+                  element['taskDescription'] == taskDescription &&
+                  element['taskTitle'] == taskTitle)
+              : completedTasks.removeWhere((element) =>
+                  element['taskDescription'] == taskDescription &&
+                  element['taskTitle'] == taskTitle);
+
+      isTasksUpdating.value = false;
     } catch (e) {
       isTasksUpdating.value = false;
       //define error
-      getErrorSnackBar("Something went wrong, Please try again", '');
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
     }
   }
 
   addToInProgress(
-      {String? uid,
-      String? projectId,
-      String? taskTitle,
+      {String? taskTitle,
       String? oldTaskTitle,
       String? phase,
       String? taskDescription,
@@ -147,43 +169,46 @@ class ProjectController extends GetxController {
         status: 'inProgress',
         priorityLevel: priorityLevel);
     try {
-      await firestore
-          .collection('users')
-          .doc(_uid.value)
-          .collection('projects')
-          .doc(_projectId.value)
-          .collection('tasks')
-          .where('taskDescription', isEqualTo: taskDescription)
-          .where('taskTitle', isEqualTo: taskTitle)
-          .get()
-          .then((QuerySnapshot querySnapshot) {
-        for (var doc in querySnapshot.docs) {
-          doc.reference.update({'status': 'inProgress'});
-        }
+      for (var i = 0; i < projectMembers.length; i++) {
+        await firestore
+            .collection('users')
+            .doc(projectMembers[i]['uid'])
+            .collection('projects')
+            .doc(_projectId.value)
+            .collection('tasks')
+            .where('taskDescription', isEqualTo: taskDescription)
+            .where('taskTitle', isEqualTo: taskTitle)
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          for (var doc in querySnapshot.docs) {
+            doc.reference.update({'status': 'inProgress'});
+          }
+        });
+      }
 
-        status == 'todo'
-            ? toDoTasks.removeWhere((element) =>
-                element['taskDescription'] == taskDescription &&
-                element['taskTitle'] == taskTitle)
-            : completedTasks.removeWhere((element) =>
-                element['taskDescription'] == taskDescription &&
-                element['taskTitle'] == taskTitle);
+      status == 'todo'
+          ? toDoTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle)
+          : completedTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle);
 
-        inProgressTasks.add(task.toJson());
-        isTasksUpdating.value = false;
-      });
+      inProgressTasks.add(task.toJson());
+      isTasksUpdating.value = false;
+
       getSuccessSnackBar("Task updated successfully");
     } catch (e) {
       isTasksUpdating.value = false;
       //define error
-      getErrorSnackBar("Something went wrong, Please try again", '');
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
     }
   }
 
   addToTodo(
-      {String? uid,
-      String? projectId,
-      String? taskTitle,
+      {String? taskTitle,
       String? oldTaskTitle,
       String? phase,
       String? taskDescription,
@@ -206,42 +231,45 @@ class ProjectController extends GetxController {
         status: 'todo',
         priorityLevel: priorityLevel);
     try {
-      await firestore
-          .collection('users')
-          .doc(_uid.value)
-          .collection('projects')
-          .doc(_projectId.value)
-          .collection('tasks')
-          .where('taskDescription', isEqualTo: taskDescription)
-          .where('taskTitle', isEqualTo: taskTitle)
-          .get()
-          .then((QuerySnapshot querySnapshot) {
-        for (var doc in querySnapshot.docs) {
-          doc.reference.update({'status': 'todo'});
-        }
+      for (var i = 0; i < projectMembers.length; i++) {
+        await firestore
+            .collection('users')
+            .doc(projectMembers[i]['uid'])
+            .collection('projects')
+            .doc(_projectId.value)
+            .collection('tasks')
+            .where('taskDescription', isEqualTo: taskDescription)
+            .where('taskTitle', isEqualTo: taskTitle)
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          for (var doc in querySnapshot.docs) {
+            doc.reference.update({'status': 'todo'});
+          }
+        });
+      }
 
-        status == 'inProgress'
-            ? inProgressTasks.removeWhere((element) =>
-                element['taskDescription'] == taskDescription &&
-                element['taskTitle'] == taskTitle)
-            : completedTasks.removeWhere((element) =>
-                element['taskDescription'] == taskDescription &&
-                element['taskTitle'] == taskTitle);
+      status == 'inProgress'
+          ? inProgressTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle)
+          : completedTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle);
 
-        toDoTasks.add(task.toJson());
-        isTasksUpdating.value = false;
-      });
+      toDoTasks.add(task.toJson());
+      isTasksUpdating.value = false;
+
       getSuccessSnackBar("Task updated successfully");
     } catch (e) {
       //define error
-      getErrorSnackBar("Something went wrong, Please try again", '');
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
     }
   }
 
   addToCompleted(
-      {String? uid,
-      String? projectId,
-      String? taskTitle,
+      {String? taskTitle,
       String? oldTaskTitle,
       String? phase,
       String? taskDescription,
@@ -264,35 +292,40 @@ class ProjectController extends GetxController {
         status: 'completed',
         priorityLevel: priorityLevel);
     try {
-      await firestore
-          .collection('users')
-          .doc(_uid.value)
-          .collection('projects')
-          .doc(_projectId.value)
-          .collection('tasks')
-          .where('taskDescription', isEqualTo: taskDescription)
-          .where('taskTitle', isEqualTo: taskTitle)
-          .get()
-          .then((QuerySnapshot querySnapshot) {
-        for (var doc in querySnapshot.docs) {
-          doc.reference.update({'status': 'completed'});
-        }
+      for (var i = 0; i < projectMembers.length; i++) {
+        await firestore
+            .collection('users')
+            .doc(projectMembers[i]['uid'])
+            .collection('projects')
+            .doc(_projectId.value)
+            .collection('tasks')
+            .where('taskDescription', isEqualTo: taskDescription)
+            .where('taskTitle', isEqualTo: taskTitle)
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          for (var doc in querySnapshot.docs) {
+            doc.reference.update({'status': 'completed'});
+          }
+        });
+      }
 
-        status == 'todo'
-            ? toDoTasks.removeWhere((element) =>
-                element['taskDescription'] == taskDescription &&
-                element['taskTitle'] == taskTitle)
-            : inProgressTasks.removeWhere((element) =>
-                element['taskDescription'] == taskDescription &&
-                element['taskTitle'] == taskTitle);
+      status == 'todo'
+          ? toDoTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle)
+          : inProgressTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle);
 
-        completedTasks.add(task.toJson());
-        isTasksUpdating.value = false;
-      });
+      completedTasks.add(task.toJson());
+      isTasksUpdating.value = false;
+
       getSuccessSnackBar("Task updated successfully");
     } catch (e) {
       //define error
-      getErrorSnackBar("Something went wrong, Please try again", '');
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
     }
   }
 
@@ -304,6 +337,7 @@ class ProjectController extends GetxController {
         .doc(_projectId.value)
         .get();
 
+    getProjectMembers();
     getProjectAssets();
     getProjectComments();
 
@@ -323,11 +357,8 @@ class ProjectController extends GetxController {
   }
 
   void newProject(
-      {String? title,
-      String? subtitle,
-      String? uid,
-      String? projectId,
-      String? username}) async {
+      {String? title, String? subtitle, String? uid, String? username}) async {
+    String projectId = '';
     try {
       Project project = Project(
           copilot: 'assign co-pilot',
@@ -335,47 +366,61 @@ class ProjectController extends GetxController {
           projectId: projectId,
           subtitle: subtitle,
           title: title);
+
       await firestore
           .collection('users')
           .doc(uid)
           .collection('projects')
-          .doc(projectId)
-          .set(project.toJson())
+          .add(project.toJson())
           .then((value) async {
+        projectId = value.id;
         await firestore
             .collection('users')
             .doc(uid)
             .collection('projects')
-            .doc(projectId)
-            .collection('members')
-            .add({"username": username, "uid": uid});
+            .doc(value.id)
+            .update({'projectId': value.id}).then((value) async {
+          await firestore
+              .collection('users')
+              .doc(uid)
+              .collection('projects')
+              .doc(projectId)
+              .collection('members')
+              .doc(uid)
+              .set({"uid": uid, 'username': username}).then((value) {
+            Get.to(ProjectDashboard(projectId: projectId));
+          });
+        });
       });
 
       getSuccessSnackBar("Project created successfully");
     } catch (e) {
       //define error
-      getErrorSnackBar("Something went wrong, Please try again", '');
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
     }
   }
 
-  void addNewAsset({type, path, uid, projectId}) async {
+  void addNewAsset({type, path}) async {
     isAssetUpdating.value = true;
     try {
-      await firestore
-          .collection('users')
-          .doc(uid)
-          .collection('projects')
-          .doc(projectId)
-          .collection('assets')
-          .add({"type": type, "path": path}).then((value) {
-        assets.add({"type": type, "path": path});
-        isAssetUpdating.value = false;
-      });
-
+      for (var member in projectMembers) {
+        await firestore
+            .collection('users')
+            .doc(member['uid'])
+            .collection('projects')
+            .doc(_projectId.value)
+            .collection('assets')
+            .add({"type": type, "path": path});
+      }
+      assets.add({"type": type, "path": path});
+      isAssetUpdating.value = false;
       getSuccessSnackBar("asset added successfully");
     } catch (e) {
-      //define error
-      getErrorSnackBar("Something went wrong, Please try again", '');
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
     }
   }
 
@@ -418,7 +463,7 @@ class ProjectController extends GetxController {
     }
   }
 
-  void addNewCommentFile({uid, projectId, username}) async {
+  addNewCommentFile({username}) async {
     try {
       FilePickerResult? result =
           await FilePicker.platform.pickFiles(allowMultiple: false);
@@ -440,47 +485,22 @@ class ProjectController extends GetxController {
         uploadTask = ref.putData(uploadfile!);
         final snapshot = await uploadTask.whenComplete(() {});
         final urlDownload = await snapshot.ref.getDownloadURL();
-
-        await firestore
-            .collection('users')
-            .doc(uid)
-            .collection('projects')
-            .doc(projectId)
-            .collection('comments')
-            .add({
-          "type": 'file',
-          "comment": urlDownload,
-          "username": username
-        }).then((value) {
-          comments.add(
-              {"type": 'file', "comment": urlDownload, "username": username});
-          isUploading.value = false;
-        });
-
-        // for (var file in files) {
-        //   for (var name in filesNames) {
-        //     print(name);
-
-        //     final ref =
-        //         FirebaseStorage.instance.ref().child('commentFiles/$name');
-        //     uploadTask = ref.putFile(file);
-        //     final snapshot = await uploadTask.whenComplete(() {});
-        //     final urlDownload = await snapshot.ref.getDownloadURL();
-        //     final type = file.uri;
-
-        //     print('type');
-        //     print(type);
-        //     print(urlDownload);
-
-        //     // await firestore
-        //     //     .collection('users')
-        //     //     .doc(uid)
-        //     //     .collection('projects')
-        //     //     .doc(projectId)
-        //     //     .collection('comments')
-        //     //     .add({"type": 'file', "comment": urlDownload});
-        //   }
-        // }
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firestore
+              .collection('users')
+              .doc(projectMembers[i]['uid'])
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('comments')
+              .add({
+            "type": 'file',
+            "comment": urlDownload,
+            "username": username
+          });
+        }
+        comments.add(
+            {"type": 'file', "comment": urlDownload, "username": username});
+        isUploading.value = false;
 
         getSuccessSnackBar("comment added successfully");
       } else {
@@ -489,39 +509,41 @@ class ProjectController extends GetxController {
     } catch (e) {
       isUploading.value = false;
       //define error
-      getErrorSnackBar("Something went wrong, Please try again", '');
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
     }
   }
 
-  addNewComment({uid, projectId, comment, username}) async {
+  addNewComment({comment, username}) async {
     isUploading.value = true;
     try {
-      await firestore
-          .collection('users')
-          .doc(uid)
-          .collection('projects')
-          .doc(projectId)
-          .collection('comments')
-          .add({"type": 'text', "comment": comment, "username": username}).then(
-              (value) {
-        comments
+      for (var i = 0; i < projectMembers.length; i++) {
+        await firestore
+            .collection('users')
+            .doc(projectMembers[i]['uid'])
+            .collection('projects')
+            .doc(_projectId.value)
+            .collection('comments')
             .add({"type": 'text', "comment": comment, "username": username});
+      }
 
-        isUploading.value = false;
-      });
+      comments.add({"type": 'text', "comment": comment, "username": username});
+
+      isUploading.value = false;
 
       getSuccessSnackBar("comment added successfully");
     } catch (e) {
       isUploading.value = false;
       //define error
-      getErrorSnackBar("Something went wrong, Please try again", '');
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
     }
   }
 
   addNewTask(
-      {String? uid,
-      String? projectId,
-      String? taskTitle,
+      {String? taskTitle,
       String? oldTaskTitle,
       String? phase,
       String? taskDescription,
@@ -544,31 +566,29 @@ class ProjectController extends GetxController {
         status: status,
         priorityLevel: priorityLevel);
     try {
-      await firestore
-          .collection('users')
-          .doc(uid)
-          .collection('projects')
-          .doc(projectId)
-          .collection('tasks')
-          .add(task.toJson())
-          .then((value) {
-        // toDoTasks.add(task.toJson());
-        getProjectTasks();
-        isTasksUpdating.value = false;
-      });
-
+      for (var i = 0; i < projectMembers.length; i++) {
+        await firestore
+            .collection('users')
+            .doc(projectMembers[i]['uid'])
+            .collection('projects')
+            .doc(_projectId.value)
+            .collection('tasks')
+            .add(task.toJson());
+      }
+      getProjectTasks();
+      isTasksUpdating.value = false;
       getSuccessSnackBar("task added successfully");
     } catch (e) {
       isTasksUpdating.value = false;
       //define error
-      getErrorSnackBar("Something went wrong, Please try again", '');
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
     }
   }
 
   updateTask(
-      {String? uid,
-      String? projectId,
-      String? taskTitle,
+      {String? taskTitle,
       String? oldTaskTitle,
       String? phase,
       String? taskDescription,
@@ -591,78 +611,60 @@ class ProjectController extends GetxController {
         status: status,
         priorityLevel: priorityLevel);
     try {
-      await firestore
-          .collection('users')
-          .doc(uid)
-          .collection('projects')
-          .doc(projectId)
-          .collection('tasks')
-          .where('taskDescription', isEqualTo: oldTaskDescription)
-          .where('taskTitle', isEqualTo: oldTaskTitle)
-          .get()
-          .then((QuerySnapshot querySnapshot) {
-        for (var doc in querySnapshot.docs) {
-          doc.reference.update(task.toJson());
-        }
-        getProjectTasks();
+      for (var i = 0; i < projectMembers.length; i++) {
+        await firestore
+            .collection('users')
+            .doc(projectMembers[i]['uid'])
+            .collection('projects')
+            .doc(_projectId.value)
+            .collection('tasks')
+            .where('taskDescription', isEqualTo: oldTaskDescription)
+            .where('taskTitle', isEqualTo: oldTaskTitle)
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          for (var doc in querySnapshot.docs) {
+            doc.reference.update(task.toJson());
+          }
+        });
+      }
+      getProjectTasks();
 
-        isTasksUpdating.value = false;
-      });
+      isTasksUpdating.value = false;
 
       getSuccessSnackBar("task updated successfully");
     } catch (e) {
       isTasksUpdating.value = false;
       //define error
-      getErrorSnackBar("Something went wrong, Please try again", '');
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
     }
   }
 
-  manageProjectMemebers({
+  manageProjectMembers({
     String? lead,
     String? copilot,
     String? title,
     String? subtitle,
-    List? membersUids,
+    List<ProjectMember>? members,
+    List<ProjectMember>? removedMembers,
   }) async {
     isMembersUpdating.value = true;
-    try {
-      for (var memberUid in membersUids!) {
-        await firestore
-            .collection('users')
-            .doc(_uid.value)
-            .collection('projects')
-            .doc(_projectId.value)
-            .update({
-          'copilot': copilot,
-          'lead': lead,
-        }).then((value) async {
-          await firestore
-              .collection('users')
-              .doc(_uid.value)
-              .collection('projects')
-              .doc(_projectId.value)
-              .collection('members')
-              .where('uid', isEqualTo: memberUid)
-              .get()
-              .then((QuerySnapshot querySnapshot) async {
-            for (var element in querySnapshot.docs) {
-              if (element.exists) {
-              } else {
-                await firestore
-                    .collection('users')
-                    .doc(_uid.value)
-                    .collection('projects')
-                    .doc(_projectId.value)
-                    .collection('members')
-                    .add({'uid': memberUid});
-              }
-            }
-          });
-        });
+    projectMembers.clear();
+    for (var i = 0; i < removedMembers!.length; i++) {
+      await firestore
+          .collection('users')
+          .doc(removedMembers[i].uid)
+          .collection('projects')
+          .doc(_projectId.value)
+          .delete();
+    }
 
+    try {
+      for (var i = 0; i < members!.length; i++) {
         await firestore
             .collection('users')
-            .doc(memberUid)
+            .doc(members[i].uid)
             .collection('projects')
             .doc(_projectId.value)
             .get()
@@ -670,35 +672,50 @@ class ProjectController extends GetxController {
           if (documentSnapshot.exists) {
             await firestore
                 .collection('users')
-                .doc(memberUid)
+                .doc(members[i].uid)
                 .collection('projects')
                 .doc(_projectId.value)
                 .update({
               'copilot': copilot,
               'lead': lead,
             }).then((value) async {
-              await firestore
-                  .collection('users')
-                  .doc(_uid.value)
-                  .collection('projects')
-                  .doc(_projectId.value)
-                  .collection('members')
-                  .where('uid', isEqualTo: memberUid)
-                  .get()
-                  .then((QuerySnapshot querySnapshot) async {
-                for (var element in querySnapshot.docs) {
-                  if (element.exists) {
+              for (var projectMember in members) {
+                await firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('members')
+                    .doc(projectMember.uid)
+                    .get()
+                    .then((DocumentSnapshot document) async {
+                  if (document.exists) {
                   } else {
                     await firestore
                         .collection('users')
-                        .doc(_uid.value)
+                        .doc(members[i].uid)
                         .collection('projects')
                         .doc(_projectId.value)
                         .collection('members')
-                        .add({'uid': memberUid});
+                        .doc(projectMember.uid)
+                        .set({
+                      'uid': projectMember.uid,
+                      'username': projectMember.username
+                    });
                   }
-                }
-              });
+                });
+              }
+            }).then((value) async {
+              for (var removedMember in removedMembers) {
+                await firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('members')
+                    .doc(removedMember.uid)
+                    .delete();
+              }
             });
           } else {
             Project project = Project(
@@ -710,18 +727,23 @@ class ProjectController extends GetxController {
 
             await firestore
                 .collection('users')
-                .doc(memberUid)
+                .doc(members[i].uid)
                 .collection('projects')
                 .doc(_projectId.value)
                 .set(project.toJson())
                 .then((value) async {
-              await firestore
-                  .collection('users')
-                  .doc(memberUid)
-                  .collection('projects')
-                  .doc(_projectId.value)
-                  .collection('members')
-                  .add({'uid': memberUid});
+              for (var member in members) {
+                await firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('members')
+                    .doc(
+                      member.uid,
+                    )
+                    .set({'uid': member.uid, 'username': member.username});
+              }
             });
           }
         });
@@ -734,7 +756,9 @@ class ProjectController extends GetxController {
       getSuccessSnackBar("Members updated successfully");
     } catch (e) {
       isMembersUpdating.value = false;
-      getErrorSnackBar("Something went wrong, Please try again", '');
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
     }
   }
 }

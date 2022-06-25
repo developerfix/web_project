@@ -19,148 +19,170 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
   return showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Form(
-          key: _formKey,
-          child: AlertDialog(
-            content: SizedBox(
-              height: screenHeight(context) * 0.4,
-              width: screenWidth(context) * 0.3,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(children: <Widget>[
-                  txt(
-                    txt: 'ADD ASSET',
-                    fontSize: 50,
-                    letterSpacing: 6,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  SizedBox(
-                    height: screenHeight(context) * 0.015,
-                  ),
-                  SizedBox(
-                    height: screenHeight(context) * 0.2,
-                    child: Column(
+        return LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+          return Form(
+            key: _formKey,
+            child: AlertDialog(
+              content: SizedBox(
+                height: screenHeight(context) * 0.4,
+                width: screenWidth(context) * 0.3,
+                child: Padding(
+                  padding: constraints.maxWidth < 800
+                      ? EdgeInsets.all(8.0)
+                      : EdgeInsets.all(20.0),
+                  child: Column(children: <Widget>[
+                    txt(
+                      txt: 'ADD ASSET',
+                      fontSize: constraints.maxWidth < 800 ? 20 : 40,
+                      letterSpacing: 6,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    SizedBox(
+                      height: screenHeight(context) * 0.015,
+                    ),
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Row(
-                          children: [
-                            Row(
-                              children: [
-                                Radio(
-                                    value: 1,
-                                    groupValue: _value,
-                                    onChanged: (val) {}),
-                                SizedBox(
-                                  width: screenWidth(context) * 0.005,
+                        // Row(
+                        //   children: [
+                        //     Row(
+                        //       children: [
+                        //         Radio(
+                        //             value: 1,
+                        //             groupValue: _value,
+                        //             onChanged: (val) {}),
+                        //         SizedBox(
+                        //           width: screenWidth(context) * 0.005,
+                        //         ),
+                        //         txt(txt: 'WEB', fontSize: 20)
+                        //       ],
+                        //     ),
+                        //     SizedBox(
+                        //       width: screenWidth(context) * 0.02,
+                        //     ),
+                        //     Row(
+                        //       children: [
+                        //         Radio(
+                        //             value: 2,
+                        //             groupValue: _value,
+                        //             onChanged: (val) {}),
+                        //         SizedBox(
+                        //           width: screenWidth(context) * 0.005,
+                        //         ),
+                        //         txt(txt: 'FOLDER', fontSize: 20)
+                        //       ],
+                        //     ),
+                        //   ],
+                        // ),
+                        constraints.maxWidth < 1200
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  txt(
+                                    txt: 'Path:',
+                                    fontSize: 30,
+                                  ),
+                                  SizedBox(
+                                    width: screenWidth(context) * 0.02,
+                                  ),
+                                  popUpTextField(context,
+                                      controller: pathController, hint: '...'),
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  txt(
+                                    txt: 'Path:',
+                                    fontSize: 30,
+                                  ),
+                                  SizedBox(
+                                    width: screenWidth(context) * 0.02,
+                                  ),
+                                  popUpTextField(context,
+                                      controller: pathController, hint: '...'),
+                                ],
+                              ),
+                      ],
+                    ),
+                    Spacer(),
+                    Row(
+                      mainAxisAlignment: constraints.maxWidth < 1000
+                          ? MainAxisAlignment.start
+                          : MainAxisAlignment.end,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Get.back();
+                          },
+                          child: Container(
+                            width: constraints.maxWidth < 1200
+                                ? screenHeight(context) * 0.08
+                                : screenWidth(context) * 0.05,
+                            height: screenHeight(context) * 0.05,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12.0),
+                              color: const Color(0xFF958890),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.23),
+                                  offset: const Offset(0, 3.0),
+                                  blurRadius: 9.0,
                                 ),
-                                txt(txt: 'WEB', fontSize: 20)
                               ],
                             ),
-                            SizedBox(
-                              width: screenWidth(context) * 0.02,
-                            ),
-                            Row(
-                              children: [
-                                Radio(
-                                    value: 2,
-                                    groupValue: _value,
-                                    onChanged: (val) {}),
-                                SizedBox(
-                                  width: screenWidth(context) * 0.005,
-                                ),
-                                txt(txt: 'FOLDER', fontSize: 20)
-                              ],
-                            ),
-                          ],
+                            child: Center(
+                                child: txt(
+                                    txt: 'Cancel',
+                                    fontSize: 15,
+                                    fontColor: Colors.white)),
+                          ),
                         ),
-                        Row(
-                          children: [
-                            txt(
-                              txt: 'Path:',
-                              fontSize: 30,
+                        SizedBox(
+                          width: screenWidth(context) * 0.01,
+                        ),
+                        InkWell(
+                          onTap: () {
+                            if (_formKey.currentState!.validate()) {
+                              Get.back();
+                              projectController.addNewAsset(
+                                path: pathController.text.trim(),
+                              );
+                            }
+                          },
+                          child: Container(
+                            width: constraints.maxWidth < 1200
+                                ? screenHeight(context) * 0.08
+                                : screenWidth(context) * 0.05,
+                            height: screenHeight(context) * 0.05,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12.0),
+                              color: const Color(0xFF958890),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.23),
+                                  offset: const Offset(0, 3.0),
+                                  blurRadius: 9.0,
+                                ),
+                              ],
                             ),
-                            SizedBox(
-                              width: screenWidth(context) * 0.02,
-                            ),
-                            popUpTextField(context,
-                                controller: pathController, hint: '...'),
-                          ],
+                            child: Center(
+                                child: txt(
+                                    txt: 'Add',
+                                    fontSize: 15,
+                                    fontColor: Colors.white)),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          Get.back();
-                        },
-                        child: Container(
-                          width: screenWidth(context) * 0.04,
-                          height: screenHeight(context) * 0.05,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.0),
-                            color: const Color(0xFF958890),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.23),
-                                offset: const Offset(0, 3.0),
-                                blurRadius: 9.0,
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                              child: txt(
-                                  txt: 'Cancel',
-                                  fontSize: 15,
-                                  fontColor: Colors.white)),
-                        ),
-                      ),
-                      SizedBox(
-                        width: screenWidth(context) * 0.01,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          if (_formKey.currentState!.validate()) {
-                            Get.back();
-                            projectController.addNewAsset(
-                                projectId: '23',
-                                path: pathController.text.trim(),
-                                uid: _uid);
-                          }
-                        },
-                        child: Container(
-                          width: screenWidth(context) * 0.04,
-                          height: screenHeight(context) * 0.05,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.0),
-                            color: const Color(0xFF958890),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.23),
-                                offset: const Offset(0, 3.0),
-                                blurRadius: 9.0,
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                              child: txt(
-                                  txt: 'Add',
-                                  fontSize: 15,
-                                  fontColor: Colors.white)),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: screenHeight(context) * 0.005,
-                  )
-                ]),
+                    SizedBox(
+                      height: screenHeight(context) * 0.005,
+                    )
+                  ]),
+                ),
               ),
             ),
-          ),
-        );
+          );
+        });
       });
 }
