@@ -35,24 +35,27 @@ class _AuthScreenState extends State<AuthScreen> {
               : isSignup
                   ? signupBox(context)
                   : resetBox(context),
-          Expanded(
-              child: Container(
-            color: const Color(mainColor),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Center(
-                    child: InkWell(
-                        onTap: () {},
-                        child: SvgPicture.asset('assets/svgs/ava_logo.svg'))),
-                SizedBox(height: screenHeight(context) * 0.02),
-                txt(
-                    txt: 'We manage your project from start to finish',
-                    fontSize: 22,
-                    fontColor: Colors.white)
-              ],
-            ),
-          ))
+          screenWidth(context) < 1500
+              ? Container()
+              : Expanded(
+                  child: Container(
+                  color: const Color(mainColor),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                          child: InkWell(
+                              onTap: () {},
+                              child: SvgPicture.asset(
+                                  'assets/svgs/ava_logo.svg'))),
+                      SizedBox(height: screenHeight(context) * 0.02),
+                      txt(
+                          txt: 'We manage your project from start to finish',
+                          fontSize: 22,
+                          fontColor: Colors.white)
+                    ],
+                  ),
+                ))
         ],
       ),
     );
@@ -71,7 +74,9 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Center(
             child: SizedBox(
               height: screenHeight(context) * 0.8,
-              width: screenWidth(context) * 0.2,
+              width: screenWidth(context) < 1200
+                  ? screenWidth(context) * 0.5
+                  : screenWidth(context) * 0.2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -128,7 +133,9 @@ class _AuthScreenState extends State<AuthScreen> {
                           }
                         },
                         child: Container(
-                          width: screenWidth(context) * 0.07,
+                          width: screenWidth(context) < 1200
+                              ? screenWidth(context) * 0.2
+                              : screenWidth(context) * 0.07,
                           height: screenHeight(context) * 0.05,
                           color: const Color(secondaryColor),
                           child: Center(
@@ -149,7 +156,9 @@ class _AuthScreenState extends State<AuthScreen> {
                           });
                         },
                         child: Container(
-                          width: screenWidth(context) * 0.07,
+                          width: screenWidth(context) < 1200
+                              ? screenWidth(context) * 0.2
+                              : screenWidth(context) * 0.07,
                           height: screenHeight(context) * 0.05,
                           decoration: BoxDecoration(
                             border: Border.all(
@@ -196,7 +205,9 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Center(
             child: SizedBox(
               height: screenHeight(context) * 0.8,
-              width: screenWidth(context) * 0.2,
+              width: screenWidth(context) < 1200
+                  ? screenWidth(context) * 0.5
+                  : screenWidth(context) * 0.2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -221,7 +232,9 @@ class _AuthScreenState extends State<AuthScreen> {
                   Row(
                     children: [
                       Container(
-                        width: screenWidth(context) * 0.07,
+                        width: screenWidth(context) < 1200
+                            ? screenWidth(context) * 0.2
+                            : screenWidth(context) * 0.07,
                         height: screenHeight(context) * 0.05,
                         color: const Color(secondaryColor),
                         child: Center(
@@ -241,7 +254,9 @@ class _AuthScreenState extends State<AuthScreen> {
                           });
                         },
                         child: Container(
-                          width: screenWidth(context) * 0.07,
+                          width: screenWidth(context) < 1200
+                              ? screenWidth(context) * 0.2
+                              : screenWidth(context) * 0.07,
                           height: screenHeight(context) * 0.05,
                           decoration: BoxDecoration(
                             border: Border.all(
@@ -289,7 +304,9 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Center(
             child: SizedBox(
               height: screenHeight(context) * 0.8,
-              width: screenWidth(context) * 0.2,
+              width: screenWidth(context) < 1200
+                  ? screenWidth(context) * 0.5
+                  : screenWidth(context) * 0.2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -347,7 +364,9 @@ class _AuthScreenState extends State<AuthScreen> {
                               passwordController.text.trim());
                         },
                         child: Container(
-                          width: screenWidth(context) * 0.07,
+                          width: screenWidth(context) < 1200
+                              ? screenWidth(context) * 0.2
+                              : screenWidth(context) * 0.07,
                           height: screenHeight(context) * 0.05,
                           color: const Color(secondaryColor),
                           child: Center(
@@ -368,7 +387,9 @@ class _AuthScreenState extends State<AuthScreen> {
                           });
                         },
                         child: Container(
-                          width: screenWidth(context) * 0.07,
+                          width: screenWidth(context) < 1200
+                              ? screenWidth(context) * 0.2
+                              : screenWidth(context) * 0.07,
                           height: screenHeight(context) * 0.05,
                           decoration: BoxDecoration(
                             border: Border.all(
@@ -409,7 +430,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       AuthController.instance.googleLogin();
                     },
                     child: Container(
-                      width: screenWidth(context) * 0.13,
+                      width: screenWidth(context) < 1200
+                          ? screenWidth(context) * 0.5
+                          : screenWidth(context) * 0.25,
                       height: screenHeight(context) * 0.06,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(2.0),
@@ -427,7 +450,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           children: [
                             SvgPicture.asset('assets/svgs/google-icon.svg'),
                             SizedBox(
-                              width: screenWidth(context) * 0.01,
+                              width: 20,
                             ),
                             txt(txt: 'Sign in with Google', fontSize: 22)
                           ]),

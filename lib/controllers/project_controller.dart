@@ -706,6 +706,51 @@ class ProjectController extends GetxController {
                 });
               }
             }).then((value) async {
+              for (var asset in assets) {
+                await firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('assets')
+                    .add({"type": asset['type'], "path": asset['path']});
+              }
+            }).then((value) async {
+              for (var comment in comments) {
+                await firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('comments')
+                    .add({
+                  "type": comment['type'],
+                  "comment": comment['comment'],
+                  "username": comment['username']
+                });
+              }
+            }).then((value) async {
+              var tasksList = toDoTasks + inProgressTasks + completedTasks;
+              for (var task in tasksList) {
+                await firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('tasks')
+                    .add({
+                  'taskTitle': task['taskTitle'],
+                  'phase': task['phase'],
+                  'taskDescription': task['taskDescription'],
+                  'pilot': task['pilot'],
+                  'copilot': task['copilot'],
+                  'startDate': task['startDate'],
+                  'endDate': task['endDate'],
+                  'status': task['status'],
+                  'priorityLevel': task['priorityLevel']
+                });
+              }
+            }).then((value) async {
               for (var removedMember in removedMembers) {
                 await firestore
                     .collection('users')
@@ -743,6 +788,51 @@ class ProjectController extends GetxController {
                       member.uid,
                     )
                     .set({'uid': member.uid, 'username': member.username});
+              }
+            }).then((value) async {
+              for (var asset in assets) {
+                await firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('assets')
+                    .add({"type": asset['type'], "path": asset['path']});
+              }
+            }).then((value) async {
+              for (var comment in comments) {
+                await firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('comments')
+                    .add({
+                  "type": comment['type'],
+                  "comment": comment['comment'],
+                  "username": comment['username']
+                });
+              }
+            }).then((value) async {
+              var tasksList = toDoTasks + inProgressTasks + completedTasks;
+              for (var task in tasksList) {
+                await firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('tasks')
+                    .add({
+                  'taskTitle': task['taskTitle'],
+                  'phase': task['phase'],
+                  'taskDescription': task['taskDescription'],
+                  'pilot': task['pilot'],
+                  'copilot': task['copilot'],
+                  'startDate': task['startDate'],
+                  'endDate': task['endDate'],
+                  'status': task['status'],
+                  'priorityLevel': task['priorityLevel']
+                });
               }
             });
           }
