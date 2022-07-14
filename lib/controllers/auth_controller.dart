@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:desktop_webview_auth/desktop_webview_auth.dart';
+import 'package:desktop_webview_auth/google.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,26 +9,27 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:projectx/pages/auth/authScreen.dart';
 import 'package:projectx/pages/recent_project.dart';
 import 'package:projectx/models/user.dart' as model;
-
+import 'dart:io' show Platform;
 import '../constants/style.dart';
-import '../pages/add_new_task.dart';
+import 'package:firedart/firedart.dart' as firedart;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AuthController extends GetxController {
   static AuthController instance = Get.find();
   late Rx<User?> _user;
   bool isLoging = false;
   User? get user => _user.value;
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  final _auth = FirebaseAuth.instance;
 
   @override
   void onReady() {
     super.onReady();
-    _user = Rx<User?>(auth.currentUser);
-    _user.bindStream(auth.authStateChanges());
+    _user = Rx<User?>(_auth.currentUser);
+    _user.bindStream(_auth.authStateChanges());
     ever(_user, loginRedirect);
   }
 
-  loginRedirect(User? user) {
+  loginRedirect(var user) {
     Timer(Duration(seconds: isLoging ? 0 : 2), () {
       if (user == null) {
         isLoging = false;
@@ -35,7 +38,7 @@ class AuthController extends GetxController {
       } else {
         isLoging = true;
         update();
-        Get.offAll(() => const RecentProjects());
+        Get.to(() => const RecentProjects());
         // Get.offAll(() => AddNewTask(
         //       projectId: "23",
         //     ));
@@ -48,7 +51,7 @@ class AuthController extends GetxController {
       isLoging = true;
       update();
 
-      UserCredential cred = await auth.createUserWithEmailAndPassword(
+      UserCredential cred = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
 
       model.User user = model.User(
@@ -57,16 +60,23 @@ class AuthController extends GetxController {
           uid: cred.user!.uid,
           profilePhoto: '',
           noOfProjects: 0);
-      await firestore
-          .collection('users')
-          .doc(cred.user!.uid)
-          .set(user.toJson());
+      if (!kIsWeb) {
+        await firedart.Firestore.instance
+            .collection('users')
+            .document(cred.user!.uid)
+            .set(user.toJson());
+      } else {
+        await firestore
+            .collection('users')
+            .doc(cred.user!.uid)
+            .set(user.toJson());
+      }
 
       getSuccessSnackBar("Successfully logged in");
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       //define error
       getErrorSnackBar(
-        "Account Creating Failed",
+        "Account Creation Failed",
       );
     }
   }
@@ -75,9 +85,9 @@ class AuthController extends GetxController {
     try {
       isLoging = true;
       update();
-      await auth.signInWithEmailAndPassword(email: email, password: password);
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
       getSuccessSnackBar("Successfully logged in as ${_user.value!.email}");
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       //define error
       getErrorSnackBar(
         "Login Failed",
@@ -85,59 +95,86 @@ class AuthController extends GetxController {
     }
   }
 
-  void googleLogin() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    isLoging = true;
-    update();
-    try {
-      googleSignIn.disconnect();
-    } catch (e) {}
-    try {
-      final GoogleSignInAccount? googleSignInAccount =
-          await googleSignIn.signIn();
-      if (googleSignInAccount != null) {
-        final GoogleSignInAuthentication? googleAuth =
-            await googleSignInAccount.authentication;
-        final crendentials = GoogleAuthProvider.credential(
-          accessToken: googleAuth?.accessToken,
-          idToken: googleAuth?.idToken,
-        );
+  void googleLogin(BuildContext context) async {
+    if (!kIsWeb) {
+      try {
+        // final result =
+        await DesktopWebviewAuth.signIn(GoogleSignInArgs(
+          clientId:
+              // '69104603518-p559e135bhua3er1124roao29f3mvebj.apps.googleusercontent.com',
+              '448618578101-sg12d2qin42cpr00f8b0gehs5s7inm0v.apps.googleusercontent.com',
+          scope: 'https://www.googleapis.com/auth/plus.me '
+              'https://www.googleapis.com/auth/userinfo.email',
+          redirectUri:
+              'https://react-native-firebase-testing.firebaseapp.com/__/auth/handler',
+          // redirectUri: 'https://localhost:2720/',
+          // redirectUri:
+          //     'https://ava-project-ab57c.firebaseapp.com/__/auth/handler',
+        ));
+        // final credential =
+        //     GoogleAuthProvider.credential(accessToken: result!.accessToken);
 
-        final UserCredential userCredential =
-            await auth.signInWithCredential(crendentials);
+        // FirebaseAuth.instance.signInWithCredential(credential);
 
-        User? registereduser = userCredential.user;
-
-        model.User user = model.User(
-            name: registereduser!.displayName,
-            email: registereduser.email,
-            uid: registereduser.uid,
-            profilePhoto: '',
-            noOfProjects: 0);
-
-        await firestore
-            .collection('users')
-            .doc(registereduser.uid)
-            .set(user.toJson());
-
-        getSuccessSnackBar("Successfully logged in");
+        // print(result.accessToken);
+        // print(result.tokenSecret);
+      } catch (err) {
+        // something went wrong
       }
-    } on FirebaseAuthException catch (e) {
-      getErrorSnackBar(
-        "Google Login Failed",
-      );
-    } on PlatformException catch (e) {
-      getErrorSnackBar(
-        "Google Login Failed",
-      );
+    } else {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      isLoging = true;
+      update();
+
+      googleSignIn.disconnect();
+
+      try {
+        final GoogleSignInAccount? googleSignInAccount =
+            await googleSignIn.signIn();
+        if (googleSignInAccount != null) {
+          final GoogleSignInAuthentication? googleAuth =
+              await googleSignInAccount.authentication;
+          final crendentials = GoogleAuthProvider.credential(
+            accessToken: googleAuth?.accessToken,
+            idToken: googleAuth?.idToken,
+          );
+
+          final UserCredential userCredential =
+              await _auth.signInWithCredential(crendentials);
+
+          User? registereduser = userCredential.user;
+
+          model.User user = model.User(
+              name: registereduser!.displayName,
+              email: registereduser.email,
+              uid: registereduser.uid,
+              profilePhoto: '',
+              noOfProjects: 0);
+
+          await firestore
+              .collection('users')
+              .doc(registereduser.uid)
+              .set(user.toJson());
+
+          getSuccessSnackBar("Successfully logged in");
+        }
+      } on FirebaseAuthException {
+        getErrorSnackBar(
+          "Google Login Failed",
+        );
+      } on PlatformException {
+        getErrorSnackBar(
+          "Google Login Failed",
+        );
+      }
     }
   }
 
   void forgorPassword(email) async {
     try {
-      await auth.sendPasswordResetEmail(email: email);
+      await _auth.sendPasswordResetEmail(email: email);
       getSuccessSnackBar("Reset mail sent successfully. Check mail!");
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       getErrorSnackBar(
         "Error",
       );
@@ -145,6 +182,6 @@ class AuthController extends GetxController {
   }
 
   void signOut() async {
-    await auth.signOut();
+    await _auth.signOut();
   }
 }

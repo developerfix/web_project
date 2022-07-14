@@ -1,20 +1,12 @@
-import 'dart:convert';
-import 'dart:html';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/auth_controller.dart';
 import 'package:projectx/controllers/profile_controller.dart';
 import 'package:projectx/controllers/project_controller.dart';
-import 'package:projectx/models/projectMember.dart';
-import 'package:projectx/widgets/customAppBar.dart';
-import 'package:projectx/widgets/loadingIndicator.dart';
-import 'package:projectx/widgets/popup_textfield.dart';
+import 'package:projectx/models/project_member.dart';
+import 'package:projectx/widgets/custom_appbar.dart';
+import 'package:projectx/widgets/loading_indicator.dart';
 
 import '../widgets/custom_drawer.dart';
 import '../widgets/select_task_members_popup.dart';
@@ -31,7 +23,6 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
   final ProjectController projectController = Get.find();
   final ProfileController profileController = Get.find();
   final _uid = AuthController.instance.user!.uid;
-  int _value = 1;
 
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
@@ -174,7 +165,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                                     'Select from members'
                                                 ? '@$taskPilot'
                                                 : taskPilot,
-                                            hintStyle: TextStyle(
+                                            hintStyle: const TextStyle(
                                                 fontSize: 14,
                                                 color: Color(brownishColor),
                                                 fontWeight: FontWeight.w600)),
@@ -241,7 +232,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                                     'Select from members'
                                                 ? '@$taskPilot'
                                                 : taskPilot,
-                                            hintStyle: TextStyle(
+                                            hintStyle: const TextStyle(
                                                 fontSize: 14,
                                                 color: Color(brownishColor),
                                                 fontWeight: FontWeight.w600)),
@@ -376,7 +367,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                                     'Select from members'
                                                 ? '@$taskCoPilot'
                                                 : taskCoPilot,
-                                            hintStyle: TextStyle(
+                                            hintStyle: const TextStyle(
                                                 fontSize: 14,
                                                 color: Color(brownishColor),
                                                 fontWeight: FontWeight.w600)),
@@ -418,11 +409,13 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                         side: const BorderSide(
                                             color: Color(secondaryColor)),
                                         checkColor: Colors.white,
-                                        activeColor: Color(secondaryColor),
+                                        activeColor:
+                                            const Color(secondaryColor),
                                         title: txt(
                                             txt: username,
                                             fontSize: 18,
-                                            fontColor: Color(secondaryColor)),
+                                            fontColor:
+                                                const Color(secondaryColor)),
                                         value: users
                                             .map((item) => item.uid)
                                             .contains(userId),
@@ -448,8 +441,6 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                               onTap: () {
                                 if (taskPilot == 'Select from members' ||
                                     taskCoPilot == 'Select from members') {
-                                  print(
-                                      'please select pilot and copilot first');
                                 } else {
                                   users.add(ProjectMember(
                                       uid: taskPilotId, username: taskPilot));

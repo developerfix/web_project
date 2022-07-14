@@ -3,7 +3,6 @@ import 'package:projectx/widgets/popup_textfield.dart';
 import '../constants/style.dart';
 import 'package:flutter/material.dart';
 
-import '../controllers/auth_controller.dart';
 import '../controllers/project_controller.dart';
 
 int _value = 1;
@@ -12,23 +11,22 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
   final pathController = TextEditingController();
 
   final projectController = Get.put(ProjectController());
-  final _uid = AuthController.instance.user!.uid;
 
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
 
   return showDialog(
       context: context,
       builder: (BuildContext context) {
         return Form(
-          key: _formKey,
+          key: formKey,
           child: AlertDialog(
             content: SizedBox(
               height: screenHeight(context) * 0.4,
               width: screenWidth(context) * 0.3,
               child: Padding(
                 padding: screenWidth(context) < 800
-                    ? EdgeInsets.all(8.0)
-                    : EdgeInsets.all(20.0),
+                    ? const EdgeInsets.all(8.0)
+                    : const EdgeInsets.all(20.0),
                 child: Column(children: <Widget>[
                   txt(
                     txt: 'ADD ASSET',
@@ -103,7 +101,7 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                             ),
                     ],
                   ),
-                  Spacer(),
+                  const Spacer(),
                   Row(
                     mainAxisAlignment: screenWidth(context) < 1000
                         ? MainAxisAlignment.start
@@ -141,7 +139,7 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                       ),
                       InkWell(
                         onTap: () {
-                          if (_formKey.currentState!.validate()) {
+                          if (formKey.currentState!.validate()) {
                             Get.back();
                             projectController.addNewAsset(
                               path: pathController.text.trim(),

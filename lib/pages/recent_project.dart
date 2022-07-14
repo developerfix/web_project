@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:projectx/constants/style.dart';
-import 'package:projectx/pages/profile.dart';
 import 'package:projectx/pages/project_dashboard.dart';
 import 'package:projectx/pages/see_all_projs.dart';
-import 'package:projectx/widgets/loadingIndicator.dart';
+import 'package:projectx/widgets/loading_indicator.dart';
 
 import '../controllers/auth_controller.dart';
 import '../controllers/profile_controller.dart';
 import '../widgets/create_project_popup.dart';
-import '../widgets/customAppBar.dart';
+import '../widgets/custom_appbar.dart';
 import '../widgets/custom_drawer.dart';
 
 class RecentProjects extends StatefulWidget {
@@ -145,12 +142,6 @@ class _RecentProjectsState extends State<RecentProjects> {
                                             itemCount: itemCount(
                                                 profileController
                                                     .projects.length),
-                                            // itemCount: profileController
-                                            //             .projects.length >
-                                            //         5
-                                            //     ? 5
-                                            //     : profileController
-                                            //         .projects.length,
                                             itemBuilder: (context, i) {
                                               String projectTitle =
                                                   profileController.projects[i]

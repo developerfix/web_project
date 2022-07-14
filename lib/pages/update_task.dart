@@ -1,16 +1,11 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/auth_controller.dart';
 import 'package:projectx/controllers/profile_controller.dart';
 import 'package:projectx/controllers/project_controller.dart';
-import 'package:projectx/widgets/customAppBar.dart';
+import 'package:projectx/widgets/custom_appbar.dart';
 import 'package:projectx/widgets/popup_textfield.dart';
 
 import '../widgets/custom_drawer.dart';

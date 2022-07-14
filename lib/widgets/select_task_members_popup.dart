@@ -1,9 +1,7 @@
 import 'package:get/get.dart';
-import 'package:projectx/widgets/popup_textfield.dart';
 import '../constants/style.dart';
 import 'package:flutter/material.dart';
 
-import '../controllers/auth_controller.dart';
 import '../controllers/project_controller.dart';
 
 Future<dynamic> selectTaskMembersPopup(BuildContext context, {String? title}) {

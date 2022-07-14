@@ -1,8 +1,5 @@
-import 'dart:html';
-
+import 'package:universal_html/html.dart' as html;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:projectx/constants/style.dart';
@@ -10,15 +7,13 @@ import 'package:projectx/controllers/auth_controller.dart';
 import 'package:projectx/controllers/profile_controller.dart';
 import 'package:projectx/controllers/project_controller.dart';
 import 'package:projectx/pages/add_new_task.dart';
-import 'package:projectx/pages/projectMembers.dart';
-import 'package:projectx/pages/select_project_members.dart';
+import 'package:projectx/pages/project_members.dart';
 import 'package:projectx/pages/update_task.dart';
 import 'package:projectx/pages/recent_project.dart';
 import 'package:projectx/pages/timeline.dart';
 import 'package:projectx/widgets/asset_popup.dart';
-import 'package:projectx/widgets/loadingIndicator.dart';
+import 'package:projectx/widgets/loading_indicator.dart';
 
-import '../widgets/customAppBar.dart';
 import '../widgets/custom_drawer.dart';
 
 class ProjectDashboard extends StatefulWidget {
@@ -1795,7 +1790,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   }
 
   downloadFile(url) {
-    AnchorElement anchorElement = new AnchorElement(href: url);
+    html.AnchorElement anchorElement = html.AnchorElement(href: url);
     anchorElement.click();
   }
 }

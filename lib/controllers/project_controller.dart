@@ -6,10 +6,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:projectx/models/project.dart';
-import 'package:projectx/models/projectMember.dart';
+import 'package:projectx/models/project_member.dart';
 import 'package:projectx/models/task.dart' as taskModel;
 import 'package:projectx/pages/project_dashboard.dart';
-
+import 'package:firedart/firedart.dart' as firedart;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../constants/style.dart';
 
 class ProjectController extends GetxController {
@@ -40,87 +41,165 @@ class ProjectController extends GetxController {
   }
 
   getProjectAssets() async {
-    QuerySnapshot projectAssets = await firestore
-        .collection('users')
-        .doc(_uid.value)
-        .collection('projects')
-        .doc(_projectId.value)
-        .collection('assets')
-        .get();
+    if (!kIsWeb) {
+      var projectAssets = await firedartFirestore
+          .collection('users')
+          .document(_uid.value)
+          .collection('projects')
+          .document(_projectId.value)
+          .collection('assets')
+          .get();
 
-    for (var asset in projectAssets.docs) {
-      assets.add((asset.data() as dynamic));
+      for (var asset in projectAssets) {
+        assets.add(asset);
+      }
+    } else {
+      QuerySnapshot projectAssets = await firestore
+          .collection('users')
+          .doc(_uid.value)
+          .collection('projects')
+          .doc(_projectId.value)
+          .collection('assets')
+          .get();
+
+      for (var asset in projectAssets.docs) {
+        assets.add((asset.data() as dynamic));
+      }
     }
   }
 
   getProjectMembers() async {
-    await firestore
-        .collection('users')
-        .doc(_uid.value)
-        .collection('projects')
-        .doc(_projectId.value)
-        .collection('members')
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      for (var member in querySnapshot.docs) {
-        var memberr = (member.data() as dynamic);
-        projectMembers.add(memberr);
-      }
-    });
+    if (!kIsWeb) {
+      await firedartFirestore
+          .collection('users')
+          .document(_uid.value)
+          .collection('projects')
+          .document(_projectId.value)
+          .collection('members')
+          .get()
+          .then((members) {
+        for (var member in members) {
+          projectMembers.add(member);
+        }
+      });
+    } else {
+      await firestore
+          .collection('users')
+          .doc(_uid.value)
+          .collection('projects')
+          .doc(_projectId.value)
+          .collection('members')
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        for (var member in querySnapshot.docs) {
+          var memberr = (member.data() as dynamic);
+          projectMembers.add(memberr);
+        }
+      });
+    }
   }
 
   getUsers() async {
     users.clear();
-    await firestore
-        .collection('users')
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      for (var user in querySnapshot.docs) {
-        users.add((user.data() as dynamic));
-      }
-    });
-  }
+    if (!kIsWeb) {
+      var fetchedUsers = await firedartFirestore.collection('users').get();
 
-  deleteProjectAsset({path}) async {
-    isAssetUpdating.value = true;
-    for (var i = 0; i < projectMembers.length; i++) {
+      for (var user in fetchedUsers) {
+        users.add(user);
+      }
+    } else {
       await firestore
           .collection('users')
-          .doc(projectMembers[i]['uid'])
-          .collection('projects')
-          .doc(_projectId.value)
-          .collection('assets')
-          .where('path', isEqualTo: path)
           .get()
           .then((QuerySnapshot querySnapshot) {
-        for (var doc in querySnapshot.docs) {
-          doc.reference.delete();
+        for (var user in querySnapshot.docs) {
+          users.add((user.data() as dynamic));
         }
       });
     }
-    assets.removeWhere((element) => element['path'] == path);
-
-    isAssetUpdating.value = false;
   }
 
-  deleteProjectTask({taskTitle, taskDescription, status}) async {
-    isTasksUpdating.value = true;
-    try {
+  deleteProjectAsset({path}) async {
+    if (!kIsWeb) {
+      isAssetUpdating.value = true;
+      for (var i = 0; i < projectMembers.length; i++) {
+        await firedartFirestore
+            .collection('users')
+            .document(projectMembers[i]['uid'])
+            .collection('projects')
+            .document(_projectId.value)
+            .collection('assets')
+            .where('path', isEqualTo: path)
+            .get()
+            .then((assets) {
+          for (var doc in assets) {
+            doc.reference.delete();
+          }
+        });
+      }
+      assets.removeWhere((element) => element['path'] == path);
+
+      isAssetUpdating.value = false;
+    } else {
+      isAssetUpdating.value = true;
       for (var i = 0; i < projectMembers.length; i++) {
         await firestore
             .collection('users')
             .doc(projectMembers[i]['uid'])
             .collection('projects')
             .doc(_projectId.value)
-            .collection('tasks')
-            .where('taskDescription', isEqualTo: taskDescription)
-            .where('taskTitle', isEqualTo: taskTitle)
+            .collection('assets')
+            .where('path', isEqualTo: path)
             .get()
             .then((QuerySnapshot querySnapshot) {
           for (var doc in querySnapshot.docs) {
             doc.reference.delete();
           }
         });
+      }
+      assets.removeWhere((element) => element['path'] == path);
+
+      isAssetUpdating.value = false;
+    }
+  }
+
+  deleteProjectTask({taskTitle, taskDescription, status}) async {
+    isTasksUpdating.value = true;
+    try {
+      if (!kIsWeb) {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firedartFirestore
+              .collection('users')
+              .document(projectMembers[i]['uid'])
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('tasks')
+              .where('taskDescription', isEqualTo: taskDescription)
+              .where('taskTitle', isEqualTo: taskTitle)
+              .get()
+              .then((value) {
+            for (var doc in value) {
+              doc.reference.delete();
+            }
+          });
+        }
+      } else {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firestore
+              .collection('users')
+              .doc(projectMembers[i]['uid'])
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('tasks')
+              .where('taskDescription', isEqualTo: taskDescription)
+              .where('taskTitle', isEqualTo: taskTitle)
+              .get()
+              .then((QuerySnapshot querySnapshot) {
+            for (var doc in querySnapshot.docs) {
+              doc.reference.delete();
+            }
+          });
+        }
       }
 
       status == 'todo'
@@ -168,22 +247,42 @@ class ProjectController extends GetxController {
         endDate: endDate,
         status: 'inProgress',
         priorityLevel: priorityLevel);
+
     try {
-      for (var i = 0; i < projectMembers.length; i++) {
-        await firestore
-            .collection('users')
-            .doc(projectMembers[i]['uid'])
-            .collection('projects')
-            .doc(_projectId.value)
-            .collection('tasks')
-            .where('taskDescription', isEqualTo: taskDescription)
-            .where('taskTitle', isEqualTo: taskTitle)
-            .get()
-            .then((QuerySnapshot querySnapshot) {
-          for (var doc in querySnapshot.docs) {
-            doc.reference.update({'status': 'inProgress'});
-          }
-        });
+      if (!kIsWeb) {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firedartFirestore
+              .collection('users')
+              .document(projectMembers[i]['uid'])
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('tasks')
+              .where('taskDescription', isEqualTo: taskDescription)
+              .where('taskTitle', isEqualTo: taskTitle)
+              .get()
+              .then((value) {
+            for (var doc in value) {
+              doc.reference.update({'status': 'inProgress'});
+            }
+          });
+        }
+      } else {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firestore
+              .collection('users')
+              .doc(projectMembers[i]['uid'])
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('tasks')
+              .where('taskDescription', isEqualTo: taskDescription)
+              .where('taskTitle', isEqualTo: taskTitle)
+              .get()
+              .then((QuerySnapshot querySnapshot) {
+            for (var doc in querySnapshot.docs) {
+              doc.reference.update({'status': 'inProgress'});
+            }
+          });
+        }
       }
 
       status == 'todo'
@@ -231,21 +330,40 @@ class ProjectController extends GetxController {
         status: 'todo',
         priorityLevel: priorityLevel);
     try {
-      for (var i = 0; i < projectMembers.length; i++) {
-        await firestore
-            .collection('users')
-            .doc(projectMembers[i]['uid'])
-            .collection('projects')
-            .doc(_projectId.value)
-            .collection('tasks')
-            .where('taskDescription', isEqualTo: taskDescription)
-            .where('taskTitle', isEqualTo: taskTitle)
-            .get()
-            .then((QuerySnapshot querySnapshot) {
-          for (var doc in querySnapshot.docs) {
-            doc.reference.update({'status': 'todo'});
-          }
-        });
+      if (!kIsWeb) {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firedartFirestore
+              .collection('users')
+              .document(projectMembers[i]['uid'])
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('tasks')
+              .where('taskDescription', isEqualTo: taskDescription)
+              .where('taskTitle', isEqualTo: taskTitle)
+              .get()
+              .then((value) {
+            for (var doc in value) {
+              doc.reference.update({'status': 'todo'});
+            }
+          });
+        }
+      } else {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firestore
+              .collection('users')
+              .doc(projectMembers[i]['uid'])
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('tasks')
+              .where('taskDescription', isEqualTo: taskDescription)
+              .where('taskTitle', isEqualTo: taskTitle)
+              .get()
+              .then((QuerySnapshot querySnapshot) {
+            for (var doc in querySnapshot.docs) {
+              doc.reference.update({'status': 'todo'});
+            }
+          });
+        }
       }
 
       status == 'inProgress'
@@ -292,21 +410,40 @@ class ProjectController extends GetxController {
         status: 'completed',
         priorityLevel: priorityLevel);
     try {
-      for (var i = 0; i < projectMembers.length; i++) {
-        await firestore
-            .collection('users')
-            .doc(projectMembers[i]['uid'])
-            .collection('projects')
-            .doc(_projectId.value)
-            .collection('tasks')
-            .where('taskDescription', isEqualTo: taskDescription)
-            .where('taskTitle', isEqualTo: taskTitle)
-            .get()
-            .then((QuerySnapshot querySnapshot) {
-          for (var doc in querySnapshot.docs) {
-            doc.reference.update({'status': 'completed'});
-          }
-        });
+      if (!kIsWeb) {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firedartFirestore
+              .collection('users')
+              .document(projectMembers[i]['uid'])
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('tasks')
+              .where('taskDescription', isEqualTo: taskDescription)
+              .where('taskTitle', isEqualTo: taskTitle)
+              .get()
+              .then((value) {
+            for (var doc in value) {
+              doc.reference.update({'status': 'completed'});
+            }
+          });
+        }
+      } else {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firestore
+              .collection('users')
+              .doc(projectMembers[i]['uid'])
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('tasks')
+              .where('taskDescription', isEqualTo: taskDescription)
+              .where('taskTitle', isEqualTo: taskTitle)
+              .get()
+              .then((QuerySnapshot querySnapshot) {
+            for (var doc in querySnapshot.docs) {
+              doc.reference.update({'status': 'completed'});
+            }
+          });
+        }
       }
 
       status == 'todo'
@@ -330,111 +467,211 @@ class ProjectController extends GetxController {
   }
 
   getProjectData() async {
-    DocumentSnapshot projectDataDoc = await firestore
-        .collection('users')
-        .doc(_uid.value)
-        .collection('projects')
-        .doc(_projectId.value)
-        .get();
+    if (!kIsWeb) {
+      var projectDataDoc = await firedartFirestore
+          .collection('users')
+          .document(_uid.value)
+          .collection('projects')
+          .document(_projectId.value)
+          .get();
 
-    getProjectMembers();
-    getProjectAssets();
-    getProjectComments();
+      getProjectMembers();
+      getProjectAssets();
+      getProjectComments();
 
-    final projectData = projectDataDoc.data()! as dynamic;
-    String title = projectData['title'];
-    String subtitle = projectData['subtitle'];
-    String lead = projectData['lead'];
-    String copilot = projectData['copilot'];
+      // final projectData = projectDataDoc.data()! as dynamic;
+      String title = projectDataDoc['title'];
+      String subtitle = projectDataDoc['subtitle'];
+      String lead = projectDataDoc['lead'];
+      String copilot = projectDataDoc['copilot'];
 
-    _project.value = {
-      'title': title,
-      'subtitle': subtitle,
-      'lead': lead,
-      'copilot': copilot,
-    };
-    update();
+      _project.value = {
+        'title': title,
+        'subtitle': subtitle,
+        'lead': lead,
+        'copilot': copilot,
+      };
+      update();
+    } else {
+      DocumentSnapshot projectDataDoc = await firestore
+          .collection('users')
+          .doc(_uid.value)
+          .collection('projects')
+          .doc(_projectId.value)
+          .get();
+
+      getProjectMembers();
+      getProjectAssets();
+      getProjectComments();
+
+      final projectData = projectDataDoc.data()! as dynamic;
+      String title = projectData['title'];
+      String subtitle = projectData['subtitle'];
+      String lead = projectData['lead'];
+      String copilot = projectData['copilot'];
+
+      _project.value = {
+        'title': title,
+        'subtitle': subtitle,
+        'lead': lead,
+        'copilot': copilot,
+      };
+      update();
+    }
   }
 
   void newProject(
       {String? title, String? subtitle, String? uid, String? username}) async {
     String projectId = '';
-    try {
-      Project project = Project(
-          copilot: 'assign co-pilot',
-          lead: 'assign lead',
-          projectId: projectId,
-          subtitle: subtitle,
-          title: title);
+    Project project = Project(
+        copilot: 'assign co-pilot',
+        lead: 'assign lead',
+        projectId: projectId,
+        subtitle: subtitle,
+        title: title);
 
-      await firestore
-          .collection('users')
-          .doc(uid)
-          .collection('projects')
-          .add(project.toJson())
-          .then((value) async {
-        projectId = value.id;
+    if (!kIsWeb) {
+      try {
+        await firedartFirestore
+            .collection('users')
+            .document('$uid')
+            .collection('projects')
+            .add(project.toJson())
+            .then((value) async {
+          projectId = value.id;
+          await firedartFirestore
+              .collection('users')
+              .document('$uid')
+              .collection('projects')
+              .document(value.id)
+              .update({'projectId': value.id}).then((value) async {
+            await firedartFirestore
+                .collection('users')
+                .document('$uid')
+                .collection('projects')
+                .document(projectId)
+                .collection('members')
+                .document('$uid')
+                .set({"uid": uid, 'username': username}).then((value) {
+              Get.to(ProjectDashboard(projectId: projectId));
+            });
+          });
+        });
+
+        getSuccessSnackBar("Project created successfully");
+      } catch (e) {
+        //define error
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
+      }
+    } else {
+      try {
         await firestore
             .collection('users')
             .doc(uid)
             .collection('projects')
-            .doc(value.id)
-            .update({'projectId': value.id}).then((value) async {
+            .add(project.toJson())
+            .then((value) async {
+          projectId = value.id;
           await firestore
               .collection('users')
               .doc(uid)
               .collection('projects')
-              .doc(projectId)
-              .collection('members')
-              .doc(uid)
-              .set({"uid": uid, 'username': username}).then((value) {
-            Get.to(ProjectDashboard(projectId: projectId));
+              .doc(value.id)
+              .update({'projectId': value.id}).then((value) async {
+            await firestore
+                .collection('users')
+                .doc(uid)
+                .collection('projects')
+                .doc(projectId)
+                .collection('members')
+                .doc(uid)
+                .set({"uid": uid, 'username': username}).then((value) {
+              Get.to(ProjectDashboard(projectId: projectId));
+            });
           });
         });
-      });
 
-      getSuccessSnackBar("Project created successfully");
-    } catch (e) {
-      //define error
-      getErrorSnackBar(
-        "Something went wrong, Please try again",
-      );
+        getSuccessSnackBar("Project created successfully");
+      } catch (e) {
+        //define error
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
+      }
     }
   }
 
   void addNewAsset({type, path}) async {
-    isAssetUpdating.value = true;
-    try {
-      for (var member in projectMembers) {
-        await firestore
-            .collection('users')
-            .doc(member['uid'])
-            .collection('projects')
-            .doc(_projectId.value)
-            .collection('assets')
-            .add({"type": type, "path": path});
+    if (!kIsWeb) {
+      isAssetUpdating.value = true;
+      try {
+        for (var member in projectMembers) {
+          await firedartFirestore
+              .collection('users')
+              .document(member['uid'])
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('assets')
+              .add({"type": type, "path": path});
+        }
+        assets.add({"type": type, "path": path});
+        isAssetUpdating.value = false;
+        getSuccessSnackBar("asset added successfully");
+      } catch (e) {
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
       }
-      assets.add({"type": type, "path": path});
-      isAssetUpdating.value = false;
-      getSuccessSnackBar("asset added successfully");
-    } catch (e) {
-      getErrorSnackBar(
-        "Something went wrong, Please try again",
-      );
+    } else {
+      isAssetUpdating.value = true;
+      try {
+        for (var member in projectMembers) {
+          await firestore
+              .collection('users')
+              .doc(member['uid'])
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('assets')
+              .add({"type": type, "path": path});
+        }
+        assets.add({"type": type, "path": path});
+        isAssetUpdating.value = false;
+        getSuccessSnackBar("asset added successfully");
+      } catch (e) {
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
+      }
     }
   }
 
   getProjectComments() async {
-    QuerySnapshot projectComments = await firestore
-        .collection('users')
-        .doc(_uid.value)
-        .collection('projects')
-        .doc(_projectId.value)
-        .collection('comments')
-        .get();
+    if (!kIsWeb) {
+      var projectComments = await firedartFirestore
+          .collection('users')
+          .document(_uid.value)
+          .collection('projects')
+          .document(_projectId.value)
+          .collection('comments')
+          .get();
 
-    for (var comment in projectComments.docs) {
-      comments.add((comment.data() as dynamic));
+      for (var comment in projectComments) {
+        comments.add(comment);
+      }
+    } else {
+      QuerySnapshot projectComments = await firestore
+          .collection('users')
+          .doc(_uid.value)
+          .collection('projects')
+          .doc(_projectId.value)
+          .collection('comments')
+          .get();
+
+      for (var comment in projectComments.docs) {
+        comments.add((comment.data() as dynamic));
+      }
     }
   }
 
@@ -442,49 +679,107 @@ class ProjectController extends GetxController {
     toDoTasks.clear();
     inProgressTasks.clear();
     completedTasks.clear();
-    QuerySnapshot projectTasks = await firestore
-        .collection('users')
-        .doc(_uid.value)
-        .collection('projects')
-        .doc(_projectId.value)
-        .collection('tasks')
-        .get();
+    if (!kIsWeb) {
+      var projectTasks = await firedartFirestore
+          .collection('users')
+          .document(_uid.value)
+          .collection('projects')
+          .document(_projectId.value)
+          .collection('tasks')
+          .get();
 
-    for (var tasks in projectTasks.docs) {
-      var task = tasks.data() as dynamic;
+      for (var task in projectTasks) {
+        if (task['status'] == 'todo') {
+          toDoTasks.add(task);
+        } else if (task['status'] == 'inProgress') {
+          inProgressTasks.add(task);
+        } else {
+          completedTasks.add(task);
+        }
+      }
+    } else {
+      QuerySnapshot projectTasks = await firestore
+          .collection('users')
+          .doc(_uid.value)
+          .collection('projects')
+          .doc(_projectId.value)
+          .collection('tasks')
+          .get();
 
-      if (task['status'] == 'todo') {
-        toDoTasks.add(task);
-      } else if (task['status'] == 'inProgress') {
-        inProgressTasks.add(task);
-      } else {
-        completedTasks.add(task);
+      for (var tasks in projectTasks.docs) {
+        var task = tasks.data() as dynamic;
+
+        if (task['status'] == 'todo') {
+          toDoTasks.add(task);
+        } else if (task['status'] == 'inProgress') {
+          inProgressTasks.add(task);
+        } else {
+          completedTasks.add(task);
+        }
       }
     }
   }
 
   addNewCommentFile({username}) async {
-    try {
-      FilePickerResult? result =
-          await FilePicker.platform.pickFiles(allowMultiple: false);
+    if (!kIsWeb) {
+    } else {
+      try {
+        FilePickerResult? result =
+            await FilePicker.platform.pickFiles(allowMultiple: false);
 
-      UploadTask uploadTask;
+        UploadTask uploadTask;
 
-      if (result != null) {
-        isUploading.value = true;
-        // List<File> files = result.files.single.map((files) => File(path!)).toList();
-        // List<File> filesNames =
-        //     result.names.map((name) => File(name!)).toList();
+        if (result != null) {
+          isUploading.value = true;
+          // List<File> files = result.files.single.map((files) => File(path!)).toList();
+          // List<File> filesNames =
+          //     result.names.map((name) => File(name!)).toList();
 
-        Uint8List? uploadfile = result.files.single.bytes;
+          Uint8List? uploadfile = result.files.single.bytes;
 
-        String filename = result.files.single.name;
+          String filename = result.files.single.name;
 
-        final ref =
-            FirebaseStorage.instance.ref().child('commentFiles/$filename');
-        uploadTask = ref.putData(uploadfile!);
-        final snapshot = await uploadTask.whenComplete(() {});
-        final urlDownload = await snapshot.ref.getDownloadURL();
+          final ref =
+              FirebaseStorage.instance.ref().child('commentFiles/$filename');
+          uploadTask = ref.putData(uploadfile!);
+          final snapshot = await uploadTask.whenComplete(() {});
+          final urlDownload = await snapshot.ref.getDownloadURL();
+          for (var i = 0; i < projectMembers.length; i++) {
+            await firestore
+                .collection('users')
+                .doc(projectMembers[i]['uid'])
+                .collection('projects')
+                .doc(_projectId.value)
+                .collection('comments')
+                .add({
+              "type": 'file',
+              "comment": urlDownload,
+              "username": username
+            });
+          }
+          comments.add(
+              {"type": 'file', "comment": urlDownload, "username": username});
+          isUploading.value = false;
+
+          getSuccessSnackBar("comment added successfully");
+        } else {
+          // User canceled the picker
+        }
+      } catch (e) {
+        isUploading.value = false;
+        //define error
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
+      }
+    }
+  }
+
+  addNewComment({comment, username}) async {
+    if (!kIsWeb) {
+    } else {
+      isUploading.value = true;
+      try {
         for (var i = 0; i < projectMembers.length; i++) {
           await firestore
               .collection('users')
@@ -492,53 +787,22 @@ class ProjectController extends GetxController {
               .collection('projects')
               .doc(_projectId.value)
               .collection('comments')
-              .add({
-            "type": 'file',
-            "comment": urlDownload,
-            "username": username
-          });
+              .add({"type": 'text', "comment": comment, "username": username});
         }
-        comments.add(
-            {"type": 'file', "comment": urlDownload, "username": username});
+
+        comments
+            .add({"type": 'text', "comment": comment, "username": username});
+
         isUploading.value = false;
 
         getSuccessSnackBar("comment added successfully");
-      } else {
-        // User canceled the picker
+      } catch (e) {
+        isUploading.value = false;
+        //define error
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
       }
-    } catch (e) {
-      isUploading.value = false;
-      //define error
-      getErrorSnackBar(
-        "Something went wrong, Please try again",
-      );
-    }
-  }
-
-  addNewComment({comment, username}) async {
-    isUploading.value = true;
-    try {
-      for (var i = 0; i < projectMembers.length; i++) {
-        await firestore
-            .collection('users')
-            .doc(projectMembers[i]['uid'])
-            .collection('projects')
-            .doc(_projectId.value)
-            .collection('comments')
-            .add({"type": 'text', "comment": comment, "username": username});
-      }
-
-      comments.add({"type": 'text', "comment": comment, "username": username});
-
-      isUploading.value = false;
-
-      getSuccessSnackBar("comment added successfully");
-    } catch (e) {
-      isUploading.value = false;
-      //define error
-      getErrorSnackBar(
-        "Something went wrong, Please try again",
-      );
     }
   }
 
@@ -566,14 +830,26 @@ class ProjectController extends GetxController {
         status: status,
         priorityLevel: priorityLevel);
     try {
-      for (var i = 0; i < projectMembers.length; i++) {
-        await firestore
-            .collection('users')
-            .doc(projectMembers[i]['uid'])
-            .collection('projects')
-            .doc(_projectId.value)
-            .collection('tasks')
-            .add(task.toJson());
+      if (!kIsWeb) {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firedartFirestore
+              .collection('users')
+              .document(projectMembers[i]['uid'])
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('tasks')
+              .add(task.toJson());
+        }
+      } else {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firestore
+              .collection('users')
+              .doc(projectMembers[i]['uid'])
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('tasks')
+              .add(task.toJson());
+        }
       }
       getProjectTasks();
       isTasksUpdating.value = false;
@@ -611,21 +887,40 @@ class ProjectController extends GetxController {
         status: status,
         priorityLevel: priorityLevel);
     try {
-      for (var i = 0; i < projectMembers.length; i++) {
-        await firestore
-            .collection('users')
-            .doc(projectMembers[i]['uid'])
-            .collection('projects')
-            .doc(_projectId.value)
-            .collection('tasks')
-            .where('taskDescription', isEqualTo: oldTaskDescription)
-            .where('taskTitle', isEqualTo: oldTaskTitle)
-            .get()
-            .then((QuerySnapshot querySnapshot) {
-          for (var doc in querySnapshot.docs) {
-            doc.reference.update(task.toJson());
-          }
-        });
+      if (!kIsWeb) {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firedartFirestore
+              .collection('users')
+              .document(projectMembers[i]['uid'])
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('tasks')
+              .where('taskDescription', isEqualTo: oldTaskDescription)
+              .where('taskTitle', isEqualTo: oldTaskTitle)
+              .get()
+              .then((value) {
+            for (var doc in value) {
+              doc.reference.update(task.toJson());
+            }
+          });
+        }
+      } else {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firestore
+              .collection('users')
+              .doc(projectMembers[i]['uid'])
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('tasks')
+              .where('taskDescription', isEqualTo: oldTaskDescription)
+              .where('taskTitle', isEqualTo: oldTaskTitle)
+              .get()
+              .then((QuerySnapshot querySnapshot) {
+            for (var doc in querySnapshot.docs) {
+              doc.reference.update(task.toJson());
+            }
+          });
+        }
       }
       getProjectTasks();
 
@@ -649,206 +944,410 @@ class ProjectController extends GetxController {
     List<ProjectMember>? members,
     List<ProjectMember>? removedMembers,
   }) async {
-    isMembersUpdating.value = true;
-    projectMembers.clear();
-    for (var i = 0; i < removedMembers!.length; i++) {
-      await firestore
-          .collection('users')
-          .doc(removedMembers[i].uid)
-          .collection('projects')
-          .doc(_projectId.value)
-          .delete();
-    }
+    if (!kIsWeb) {
+      // isMembersUpdating.value = true;
+      // projectMembers.clear();
+      // for (var i = 0; i < removedMembers!.length; i++) {
+      //   await firedartFirestore
+      //       .collection('users')
+      //       .document('${removedMembers[i].uid}')
+      //       .collection('projects')
+      //       .document(_projectId.value)
+      //       .delete();
+      // }
 
-    try {
-      for (var i = 0; i < members!.length; i++) {
+      // try {
+      //   for (var i = 0; i < members!.length; i++) {
+      //     await firedartFirestore
+      //         .collection('users')
+      //         .document('${members[i].uid}')
+      //         .collection('projects')
+      //         .document(_projectId.value)
+      //         .get()
+      //         .then((document) async {
+      //       if (document.) {
+      //         await firedartFirestore
+      //             .collection('users')
+      //             .document(members[i].uid)
+      //             .collection('projects')
+      //             .document(_projectId.value)
+      //             .update({
+      //           'copilot': copilot,
+      //           'lead': lead,
+      //         }).then((value) async {
+      //           for (var projectMember in members) {
+      //             await firedartFirestore
+      //                 .collection('users')
+      //                 .document(members[i].uid)
+      //                 .collection('projects')
+      //                 .document(_projectId.value)
+      //                 .collection('members')
+      //                 .document(projectMember.uid)
+      //                 .get()
+      //                 .then((DocumentSnapshot document) async {
+      //               if (document.exists) {
+      //               } else {
+      //                 await firedartFirestore
+      //                     .collection('users')
+      //                     .document(members[i].uid)
+      //                     .collection('projects')
+      //                     .document(_projectId.value)
+      //                     .collection('members')
+      //                     .document(projectMember.uid)
+      //                     .set({
+      //                   'uid': projectMember.uid,
+      //                   'username': projectMember.username
+      //                 });
+      //               }
+      //             });
+      //           }
+      //         }).then((value) async {
+      //           for (var asset in assets) {
+      //             await firedartFirestore
+      //                 .collection('users')
+      //                 .document(members[i].uid)
+      //                 .collection('projects')
+      //                 .document(_projectId.value)
+      //                 .collection('assets')
+      //                 .add({"type": asset['type'], "path": asset['path']});
+      //           }
+      //         }).then((value) async {
+      //           for (var comment in comments) {
+      //             await firedartFirestore
+      //                 .collection('users')
+      //                 .document(members[i].uid)
+      //                 .collection('projects')
+      //                 .document(_projectId.value)
+      //                 .collection('comments')
+      //                 .add({
+      //               "type": comment['type'],
+      //               "comment": comment['comment'],
+      //               "username": comment['username']
+      //             });
+      //           }
+      //         }).then((value) async {
+      //           var tasksList = toDoTasks + inProgressTasks + completedTasks;
+      //           for (var task in tasksList) {
+      //             await firedartFirestore
+      //                 .collection('users')
+      //                 .document(members[i].uid)
+      //                 .collection('projects')
+      //                 .document(_projectId.value)
+      //                 .collection('tasks')
+      //                 .add({
+      //               'taskTitle': task['taskTitle'],
+      //               'phase': task['phase'],
+      //               'taskDescription': task['taskDescription'],
+      //               'pilot': task['pilot'],
+      //               'copilot': task['copilot'],
+      //               'startDate': task['startDate'],
+      //               'endDate': task['endDate'],
+      //               'status': task['status'],
+      //               'priorityLevel': task['priorityLevel']
+      //             });
+      //           }
+      //         }).then((value) async {
+      //           for (var removedMember in removedMembers) {
+      //             await firedartFirestore
+      //                 .collection('users')
+      //                 .document(members[i].uid)
+      //                 .collection('projects')
+      //                 .document(_projectId.value)
+      //                 .collection('members')
+      //                 .document(removedMember.uid)
+      //                 .delete();
+      //           }
+      //         });
+      //       } else {
+      //         Project project = Project(
+      //             copilot: copilot,
+      //             lead: lead,
+      //             projectId: _projectId.value,
+      //             subtitle: subtitle,
+      //             title: title);
+
+      //         await firedartFirestore
+      //             .collection('users')
+      //             .document(members[i].uid)
+      //             .collection('projects')
+      //             .document(_projectId.value)
+      //             .set(project.toJson())
+      //             .then((value) async {
+      //           for (var member in members) {
+      //             await firedartFirestore
+      //                 .collection('users')
+      //                 .document(members[i].uid)
+      //                 .collection('projects')
+      //                 .document(_projectId.value)
+      //                 .collection('members')
+      //                 .document(
+      //                   member.uid,
+      //                 )
+      //                 .set({'uid': member.uid, 'username': member.username});
+      //           }
+      //         }).then((value) async {
+      //           for (var asset in assets) {
+      //             await firedartFirestore
+      //                 .collection('users')
+      //                 .document(members[i].uid)
+      //                 .collection('projects')
+      //                 .document(_projectId.value)
+      //                 .collection('assets')
+      //                 .add({"type": asset['type'], "path": asset['path']});
+      //           }
+      //         }).then((value) async {
+      //           for (var comment in comments) {
+      //             await firedartFirestore
+      //                 .collection('users')
+      //                 .document(members[i].uid)
+      //                 .collection('projects')
+      //                 .document(_projectId.value)
+      //                 .collection('comments')
+      //                 .add({
+      //               "type": comment['type'],
+      //               "comment": comment['comment'],
+      //               "username": comment['username']
+      //             });
+      //           }
+      //         }).then((value) async {
+      //           var tasksList = toDoTasks + inProgressTasks + completedTasks;
+      //           for (var task in tasksList) {
+      //             await firedartFirestore
+      //                 .collection('users')
+      //                 .document(members[i].uid)
+      //                 .collection('projects')
+      //                 .document(_projectId.value)
+      //                 .collection('tasks')
+      //                 .add({
+      //               'taskTitle': task['taskTitle'],
+      //               'phase': task['phase'],
+      //               'taskDescription': task['taskDescription'],
+      //               'pilot': task['pilot'],
+      //               'copilot': task['copilot'],
+      //               'startDate': task['startDate'],
+      //               'endDate': task['endDate'],
+      //               'status': task['status'],
+      //               'priorityLevel': task['priorityLevel']
+      //             });
+      //           }
+      //         });
+      //       }
+      //     });
+      //   }
+
+      //   getProjectData();
+
+      //   isMembersUpdating.value = false;
+
+      //   getSuccessSnackBar("Members updated successfully");
+      // } catch (e) {
+      //   isMembersUpdating.value = false;
+      //   getErrorSnackBar(
+      //     "Something went wrong, Please try again",
+      //   );
+      // }
+    } else {
+      isMembersUpdating.value = true;
+      projectMembers.clear();
+      for (var i = 0; i < removedMembers!.length; i++) {
         await firestore
             .collection('users')
-            .doc(members[i].uid)
+            .doc(removedMembers[i].uid)
             .collection('projects')
             .doc(_projectId.value)
-            .get()
-            .then((DocumentSnapshot documentSnapshot) async {
-          if (documentSnapshot.exists) {
-            await firestore
-                .collection('users')
-                .doc(members[i].uid)
-                .collection('projects')
-                .doc(_projectId.value)
-                .update({
-              'copilot': copilot,
-              'lead': lead,
-            }).then((value) async {
-              for (var projectMember in members) {
-                await firestore
-                    .collection('users')
-                    .doc(members[i].uid)
-                    .collection('projects')
-                    .doc(_projectId.value)
-                    .collection('members')
-                    .doc(projectMember.uid)
-                    .get()
-                    .then((DocumentSnapshot document) async {
-                  if (document.exists) {
-                  } else {
-                    await firestore
-                        .collection('users')
-                        .doc(members[i].uid)
-                        .collection('projects')
-                        .doc(_projectId.value)
-                        .collection('members')
-                        .doc(projectMember.uid)
-                        .set({
-                      'uid': projectMember.uid,
-                      'username': projectMember.username
-                    });
-                  }
-                });
-              }
-            }).then((value) async {
-              for (var asset in assets) {
-                await firestore
-                    .collection('users')
-                    .doc(members[i].uid)
-                    .collection('projects')
-                    .doc(_projectId.value)
-                    .collection('assets')
-                    .add({"type": asset['type'], "path": asset['path']});
-              }
-            }).then((value) async {
-              for (var comment in comments) {
-                await firestore
-                    .collection('users')
-                    .doc(members[i].uid)
-                    .collection('projects')
-                    .doc(_projectId.value)
-                    .collection('comments')
-                    .add({
-                  "type": comment['type'],
-                  "comment": comment['comment'],
-                  "username": comment['username']
-                });
-              }
-            }).then((value) async {
-              var tasksList = toDoTasks + inProgressTasks + completedTasks;
-              for (var task in tasksList) {
-                await firestore
-                    .collection('users')
-                    .doc(members[i].uid)
-                    .collection('projects')
-                    .doc(_projectId.value)
-                    .collection('tasks')
-                    .add({
-                  'taskTitle': task['taskTitle'],
-                  'phase': task['phase'],
-                  'taskDescription': task['taskDescription'],
-                  'pilot': task['pilot'],
-                  'copilot': task['copilot'],
-                  'startDate': task['startDate'],
-                  'endDate': task['endDate'],
-                  'status': task['status'],
-                  'priorityLevel': task['priorityLevel']
-                });
-              }
-            }).then((value) async {
-              for (var removedMember in removedMembers) {
-                await firestore
-                    .collection('users')
-                    .doc(members[i].uid)
-                    .collection('projects')
-                    .doc(_projectId.value)
-                    .collection('members')
-                    .doc(removedMember.uid)
-                    .delete();
-              }
-            });
-          } else {
-            Project project = Project(
-                copilot: copilot,
-                lead: lead,
-                projectId: _projectId.value,
-                subtitle: subtitle,
-                title: title);
-
-            await firestore
-                .collection('users')
-                .doc(members[i].uid)
-                .collection('projects')
-                .doc(_projectId.value)
-                .set(project.toJson())
-                .then((value) async {
-              for (var member in members) {
-                await firestore
-                    .collection('users')
-                    .doc(members[i].uid)
-                    .collection('projects')
-                    .doc(_projectId.value)
-                    .collection('members')
-                    .doc(
-                      member.uid,
-                    )
-                    .set({'uid': member.uid, 'username': member.username});
-              }
-            }).then((value) async {
-              for (var asset in assets) {
-                await firestore
-                    .collection('users')
-                    .doc(members[i].uid)
-                    .collection('projects')
-                    .doc(_projectId.value)
-                    .collection('assets')
-                    .add({"type": asset['type'], "path": asset['path']});
-              }
-            }).then((value) async {
-              for (var comment in comments) {
-                await firestore
-                    .collection('users')
-                    .doc(members[i].uid)
-                    .collection('projects')
-                    .doc(_projectId.value)
-                    .collection('comments')
-                    .add({
-                  "type": comment['type'],
-                  "comment": comment['comment'],
-                  "username": comment['username']
-                });
-              }
-            }).then((value) async {
-              var tasksList = toDoTasks + inProgressTasks + completedTasks;
-              for (var task in tasksList) {
-                await firestore
-                    .collection('users')
-                    .doc(members[i].uid)
-                    .collection('projects')
-                    .doc(_projectId.value)
-                    .collection('tasks')
-                    .add({
-                  'taskTitle': task['taskTitle'],
-                  'phase': task['phase'],
-                  'taskDescription': task['taskDescription'],
-                  'pilot': task['pilot'],
-                  'copilot': task['copilot'],
-                  'startDate': task['startDate'],
-                  'endDate': task['endDate'],
-                  'status': task['status'],
-                  'priorityLevel': task['priorityLevel']
-                });
-              }
-            });
-          }
-        });
+            .delete();
       }
 
-      getProjectData();
+      try {
+        for (var i = 0; i < members!.length; i++) {
+          await firestore
+              .collection('users')
+              .doc(members[i].uid)
+              .collection('projects')
+              .doc(_projectId.value)
+              .get()
+              .then((DocumentSnapshot documentSnapshot) async {
+            if (documentSnapshot.exists) {
+              await firestore
+                  .collection('users')
+                  .doc(members[i].uid)
+                  .collection('projects')
+                  .doc(_projectId.value)
+                  .update({
+                'copilot': copilot,
+                'lead': lead,
+              }).then((value) async {
+                for (var projectMember in members) {
+                  await firestore
+                      .collection('users')
+                      .doc(members[i].uid)
+                      .collection('projects')
+                      .doc(_projectId.value)
+                      .collection('members')
+                      .doc(projectMember.uid)
+                      .get()
+                      .then((DocumentSnapshot document) async {
+                    if (document.exists) {
+                    } else {
+                      await firestore
+                          .collection('users')
+                          .doc(members[i].uid)
+                          .collection('projects')
+                          .doc(_projectId.value)
+                          .collection('members')
+                          .doc(projectMember.uid)
+                          .set({
+                        'uid': projectMember.uid,
+                        'username': projectMember.username
+                      });
+                    }
+                  });
+                }
+              }).then((value) async {
+                for (var asset in assets) {
+                  await firestore
+                      .collection('users')
+                      .doc(members[i].uid)
+                      .collection('projects')
+                      .doc(_projectId.value)
+                      .collection('assets')
+                      .add({"type": asset['type'], "path": asset['path']});
+                }
+              }).then((value) async {
+                for (var comment in comments) {
+                  await firestore
+                      .collection('users')
+                      .doc(members[i].uid)
+                      .collection('projects')
+                      .doc(_projectId.value)
+                      .collection('comments')
+                      .add({
+                    "type": comment['type'],
+                    "comment": comment['comment'],
+                    "username": comment['username']
+                  });
+                }
+              }).then((value) async {
+                var tasksList = toDoTasks + inProgressTasks + completedTasks;
+                for (var task in tasksList) {
+                  await firestore
+                      .collection('users')
+                      .doc(members[i].uid)
+                      .collection('projects')
+                      .doc(_projectId.value)
+                      .collection('tasks')
+                      .add({
+                    'taskTitle': task['taskTitle'],
+                    'phase': task['phase'],
+                    'taskDescription': task['taskDescription'],
+                    'pilot': task['pilot'],
+                    'copilot': task['copilot'],
+                    'startDate': task['startDate'],
+                    'endDate': task['endDate'],
+                    'status': task['status'],
+                    'priorityLevel': task['priorityLevel']
+                  });
+                }
+              }).then((value) async {
+                for (var removedMember in removedMembers) {
+                  await firestore
+                      .collection('users')
+                      .doc(members[i].uid)
+                      .collection('projects')
+                      .doc(_projectId.value)
+                      .collection('members')
+                      .doc(removedMember.uid)
+                      .delete();
+                }
+              });
+            } else {
+              Project project = Project(
+                  copilot: copilot,
+                  lead: lead,
+                  projectId: _projectId.value,
+                  subtitle: subtitle,
+                  title: title);
 
-      isMembersUpdating.value = false;
+              await firestore
+                  .collection('users')
+                  .doc(members[i].uid)
+                  .collection('projects')
+                  .doc(_projectId.value)
+                  .set(project.toJson())
+                  .then((value) async {
+                for (var member in members) {
+                  await firestore
+                      .collection('users')
+                      .doc(members[i].uid)
+                      .collection('projects')
+                      .doc(_projectId.value)
+                      .collection('members')
+                      .doc(
+                        member.uid,
+                      )
+                      .set({'uid': member.uid, 'username': member.username});
+                }
+              }).then((value) async {
+                for (var asset in assets) {
+                  await firestore
+                      .collection('users')
+                      .doc(members[i].uid)
+                      .collection('projects')
+                      .doc(_projectId.value)
+                      .collection('assets')
+                      .add({"type": asset['type'], "path": asset['path']});
+                }
+              }).then((value) async {
+                for (var comment in comments) {
+                  await firestore
+                      .collection('users')
+                      .doc(members[i].uid)
+                      .collection('projects')
+                      .doc(_projectId.value)
+                      .collection('comments')
+                      .add({
+                    "type": comment['type'],
+                    "comment": comment['comment'],
+                    "username": comment['username']
+                  });
+                }
+              }).then((value) async {
+                var tasksList = toDoTasks + inProgressTasks + completedTasks;
+                for (var task in tasksList) {
+                  await firestore
+                      .collection('users')
+                      .doc(members[i].uid)
+                      .collection('projects')
+                      .doc(_projectId.value)
+                      .collection('tasks')
+                      .add({
+                    'taskTitle': task['taskTitle'],
+                    'phase': task['phase'],
+                    'taskDescription': task['taskDescription'],
+                    'pilot': task['pilot'],
+                    'copilot': task['copilot'],
+                    'startDate': task['startDate'],
+                    'endDate': task['endDate'],
+                    'status': task['status'],
+                    'priorityLevel': task['priorityLevel']
+                  });
+                }
+              });
+            }
+          });
+        }
 
-      getSuccessSnackBar("Members updated successfully");
-    } catch (e) {
-      isMembersUpdating.value = false;
-      getErrorSnackBar(
-        "Something went wrong, Please try again",
-      );
+        getProjectData();
+
+        isMembersUpdating.value = false;
+
+        getSuccessSnackBar("Members updated successfully");
+      } catch (e) {
+        isMembersUpdating.value = false;
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
+      }
     }
   }
 }

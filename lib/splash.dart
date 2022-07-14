@@ -1,11 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:projectx/constants/style.dart';
-import 'package:projectx/main.dart';
-import 'package:projectx/pages/auth/authScreen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -25,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(mainColor),
+      backgroundColor: const Color(mainColor),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

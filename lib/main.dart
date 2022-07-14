@@ -2,15 +2,23 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:projectx/pages/auth/authScreen.dart';
 import 'package:projectx/splash.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 import 'package:responsive_framework/utils/scroll_behavior.dart';
-
+import 'package:firedart/firedart.dart' as firedart;
 import 'controllers/auth_controller.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (!kIsWeb) {
+    var firebaseAuth = firedart.FirebaseAuth(
+        'AIzaSyC9Jzj22llAEY9Zj1LjVMOxI8kVIFjP2VY', firedart.VolatileStore());
+    // firedart.Firestore.initialize("ava-project-ab57c");
+    firedart.Firestore('ava-project-ab57c', auth: firebaseAuth);
+    firedart.Firestore.initialize("ava-project-ab57c");
+  }
   await Firebase.initializeApp(
     options: const FirebaseOptions(
         apiKey: "AIzaSyC9Jzj22llAEY9Zj1LjVMOxI8kVIFjP2VY",
@@ -20,6 +28,7 @@ void main() async {
         messagingSenderId: "69104603518",
         appId: "1:69104603518:web:4ff45ea30c6e823b1fe32f"),
   );
+
   Get.put(AuthController());
 
   runApp(const MyApp());

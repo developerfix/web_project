@@ -7,7 +7,7 @@ import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/profile_controller.dart';
 import 'package:projectx/controllers/project_controller.dart';
 
-import '../widgets/customAppBar.dart';
+import '../widgets/custom_appbar.dart';
 import '../widgets/custom_drawer.dart';
 
 class Timeline extends StatefulWidget {
@@ -202,10 +202,12 @@ class _TimelineState extends State<Timeline> {
   Widget build(BuildContext context) {
     return Obx(() {
       return Scaffold(
-        backgroundColor: Colors.grey.shade300,
+        // backgroundColor: Colors.grey.shade300,
+        backgroundColor: Color(darkgreyishColor),
         key: _key,
         appBar: customAppBar(
           context,
+          color: Color(darkgreyishColor),
           username: profileController.user['name'],
           title:
               txt(txt: 'Timeline view', fontSize: 18, fontColor: Colors.white),
@@ -220,12 +222,22 @@ class _TimelineState extends State<Timeline> {
               )
             : SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.all(200.0),
+                  padding: const EdgeInsets.fromLTRB(100, 100, 200, 100),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          txt(
+                              txt: 'GANTT',
+                              fontSize: 40,
+                              letterSpacing: 5,
+                              fontColor: Colors.white)
+                        ],
+                      ),
                       SizedBox(
-                        height: screenHeight(context) * 0.2,
+                        height: screenHeight(context) * 0.1,
                       ),
                       GanttChartView(
                         stickyAreaEventBuilder:
@@ -239,9 +251,10 @@ class _TimelineState extends State<Timeline> {
                                     fontColor: Colors.white)),
                           );
                         },
+
                         weekHeaderBuilder: (context, weekDate) {
                           return Container(
-                            color: Color(secondaryColor),
+                            color: Color(darkgreyishColor),
                             child: Center(
                                 child: txt(
                                     txt:
@@ -250,38 +263,38 @@ class _TimelineState extends State<Timeline> {
                                     fontColor: Colors.white)),
                           );
                         },
-                        stickyAreaWeekBuilder: (context) {
-                          return Container(
-                            color: Color(secondaryColor),
-                            child: Center(
-                                child: txt(
-                                    txt: projectController.project['title'],
-                                    fontSize: 18,
-                                    fontColor: Colors.white)),
-                          );
-                        },
-                        dayHeaderBuilder: ((context, date) {
-                          return Container(
-                            color: Color(secondaryColor),
-                            child: Center(
-                                child: txt(
-                                    txt: date.weekday == 7
-                                        ? 'Sun'
-                                        : date.weekday == 6
-                                            ? 'Sat'
-                                            : date.weekday == 5
-                                                ? 'Fri'
-                                                : date.weekday == 4
-                                                    ? 'Thur'
-                                                    : date.weekday == 3
-                                                        ? 'Wed'
-                                                        : date.weekday == 2
-                                                            ? 'Tue'
-                                                            : 'Mon',
-                                    fontSize: 18,
-                                    fontColor: Colors.white)),
-                          );
-                        }),
+                        // stickyAreaWeekBuilder: (context) {
+                        //   return Container(
+                        //     color: Color(secondaryColor),
+                        //     child: Center(
+                        //         child: txt(
+                        //             txt: projectController.project['title'],
+                        //             fontSize: 18,
+                        //             fontColor: Colors.white)),
+                        //   );
+                        // },
+                        // dayHeaderBuilder: ((context, date) {
+                        //   return Container(
+                        //     color: Color(secondaryColor),
+                        //     child: Center(
+                        //         child: txt(
+                        //             txt: date.weekday == 7
+                        //                 ? 'Sun'
+                        //                 : date.weekday == 6
+                        //                     ? 'Sat'
+                        //                     : date.weekday == 5
+                        //                         ? 'Fri'
+                        //                         : date.weekday == 4
+                        //                             ? 'Thur'
+                        //                             : date.weekday == 3
+                        //                                 ? 'Wed'
+                        //                                 : date.weekday == 2
+                        //                                     ? 'Tue'
+                        //                                     : 'Mon',
+                        //             fontSize: 18,
+                        //             fontColor: Colors.white)),
+                        //   );
+                        // }),
                         stickyAreaDayBuilder: (context) {
                           return Container(
                             color: Color(secondaryColor),
@@ -293,16 +306,18 @@ class _TimelineState extends State<Timeline> {
                           );
                         },
                         holidayColor: Colors.grey.shade500,
+
                         dayHeaderHeight: screenHeight(context) * 0.05,
-                        maxDuration:
-                            Duration(days: differenceInDays.inDays + 7),
+                        // maxDuration:
+                        //     Duration(days: differenceInDays.inDays + 7),
+                        maxDuration: Duration(days: 365),
                         startDate: DateTime(startDateOfTasks[0].year,
                             startDateOfTasks[0].month, startDateOfTasks[0].day),
                         dayWidth: screenWidth(context) * 0.03,
-                        eventHeight: screenHeight(context) * 0.05,
+                        eventHeight: screenHeight(context) * 0.1,
                         stickyAreaWidth: screenWidth(context) * 0.1,
                         showStickyArea: true,
-                        showDays: showDaysRow,
+                        showDays: false,
                         weekEnds: const {WeekDay.friday, WeekDay.saturday},
                         startOfTheWeek: WeekDay.sunday,
                         events: tasksList,

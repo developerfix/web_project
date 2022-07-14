@@ -427,7 +427,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                   InkWell(
                     onTap: () {
-                      AuthController.instance.googleLogin();
+                      AuthController.instance.googleLogin(context);
                     },
                     child: Container(
                       width: screenWidth(context) < 1200

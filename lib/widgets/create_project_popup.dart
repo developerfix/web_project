@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:projectx/controllers/project_controller.dart';
-import 'package:projectx/pages/project_dashboard.dart';
 import 'package:projectx/widgets/popup_textfield.dart';
 
 import '../constants/style.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/profile_controller.dart';
-import 'loadingIndicator.dart';
+import 'loading_indicator.dart';
 
 Future<dynamic> createProjectPopUp(
   BuildContext context,

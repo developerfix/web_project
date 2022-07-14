@@ -1,22 +1,23 @@
-// import 'package:adobe_xd/page_link.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firedart/firedart.dart' as firedart;
 
 const int mainColor = 0xff736879;
 const int secondaryColor = 0xff958890;
 const int brownishColor = 0xff707070;
+const int darkgreyishColor = 0xff304869;
 
 // FIREBASE
 var firebaseAuth = FirebaseAuth.instance;
 var firebaseStorage = FirebaseStorage.instance;
 var firestore = FirebaseFirestore.instance;
+var firedartFirestore = firedart.Firestore.instance;
 
 //for all the text in the app
 Widget txt(
