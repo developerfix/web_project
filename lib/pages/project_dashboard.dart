@@ -1,3 +1,8 @@
+import 'dart:typed_data';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -37,6 +42,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
   bool isAssetsRefreshing = false;
   bool isCommentsRefreshing = false;
+  double progress = 0.0;
 
   @override
   void initState() {
@@ -51,7 +57,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-            duration: Duration(milliseconds: 300), curve: Curves.easeOut);
+            duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
       }
     });
 
@@ -81,7 +87,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                           onTap: () {
                                             Scaffold.of(context).openDrawer();
                                           },
-                                          child: Icon(Icons.menu))),
+                                          child: const Icon(Icons.menu))),
                                 ),
                                 Expanded(
                                   child: InkWell(
@@ -197,15 +203,15 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                           MainAxisAlignment
                                                               .spaceBetween,
                                                       children: [
-                                                        Icon(
+                                                        const Icon(
                                                           Icons.link,
-                                                          color: Color(
+                                                          color: const Color(
                                                               secondaryColor),
                                                         ),
                                                         txt(
                                                             txt: path,
                                                             fontSize: 14,
-                                                            fontColor: Color(
+                                                            fontColor: const Color(
                                                                 secondaryColor),
                                                             overflow:
                                                                 TextOverflow
@@ -1074,11 +1080,11 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                               ],
                                             ),
                                             child: Padding(
-                                              padding:
-                                                  constraints.maxWidth < 800
-                                                      ? EdgeInsets.all(16.0)
-                                                      : EdgeInsets.fromLTRB(
-                                                          50, 30, 30, 80),
+                                              padding: constraints.maxWidth <
+                                                      800
+                                                  ? const EdgeInsets.all(16.0)
+                                                  : const EdgeInsets.fromLTRB(
+                                                      50, 30, 30, 80),
                                               child: Column(
                                                 children: [
                                                   InkWell(
@@ -1087,8 +1093,9 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                           _scrollController
                                                               .position
                                                               .maxScrollExtent,
-                                                          duration: Duration(
-                                                              seconds: 2),
+                                                          duration:
+                                                              const Duration(
+                                                                  seconds: 2),
                                                           curve:
                                                               Curves.easeOut);
                                                     },
@@ -1113,88 +1120,178 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                         screenHeight(context) *
                                                             0.03,
                                                   ),
-                                                  Obx(() {
-                                                    return SizedBox(
-                                                        height: screenHeight(
-                                                                context) *
-                                                            0.55,
-                                                        width: screenWidth(
-                                                                context) *
-                                                            0.3,
-                                                        child: projectController
-                                                                .isUploading
-                                                                .isTrue
-                                                            ? Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  const LoadingIndicator(),
-                                                                  txt(
-                                                                      txt:
-                                                                          'Please wait\n Comment is being added',
-                                                                      fontSize:
-                                                                          14)
-                                                                ],
-                                                              )
-                                                            : projectController
-                                                                    .comments
-                                                                    .isEmpty
-                                                                ? Center(
-                                                                    child: txt(
-                                                                        txt:
-                                                                            'Add comments here',
+                                                  SizedBox(
+                                                      height: screenHeight(
+                                                              context) *
+                                                          0.55,
+                                                      width:
+                                                          screenWidth(context) *
+                                                              0.3,
+                                                      child: Container(
+                                                        height: 200.0,
+                                                        width: 200.0,
+                                                        child: AnimatedSwitcher(
+                                                          duration:
+                                                              const Duration(
+                                                                  milliseconds:
+                                                                      375),
+                                                          child: progress ==
+                                                                  100.0
+                                                              ? Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    const Icon(
+                                                                      Icons
+                                                                          .check_rounded,
+                                                                      color: Colors
+                                                                          .green,
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width:
+                                                                          5.0,
+                                                                    ),
+                                                                    Text(
+                                                                      'Upload Complete',
+                                                                      style: GoogleFonts
+                                                                          .poppins(
+                                                                        color: Colors
+                                                                            .green,
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                )
+                                                              : LiquidCircularProgressIndicator(
+                                                                  value:
+                                                                      progress /
+                                                                          100,
+                                                                  valueColor:
+                                                                      const AlwaysStoppedAnimation(
+                                                                          Colors
+                                                                              .pinkAccent),
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  direction: Axis
+                                                                      .vertical,
+                                                                  center: Text(
+                                                                    "$progress%",
+                                                                    style: GoogleFonts.poppins(
+                                                                        color: Colors
+                                                                            .black87,
                                                                         fontSize:
-                                                                            14),
-                                                                  )
-                                                                : ListView.builder(
-                                                                    controller: _scrollController,
-                                                                    // shrinkWrap:
-                                                                    //     true,
-                                                                    // reverse:
-                                                                    //     true,
-                                                                    itemCount: projectController.comments.length,
-                                                                    itemBuilder: (context, i) {
-                                                                      String comment = projectController
-                                                                          .comments[
-                                                                              i]
-                                                                              [
-                                                                              'comment']
-                                                                          .toString();
-                                                                      String type = projectController
-                                                                          .comments[
-                                                                              i]
-                                                                              [
-                                                                              'type']
-                                                                          .toString();
-                                                                      String username = projectController
-                                                                          .comments[
-                                                                              i]
-                                                                              [
-                                                                              'username']
-                                                                          .toString();
-                                                                      String
-                                                                          firstChar =
-                                                                          '';
+                                                                            25.0),
+                                                                  ),
+                                                                ),
+                                                        ),
+                                                      )),
 
-                                                                      for (int i =
-                                                                              0;
-                                                                          i < username.length;
-                                                                          i++) {
-                                                                        firstChar +=
-                                                                            username[i];
-                                                                      }
+                                                  // projectController
+                                                  //         .isUploading
+                                                  //         .isTrue
+                                                  //     ?
+                                                  //     // Container(
+                                                  //     //     color: Colors
+                                                  //     //         .orange,
+                                                  //     //     height: 200,
+                                                  //     //     width: 200,
+                                                  //     //     child:
+                                                  //     //         LiquidCircularProgressIndicator(
+                                                  //     //       value: projectController
+                                                  //     //               .progress
+                                                  //     //               .value /
+                                                  //     //           100,
+                                                  //     //       valueColor:
+                                                  //     //           AlwaysStoppedAnimation(
+                                                  //     //               Colors
+                                                  //     //                   .pinkAccent),
+                                                  //     //       backgroundColor:
+                                                  //     //           Colors
+                                                  //     //               .white,
+                                                  //     //       direction: Axis
+                                                  //     //           .vertical,
+                                                  //     //       center: Text(
+                                                  //     //         "${projectController.progress.value}%",
+                                                  //     //         style: GoogleFonts.poppins(
+                                                  //     //             color: Colors
+                                                  //     //                 .black87,
+                                                  //     //             fontSize:
+                                                  //     //                 16.0),
+                                                  //     //       ),
+                                                  //     //     ),
+                                                  //     //   )
+                                                  //     Column(
+                                                  //         mainAxisAlignment:
+                                                  //             MainAxisAlignment
+                                                  //                 .center,
+                                                  //         children: [
+                                                  //           const LoadingIndicator(),
+                                                  //           txt(
+                                                  //               txt:
+                                                  //                   'Please wait\n Comment is being added',
+                                                  //               fontSize:
+                                                  //                   14)
+                                                  //         ],
+                                                  //       )
+                                                  //     : projectController
+                                                  //             .comments
+                                                  //             .isEmpty
+                                                  //         ? Center(
+                                                  //             child: txt(
+                                                  //                 txt:
+                                                  //                     'Add comments here',
+                                                  //                 fontSize:
+                                                  //                     14),
+                                                  //           )
+                                                  //         : ListView.builder(
+                                                  //             controller: _scrollController,
+                                                  //             // shrinkWrap:
+                                                  //             //     true,
+                                                  //             // reverse:
+                                                  //             //     true,
+                                                  //             itemCount: projectController.comments.length,
+                                                  //             itemBuilder: (context, i) {
+                                                  //               String comment = projectController
+                                                  //                   .comments[
+                                                  //                       i]
+                                                  //                       [
+                                                  //                       'comment']
+                                                  //                   .toString();
+                                                  //               String type = projectController
+                                                  //                   .comments[
+                                                  //                       i]
+                                                  //                       [
+                                                  //                       'type']
+                                                  //                   .toString();
+                                                  //               String username = projectController
+                                                  //                   .comments[
+                                                  //                       i]
+                                                  //                       [
+                                                  //                       'username']
+                                                  //                   .toString();
+                                                  //               String
+                                                  //                   firstChar =
+                                                  //                   '';
 
-                                                                      return usersMsg(
-                                                                          context,
-                                                                          username: firstChar[
-                                                                              0],
-                                                                          type:
-                                                                              type,
-                                                                          comment:
-                                                                              comment);
-                                                                    }));
-                                                  }),
+                                                  //               for (int i =
+                                                  //                       0;
+                                                  //                   i < username.length;
+                                                  //                   i++) {
+                                                  //                 firstChar +=
+                                                  //                     username[i];
+                                                  //               }
+
+                                                  //               return usersMsg(
+                                                  //                   context,
+                                                  //                   username: firstChar[
+                                                  //                       0],
+                                                  //                   type:
+                                                  //                       type,
+                                                  //                   comment:
+                                                  //                       comment);
+                                                  //             }));
+                                                  // }),
                                                   const Spacer(),
                                                   Container(
                                                     width:
@@ -1244,13 +1341,36 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                                         return InkWell(
                                                                           onTap:
                                                                               () async {
-                                                                            await projectController.addNewCommentFile(
-                                                                              username: profileController.user['name'],
-                                                                            );
+                                                                            FilePickerResult?
+                                                                                result =
+                                                                                await FilePicker.platform.pickFiles();
+
+                                                                            if (result !=
+                                                                                null) {
+                                                                              Uint8List? file = result.files.first.bytes;
+                                                                              String fileName = result.files.first.name;
+
+                                                                              UploadTask task = FirebaseStorage.instance.ref().child("files/$fileName").putData(file!);
+
+                                                                              task.snapshotEvents.listen((event) {
+                                                                                setState(() {
+                                                                                  progress = ((event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) * 100).roundToDouble();
+
+                                                                                  if (progress == 100) {
+                                                                                    event.ref.getDownloadURL().then((downloadUrl) => print(downloadUrl));
+                                                                                  }
+
+                                                                                  print(progress);
+                                                                                });
+                                                                              });
+                                                                            }
+                                                                            // await projectController.addNewCommentFile(
+                                                                            //   username: profileController.user['name'],
+                                                                            // );
 
                                                                             WidgetsBinding.instance.addPostFrameCallback((_) {
                                                                               if (_scrollController.hasClients) {
-                                                                                _scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
+                                                                                _scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
                                                                               }
                                                                             });
                                                                           },
@@ -1277,7 +1397,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                                               .instance
                                                                               .addPostFrameCallback((_) {
                                                                             if (_scrollController.hasClients) {
-                                                                              _scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
+                                                                              _scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
                                                                             }
                                                                           });
                                                                         },

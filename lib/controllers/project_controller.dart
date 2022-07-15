@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,9 +6,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:projectx/models/project.dart';
 import 'package:projectx/models/project_member.dart';
-import 'package:projectx/models/task.dart' as taskModel;
+import 'package:projectx/models/task.dart' as task_model;
 import 'package:projectx/pages/project_dashboard.dart';
-import 'package:firedart/firedart.dart' as firedart;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../constants/style.dart';
 
@@ -28,6 +26,7 @@ class ProjectController extends GetxController {
   RxList<dynamic> toDoTasks = <dynamic>[].obs;
   RxList<dynamic> inProgressTasks = <dynamic>[].obs;
   RxList<dynamic> completedTasks = <dynamic>[].obs;
+  // Rx<double> progress = 0.0.obs;
 
   Rx<String> _uid = "".obs;
   Rx<String> _projectId = "".obs;
@@ -120,8 +119,8 @@ class ProjectController extends GetxController {
   }
 
   deleteProjectAsset({path}) async {
+    assets.removeWhere((element) => element['path'] == path);
     if (!kIsWeb) {
-      isAssetUpdating.value = true;
       for (var i = 0; i < projectMembers.length; i++) {
         await firedartFirestore
             .collection('users')
@@ -137,11 +136,7 @@ class ProjectController extends GetxController {
           }
         });
       }
-      assets.removeWhere((element) => element['path'] == path);
-
-      isAssetUpdating.value = false;
     } else {
-      isAssetUpdating.value = true;
       for (var i = 0; i < projectMembers.length; i++) {
         await firestore
             .collection('users')
@@ -157,15 +152,22 @@ class ProjectController extends GetxController {
           }
         });
       }
-      assets.removeWhere((element) => element['path'] == path);
-
-      isAssetUpdating.value = false;
     }
   }
 
   deleteProjectTask({taskTitle, taskDescription, status}) async {
-    isTasksUpdating.value = true;
     try {
+      status == 'todo'
+          ? toDoTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle)
+          : status == 'inProgress'
+              ? inProgressTasks.removeWhere((element) =>
+                  element['taskDescription'] == taskDescription &&
+                  element['taskTitle'] == taskTitle)
+              : completedTasks.removeWhere((element) =>
+                  element['taskDescription'] == taskDescription &&
+                  element['taskTitle'] == taskTitle);
       if (!kIsWeb) {
         for (var i = 0; i < projectMembers.length; i++) {
           await firedartFirestore
@@ -201,22 +203,7 @@ class ProjectController extends GetxController {
           });
         }
       }
-
-      status == 'todo'
-          ? toDoTasks.removeWhere((element) =>
-              element['taskDescription'] == taskDescription &&
-              element['taskTitle'] == taskTitle)
-          : status == 'inProgress'
-              ? inProgressTasks.removeWhere((element) =>
-                  element['taskDescription'] == taskDescription &&
-                  element['taskTitle'] == taskTitle)
-              : completedTasks.removeWhere((element) =>
-                  element['taskDescription'] == taskDescription &&
-                  element['taskTitle'] == taskTitle);
-
-      isTasksUpdating.value = false;
     } catch (e) {
-      isTasksUpdating.value = false;
       //define error
       getErrorSnackBar(
         "Something went wrong, Please try again",
@@ -236,8 +223,7 @@ class ProjectController extends GetxController {
       String? endDate,
       String? status,
       int? priorityLevel}) async {
-    isTasksUpdating.value = true;
-    taskModel.Task task = taskModel.Task(
+    task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
         taskDescription: taskDescription,
@@ -249,6 +235,15 @@ class ProjectController extends GetxController {
         priorityLevel: priorityLevel);
 
     try {
+      status == 'todo'
+          ? toDoTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle)
+          : completedTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle);
+
+      inProgressTasks.add(task.toJson());
       if (!kIsWeb) {
         for (var i = 0; i < projectMembers.length; i++) {
           await firedartFirestore
@@ -284,21 +279,7 @@ class ProjectController extends GetxController {
           });
         }
       }
-
-      status == 'todo'
-          ? toDoTasks.removeWhere((element) =>
-              element['taskDescription'] == taskDescription &&
-              element['taskTitle'] == taskTitle)
-          : completedTasks.removeWhere((element) =>
-              element['taskDescription'] == taskDescription &&
-              element['taskTitle'] == taskTitle);
-
-      inProgressTasks.add(task.toJson());
-      isTasksUpdating.value = false;
-
-      getSuccessSnackBar("Task updated successfully");
     } catch (e) {
-      isTasksUpdating.value = false;
       //define error
       getErrorSnackBar(
         "Something went wrong, Please try again",
@@ -318,8 +299,7 @@ class ProjectController extends GetxController {
       String? endDate,
       String? status,
       int? priorityLevel}) async {
-    isTasksUpdating.value = true;
-    taskModel.Task task = taskModel.Task(
+    task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
         taskDescription: taskDescription,
@@ -330,6 +310,15 @@ class ProjectController extends GetxController {
         status: 'todo',
         priorityLevel: priorityLevel);
     try {
+      status == 'inProgress'
+          ? inProgressTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle)
+          : completedTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle);
+
+      toDoTasks.add(task.toJson());
       if (!kIsWeb) {
         for (var i = 0; i < projectMembers.length; i++) {
           await firedartFirestore
@@ -365,19 +354,6 @@ class ProjectController extends GetxController {
           });
         }
       }
-
-      status == 'inProgress'
-          ? inProgressTasks.removeWhere((element) =>
-              element['taskDescription'] == taskDescription &&
-              element['taskTitle'] == taskTitle)
-          : completedTasks.removeWhere((element) =>
-              element['taskDescription'] == taskDescription &&
-              element['taskTitle'] == taskTitle);
-
-      toDoTasks.add(task.toJson());
-      isTasksUpdating.value = false;
-
-      getSuccessSnackBar("Task updated successfully");
     } catch (e) {
       //define error
       getErrorSnackBar(
@@ -398,8 +374,7 @@ class ProjectController extends GetxController {
       String? endDate,
       String? status,
       int? priorityLevel}) async {
-    isTasksUpdating.value = true;
-    taskModel.Task task = taskModel.Task(
+    task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
         taskDescription: taskDescription,
@@ -410,6 +385,15 @@ class ProjectController extends GetxController {
         status: 'completed',
         priorityLevel: priorityLevel);
     try {
+      status == 'todo'
+          ? toDoTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle)
+          : inProgressTasks.removeWhere((element) =>
+              element['taskDescription'] == taskDescription &&
+              element['taskTitle'] == taskTitle);
+
+      completedTasks.add(task.toJson());
       if (!kIsWeb) {
         for (var i = 0; i < projectMembers.length; i++) {
           await firedartFirestore
@@ -445,19 +429,6 @@ class ProjectController extends GetxController {
           });
         }
       }
-
-      status == 'todo'
-          ? toDoTasks.removeWhere((element) =>
-              element['taskDescription'] == taskDescription &&
-              element['taskTitle'] == taskTitle)
-          : inProgressTasks.removeWhere((element) =>
-              element['taskDescription'] == taskDescription &&
-              element['taskTitle'] == taskTitle);
-
-      completedTasks.add(task.toJson());
-      isTasksUpdating.value = false;
-
-      getSuccessSnackBar("Task updated successfully");
     } catch (e) {
       //define error
       getErrorSnackBar(
@@ -604,8 +575,8 @@ class ProjectController extends GetxController {
   }
 
   void addNewAsset({type, path}) async {
+    assets.add({"type": type, "path": path});
     if (!kIsWeb) {
-      isAssetUpdating.value = true;
       try {
         for (var member in projectMembers) {
           await firedartFirestore
@@ -616,16 +587,12 @@ class ProjectController extends GetxController {
               .collection('assets')
               .add({"type": type, "path": path});
         }
-        assets.add({"type": type, "path": path});
-        isAssetUpdating.value = false;
-        getSuccessSnackBar("asset added successfully");
       } catch (e) {
         getErrorSnackBar(
           "Something went wrong, Please try again",
         );
       }
     } else {
-      isAssetUpdating.value = true;
       try {
         for (var member in projectMembers) {
           await firestore
@@ -636,9 +603,6 @@ class ProjectController extends GetxController {
               .collection('assets')
               .add({"type": type, "path": path});
         }
-        assets.add({"type": type, "path": path});
-        isAssetUpdating.value = false;
-        getSuccessSnackBar("asset added successfully");
       } catch (e) {
         getErrorSnackBar(
           "Something went wrong, Please try again",
@@ -724,47 +688,89 @@ class ProjectController extends GetxController {
     if (!kIsWeb) {
     } else {
       try {
-        FilePickerResult? result =
-            await FilePicker.platform.pickFiles(allowMultiple: false);
-
-        UploadTask uploadTask;
+        FilePickerResult? result = await FilePicker.platform.pickFiles();
 
         if (result != null) {
-          isUploading.value = true;
-          // List<File> files = result.files.single.map((files) => File(path!)).toList();
-          // List<File> filesNames =
-          //     result.names.map((name) => File(name!)).toList();
+          Uint8List? file = result.files.first.bytes;
+          String fileName = result.files.first.name;
 
-          Uint8List? uploadfile = result.files.single.bytes;
+          UploadTask task = FirebaseStorage.instance
+              .ref()
+              .child("files/$fileName")
+              .putData(file!);
 
-          String filename = result.files.single.name;
+          task.snapshotEvents.listen((event) {
+            // setState(() {
+            //   progress = ((event.bytesTransferred.toDouble() /
+            //               event.totalBytes.toDouble()) *
+            //           100)
+            //       .roundToDouble();
 
-          final ref =
-              FirebaseStorage.instance.ref().child('commentFiles/$filename');
-          uploadTask = ref.putData(uploadfile!);
-          final snapshot = await uploadTask.whenComplete(() {});
-          final urlDownload = await snapshot.ref.getDownloadURL();
-          for (var i = 0; i < projectMembers.length; i++) {
-            await firestore
-                .collection('users')
-                .doc(projectMembers[i]['uid'])
-                .collection('projects')
-                .doc(_projectId.value)
-                .collection('comments')
-                .add({
-              "type": 'file',
-              "comment": urlDownload,
-              "username": username
-            });
-          }
-          comments.add(
-              {"type": 'file', "comment": urlDownload, "username": username});
-          isUploading.value = false;
+            //   if (progress == 100) {
+            //     event.ref
+            //         .getDownloadURL()
+            //         .then((downloadUrl) => print(downloadUrl));
+            //   }
 
-          getSuccessSnackBar("comment added successfully");
-        } else {
-          // User canceled the picker
+            //   print(progress);
+            // });
+          });
         }
+        // FilePickerResult? result =
+        //     await FilePicker.platform.pickFiles(allowMultiple: false);
+
+        // UploadTask uploadTask;
+        // String urlDownload;
+
+        // if (result != null) {
+        //   isUploading.value = true;
+        //   // List<File> files = result.files.single.map((files) => File(path!)).toList();
+        //   // List<File> filesNames =
+        //   //     result.names.map((name) => File(name!)).toList();
+
+        //   Uint8List? uploadfile = result.files.single.bytes;
+
+        //   String filename = result.files.single.name;
+
+        //   final ref =
+        //       FirebaseStorage.instance.ref().child('commentFiles/$filename');
+        //   uploadTask = ref.putData(uploadfile!);
+
+        //   uploadTask.snapshotEvents.listen((event) {
+        //     // ((event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) *
+        //     //     100) as Rx<double>;
+
+        //     // if (progress == 100) {
+        //     //   event.ref.getDownloadURL().then((downloadUrl) {
+        //     //     urlDownload = downloadUrl;
+        //     //   });
+        //     //   isUploading.value = false;
+        //     // }
+        //   });
+
+        // final snapshot = await uploadTask.whenComplete(() {});
+        // final urlDownload = await snapshot.ref.getDownloadURL();
+        // for (var i = 0; i < projectMembers.length; i++) {
+        //   await firestore
+        //       .collection('users')
+        //       .doc(projectMembers[i]['uid'])
+        //       .collection('projects')
+        //       .doc(_projectId.value)
+        //       .collection('comments')
+        //       .add({
+        //     "type": 'file',
+        //     "comment": urlDownload,
+        //     "username": username
+        //   });
+        // }
+        // isUploading.value = false;
+
+        // comments.add(
+        //     {"type": 'file', "comment": urlDownload, "username": username});
+        // }
+        //  else {
+        //   // User canceled the picker
+        // }
       } catch (e) {
         isUploading.value = false;
         //define error
@@ -776,9 +782,18 @@ class ProjectController extends GetxController {
   }
 
   addNewComment({comment, username}) async {
+    comments.add({"type": 'text', "comment": comment, "username": username});
     if (!kIsWeb) {
+      for (var i = 0; i < projectMembers.length; i++) {
+        await firedartFirestore
+            .collection('users')
+            .document(projectMembers[i]['uid'])
+            .collection('projects')
+            .document(_projectId.value)
+            .collection('comments')
+            .add({"type": 'text', "comment": comment, "username": username});
+      }
     } else {
-      isUploading.value = true;
       try {
         for (var i = 0; i < projectMembers.length; i++) {
           await firestore
@@ -789,15 +804,7 @@ class ProjectController extends GetxController {
               .collection('comments')
               .add({"type": 'text', "comment": comment, "username": username});
         }
-
-        comments
-            .add({"type": 'text', "comment": comment, "username": username});
-
-        isUploading.value = false;
-
-        getSuccessSnackBar("comment added successfully");
       } catch (e) {
-        isUploading.value = false;
         //define error
         getErrorSnackBar(
           "Something went wrong, Please try again",
@@ -819,7 +826,7 @@ class ProjectController extends GetxController {
       String? status,
       int? priorityLevel}) async {
     isTasksUpdating.value = true;
-    taskModel.Task task = taskModel.Task(
+    task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
         taskDescription: taskDescription,
@@ -876,7 +883,7 @@ class ProjectController extends GetxController {
       String? status,
       int? priorityLevel}) async {
     isTasksUpdating.value = true;
-    taskModel.Task task = taskModel.Task(
+    task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
         taskDescription: taskDescription,

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/pages/project_dashboard.dart';
 import 'package:projectx/pages/see_all_projs.dart';
+import 'package:projectx/pages/upload.dart';
 import 'package:projectx/widgets/loading_indicator.dart';
 
 import '../controllers/auth_controller.dart';
@@ -151,9 +152,10 @@ class _RecentProjectsState extends State<RecentProjects> {
                                                       ['projectId'];
                                               return InkWell(
                                                   onTap: (() {
-                                                    Get.to(ProjectDashboard(
-                                                      projectId: projectId,
-                                                    ));
+                                                    Get.to(UplaodPage());
+                                                    // Get.to(ProjectDashboard(
+                                                    //   projectId: projectId,
+                                                    // ));
                                                   }),
                                                   child: Padding(
                                                     padding:
