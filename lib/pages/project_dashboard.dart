@@ -139,49 +139,34 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                     drawer: Drawer(
                       child: Column(
                         children: <Widget>[
-                          // DrawerHeader(
-                          //   margin: EdgeInsets.zero,
-                          //   child: Center(
-                          //     child: InkWell(
-                          //       onTap: () {
-                          //         addAssetPopUp(context);
-                          //       },
-                          //       child: Row(
-                          //         mainAxisAlignment: MainAxisAlignment.center,
-                          //         children: [
-                          //           const Icon(
-                          //             Icons.add,
-                          //             color: Color(brownishColor),
-                          //             size: 30,
-                          //           ),
-                          //           AutoSizeText(
-                          //             "sdsd",
-                          //             maxLines:
-                          //                 (constraints.maxWidth < 600 ? 2 : 10),
-                          //             maxFontSize: 30,
-                          //             minFontSize: 25,
-                          //             style: GoogleFonts.comfortaa(
-                          //               textStyle: TextStyle(
-                          //                 overflow: TextOverflow.visible,
-                          //                 letterSpacing: 5,
-                          //                 color: const Color(brownishColor),
-                          //                 fontWeight: FontWeight.bold,
-                          //               ),
-                          //             ),
-                          //           )
-                          //           // txt(
-                          //           //   txt: "ASSETS",
-                          //           //   font: 'comfortaa',
-                          //           //   fontSize: 30.0,
-                          //           //   fontColor: const Color(brownishColor),
-                          //           //   letterSpacing: 5,
-                          //           //   fontWeight: FontWeight.bold,
-                          //           // ),
-                          //         ],
-                          //       ),
-                          //     ),
-                          //   ),
-                          // ),
+                          DrawerHeader(
+                            margin: EdgeInsets.zero,
+                            child: Center(
+                              child: InkWell(
+                                onTap: () {
+                                  addAssetPopUp(context);
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.add,
+                                      color: Color(brownishColor),
+                                      size: 30,
+                                    ),
+                                    txt(
+                                      txt: "ASSETS",
+                                      font: 'comfortaa',
+                                      fontSize: 30.0,
+                                      fontColor: const Color(brownishColor),
+                                      letterSpacing: 5,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                           Obx(() {
                             return SizedBox(
                               height: screenHeight(context) * 0.6,

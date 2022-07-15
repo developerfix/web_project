@@ -30,6 +30,7 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                 child: Column(children: <Widget>[
                   txt(
                     txt: 'ADD ASSET',
+                    font: 'comfortaa',
                     fontSize: screenWidth(context) < 800 ? 20 : 40,
                     letterSpacing: 6,
                     fontWeight: FontWeight.w700,

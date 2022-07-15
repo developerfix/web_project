@@ -20,7 +20,8 @@ Future<dynamic> selectTaskMembersPopup(BuildContext context, {String? title}) {
                 txt(
                   txt: title!,
                   fontSize: 24,
-                  letterSpacing: 3,
+                  font: 'comfortaa',
+                  letterSpacing: 2,
                   fontWeight: FontWeight.w700,
                 ),
                 SizedBox(

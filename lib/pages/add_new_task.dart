@@ -64,6 +64,8 @@ class _AddNewTaskState extends State<AddNewTask> {
                 ),
                 txt(
                     txt: 'Add New Task Details',
+                    font: 'comfortaa',
+                    fontWeight: FontWeight.w700,
                     fontSize: 30,
                     fontColor: const Color(secondaryColor)),
                 SizedBox(
@@ -374,6 +376,8 @@ class _AddNewTaskState extends State<AddNewTask> {
                 txt(
                     txt: 'Please select priority level for this task',
                     fontSize: 30,
+                    font: 'comfortaa',
+                    fontWeight: FontWeight.w700,
                     fontColor: const Color(secondaryColor)),
                 SizedBox(
                   height: screenHeight(context) * 0.01,
