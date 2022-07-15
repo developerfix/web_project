@@ -143,7 +143,6 @@ class _UpdateTaskState extends State<UpdateTask> {
                         }).toList(),
 
                         onChanged: (value) {
-                          print(value.toString());
                           setState(() {
                             phaseValue = value.toString();
                           });

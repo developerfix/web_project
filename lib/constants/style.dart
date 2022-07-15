@@ -28,6 +28,7 @@ Widget txt(
     double? minFontSize,
     double? letterSpacing,
     TextOverflow? overflow,
+    String? font,
     int? maxLines}) {
   return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
@@ -36,14 +37,23 @@ Widget txt(
       maxLines: maxLines ?? (constraints.maxWidth < 600 ? 2 : 10),
       maxFontSize: fontSize,
       minFontSize: minFontSize ?? fontSize - 5,
-      style: GoogleFonts.montserrat(
-        textStyle: TextStyle(
-          overflow: overflow ?? TextOverflow.visible,
-          letterSpacing: letterSpacing ?? 0,
-          color: fontColor ?? const Color(brownishColor),
-          fontWeight: fontWeight ?? FontWeight.w600,
-        ),
-      ),
+      style: font == null
+          ? GoogleFonts.montserrat(
+              textStyle: TextStyle(
+                overflow: overflow ?? TextOverflow.visible,
+                letterSpacing: letterSpacing ?? 0,
+                color: fontColor ?? const Color(brownishColor),
+                fontWeight: fontWeight ?? FontWeight.w600,
+              ),
+            )
+          : GoogleFonts.comfortaa(
+              textStyle: TextStyle(
+                overflow: overflow ?? TextOverflow.visible,
+                letterSpacing: letterSpacing ?? 0,
+                color: fontColor ?? const Color(brownishColor),
+                fontWeight: fontWeight ?? FontWeight.w600,
+              ),
+            ),
     );
   });
 }

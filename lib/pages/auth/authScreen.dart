@@ -83,6 +83,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   txt(
                       txt: 'Welcome to Ava',
                       fontSize: 30,
+                      font: 'comfortaa',
                       fontColor: const Color(secondaryColor)),
                   SizedBox(
                     height: screenHeight(context) * 0.05,

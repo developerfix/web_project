@@ -16,8 +16,9 @@ class ProjectController extends GetxController {
   Map<String, dynamic> get project => _project.value;
 
   RxBool isUploading = false.obs;
-  RxBool isAssetUpdating = false.obs;
+  // RxBool isAssetUpdating = false.obs;
   RxBool isTasksUpdating = false.obs;
+  RxBool isNewTasksUpdating = false.obs;
   RxBool isMembersUpdating = false.obs;
   RxList<dynamic> comments = <dynamic>[].obs;
   RxList<dynamic> assets = <dynamic>[].obs;
@@ -772,7 +773,6 @@ class ProjectController extends GetxController {
         //   // User canceled the picker
         // }
       } catch (e) {
-        isUploading.value = false;
         //define error
         getErrorSnackBar(
           "Something went wrong, Please try again",
@@ -782,16 +782,24 @@ class ProjectController extends GetxController {
   }
 
   addNewComment({comment, username}) async {
+    isUploading.value = true;
     comments.add({"type": 'text', "comment": comment, "username": username});
     if (!kIsWeb) {
-      for (var i = 0; i < projectMembers.length; i++) {
-        await firedartFirestore
-            .collection('users')
-            .document(projectMembers[i]['uid'])
-            .collection('projects')
-            .document(_projectId.value)
-            .collection('comments')
-            .add({"type": 'text', "comment": comment, "username": username});
+      try {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firedartFirestore
+              .collection('users')
+              .document(projectMembers[i]['uid'])
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('comments')
+              .add({"type": 'text', "comment": comment, "username": username});
+        }
+      } catch (e) {
+        //define error
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
       }
     } else {
       try {
@@ -804,7 +812,9 @@ class ProjectController extends GetxController {
               .collection('comments')
               .add({"type": 'text', "comment": comment, "username": username});
         }
+        isUploading.value = false;
       } catch (e) {
+        isUploading.value = false;
         //define error
         getErrorSnackBar(
           "Something went wrong, Please try again",
@@ -858,7 +868,7 @@ class ProjectController extends GetxController {
               .add(task.toJson());
         }
       }
-      getProjectTasks();
+      getProjectTasks(); // toDoTasks.add(task);
       isTasksUpdating.value = false;
       getSuccessSnackBar("task added successfully");
     } catch (e) {

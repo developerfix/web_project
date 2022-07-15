@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
@@ -138,120 +139,86 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                     drawer: Drawer(
                       child: Column(
                         children: <Widget>[
-                          DrawerHeader(
-                            margin: EdgeInsets.zero,
-                            child: Center(
-                              child: InkWell(
-                                onTap: () {
-                                  addAssetPopUp(context);
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.add,
-                                      color: Color(brownishColor),
-                                      size: 30,
-                                    ),
-                                    txt(
-                                      txt: "ASSETS",
-                                      fontSize: 30.0,
-                                      fontColor: const Color(brownishColor),
-                                      letterSpacing: 5,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                          // DrawerHeader(
+                          //   margin: EdgeInsets.zero,
+                          //   child: Center(
+                          //     child: InkWell(
+                          //       onTap: () {
+                          //         addAssetPopUp(context);
+                          //       },
+                          //       child: Row(
+                          //         mainAxisAlignment: MainAxisAlignment.center,
+                          //         children: [
+                          //           const Icon(
+                          //             Icons.add,
+                          //             color: Color(brownishColor),
+                          //             size: 30,
+                          //           ),
+                          //           AutoSizeText(
+                          //             "sdsd",
+                          //             maxLines:
+                          //                 (constraints.maxWidth < 600 ? 2 : 10),
+                          //             maxFontSize: 30,
+                          //             minFontSize: 25,
+                          //             style: GoogleFonts.comfortaa(
+                          //               textStyle: TextStyle(
+                          //                 overflow: TextOverflow.visible,
+                          //                 letterSpacing: 5,
+                          //                 color: const Color(brownishColor),
+                          //                 fontWeight: FontWeight.bold,
+                          //               ),
+                          //             ),
+                          //           )
+                          //           // txt(
+                          //           //   txt: "ASSETS",
+                          //           //   font: 'comfortaa',
+                          //           //   fontSize: 30.0,
+                          //           //   fontColor: const Color(brownishColor),
+                          //           //   letterSpacing: 5,
+                          //           //   fontWeight: FontWeight.bold,
+                          //           // ),
+                          //         ],
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                           Obx(() {
                             return SizedBox(
                               height: screenHeight(context) * 0.6,
                               width: screenWidth(context) * 0.12,
-                              child: projectController.isAssetUpdating.isTrue
-                                  ? Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const LoadingIndicator(),
-                                        txt(
-                                            txt:
-                                                'Please wait\n Asset is being updated',
-                                            fontSize: 14)
-                                      ],
+                              child: projectController.assets.isEmpty
+                                  ? Center(
+                                      child: txt(
+                                          txt: 'Add assets here', fontSize: 14),
                                     )
-                                  : projectController.assets.isEmpty
-                                      ? Center(
-                                          child: txt(
-                                              txt: 'Add assets here',
-                                              fontSize: 14),
-                                        )
-                                      : ListView.builder(
-                                          itemCount:
-                                              projectController.assets.length,
-                                          itemBuilder: (context, i) {
-                                            String path = projectController
-                                                .assets[i]['path'];
-                                            return constraints.maxWidth < 1200
-                                                ? Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        const Icon(
-                                                          Icons.link,
-                                                          color: const Color(
-                                                              secondaryColor),
-                                                        ),
-                                                        txt(
-                                                            txt: path,
-                                                            fontSize: 14,
-                                                            fontColor: const Color(
-                                                                secondaryColor),
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis),
-                                                        InkWell(
-                                                            onTap: () async {
-                                                              setState(() {
-                                                                isAssetsRefreshing =
-                                                                    true;
-                                                              });
-                                                              await projectController
-                                                                  .deleteProjectAsset(
-                                                                      path: projectController
-                                                                              .assets[i]
-                                                                          [
-                                                                          'path']);
-                                                              setState(() {
-                                                                isAssetsRefreshing =
-                                                                    false;
-                                                              });
-                                                            },
-                                                            child: const Icon(
-                                                              Icons
-                                                                  .delete_sharp,
-                                                              color: Color(
-                                                                  secondaryColor),
-                                                            )),
-                                                      ],
-                                                    ),
-                                                  )
-                                                : ListTile(
-                                                    leading: const Icon(
+                                  : ListView.builder(
+                                      itemCount:
+                                          projectController.assets.length,
+                                      itemBuilder: (context, i) {
+                                        String path =
+                                            projectController.assets[i]['path'];
+                                        return constraints.maxWidth < 1200
+                                            ? Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    const Icon(
                                                       Icons.link,
+                                                      color:
+                                                          Color(secondaryColor),
                                                     ),
-                                                    title: txt(
+                                                    txt(
                                                         txt: path,
                                                         fontSize: 14,
+                                                        fontColor: const Color(
+                                                            secondaryColor),
                                                         overflow: TextOverflow
                                                             .ellipsis),
-                                                    trailing: InkWell(
+                                                    InkWell(
                                                         onTap: () async {
                                                           setState(() {
                                                             isAssetsRefreshing =
@@ -269,10 +236,43 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                         },
                                                         child: const Icon(
                                                           Icons.delete_sharp,
+                                                          color: Color(
+                                                              secondaryColor),
                                                         )),
-                                                    onTap: () {},
-                                                  );
-                                          }),
+                                                  ],
+                                                ),
+                                              )
+                                            : ListTile(
+                                                leading: const Icon(
+                                                  Icons.link,
+                                                ),
+                                                title: txt(
+                                                    txt: path,
+                                                    fontSize: 14,
+                                                    overflow:
+                                                        TextOverflow.ellipsis),
+                                                trailing: InkWell(
+                                                    onTap: () async {
+                                                      setState(() {
+                                                        isAssetsRefreshing =
+                                                            true;
+                                                      });
+                                                      await projectController
+                                                          .deleteProjectAsset(
+                                                              path: projectController
+                                                                      .assets[i]
+                                                                  ['path']);
+                                                      setState(() {
+                                                        isAssetsRefreshing =
+                                                            false;
+                                                      });
+                                                    },
+                                                    child: const Icon(
+                                                      Icons.delete_sharp,
+                                                    )),
+                                                onTap: () {},
+                                              );
+                                      }),
                             );
                           }),
                           const Spacer(),
@@ -392,68 +392,51 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                           height: screenHeight(context) * 0.6,
                                           width: screenWidth(context) * 0.12,
                                           child: projectController
-                                                  .isAssetUpdating.isTrue
-                                              ? Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    const LoadingIndicator(),
-                                                    txt(
-                                                        txt:
-                                                            'Please wait\n Asset is being updated',
-                                                        fontSize: 14)
-                                                  ],
+                                                  .assets.isEmpty
+                                              ? Center(
+                                                  child: txt(
+                                                      txt: 'Add assets here',
+                                                      fontSize: 14),
                                                 )
-                                              : projectController.assets.isEmpty
-                                                  ? Center(
-                                                      child: txt(
-                                                          txt:
-                                                              'Add assets here',
-                                                          fontSize: 14),
-                                                    )
-                                                  : ListView.builder(
-                                                      itemCount:
-                                                          projectController
-                                                              .assets.length,
-                                                      itemBuilder:
-                                                          (context, i) {
-                                                        String path =
-                                                            projectController
-                                                                    .assets[i]
-                                                                ['path'];
-                                                        return ListTile(
-                                                          leading: const Icon(
-                                                            Icons.link,
-                                                          ),
-                                                          title: txt(
-                                                              txt: path,
-                                                              fontSize: 14,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis),
-                                                          trailing: InkWell(
-                                                              onTap: () async {
-                                                                setState(() {
-                                                                  isAssetsRefreshing =
-                                                                      true;
-                                                                });
-                                                                await projectController.deleteProjectAsset(
+                                              : ListView.builder(
+                                                  itemCount: projectController
+                                                      .assets.length,
+                                                  itemBuilder: (context, i) {
+                                                    String path =
+                                                        projectController
+                                                            .assets[i]['path'];
+                                                    return ListTile(
+                                                      leading: const Icon(
+                                                        Icons.link,
+                                                      ),
+                                                      title: txt(
+                                                          txt: path,
+                                                          fontSize: 14,
+                                                          overflow: TextOverflow
+                                                              .ellipsis),
+                                                      trailing: InkWell(
+                                                          onTap: () async {
+                                                            setState(() {
+                                                              isAssetsRefreshing =
+                                                                  true;
+                                                            });
+                                                            await projectController
+                                                                .deleteProjectAsset(
                                                                     path: projectController
                                                                             .assets[i]
                                                                         [
                                                                         'path']);
-                                                                setState(() {
-                                                                  isAssetsRefreshing =
-                                                                      false;
-                                                                });
-                                                              },
-                                                              child: const Icon(
-                                                                Icons
-                                                                    .delete_sharp,
-                                                              )),
-                                                          onTap: () {},
-                                                        );
-                                                      }),
+                                                            setState(() {
+                                                              isAssetsRefreshing =
+                                                                  false;
+                                                            });
+                                                          },
+                                                          child: const Icon(
+                                                            Icons.delete_sharp,
+                                                          )),
+                                                      onTap: () {},
+                                                    );
+                                                  }),
                                         );
                                       }),
                                       const Spacer(),
@@ -561,16 +544,16 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 txt(
-                                                  txt: projectController
-                                                      .project['lead'],
+                                                  txt:
+                                                      '@${projectController.project['lead']} ',
                                                   fontSize: 20,
                                                   minFontSize: 8,
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),
                                                 txt(
-                                                  txt: projectController
-                                                      .project['copilot'],
+                                                  txt:
+                                                      '@${projectController.project['copilot']}',
                                                   fontSize: 20,
                                                   minFontSize: 8,
                                                   overflow:
@@ -655,9 +638,8 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                                               Radius.circular(10),
                                                                         ),
                                                                       ),
-                                                                      child: projectController
-                                                                              .isTasksUpdating
-                                                                              .isTrue
+                                                                      child: projectController.isTasksUpdating.isTrue ||
+                                                                              projectController.isNewTasksUpdating.isTrue
                                                                           ? Column(
                                                                               mainAxisAlignment: MainAxisAlignment.center,
                                                                               children: [
@@ -1102,6 +1084,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                     child: txt(
                                                       txt: 'NOTES',
                                                       fontSize: 50,
+                                                      font: 'comfortaa',
                                                       maxLines: 1,
                                                       overflow:
                                                           TextOverflow.ellipsis,
@@ -1127,171 +1110,72 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                       width:
                                                           screenWidth(context) *
                                                               0.3,
-                                                      child: Container(
-                                                        height: 200.0,
-                                                        width: 200.0,
-                                                        child: AnimatedSwitcher(
-                                                          duration:
-                                                              const Duration(
-                                                                  milliseconds:
-                                                                      375),
-                                                          child: progress ==
-                                                                  100.0
-                                                              ? Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .center,
-                                                                  children: [
-                                                                    const Icon(
-                                                                      Icons
-                                                                          .check_rounded,
-                                                                      color: Colors
-                                                                          .green,
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      width:
-                                                                          5.0,
-                                                                    ),
-                                                                    Text(
-                                                                      'Upload Complete',
-                                                                      style: GoogleFonts
-                                                                          .poppins(
-                                                                        color: Colors
-                                                                            .green,
-                                                                      ),
-                                                                    ),
-                                                                  ],
+                                                      child: projectController
+                                                              .isUploading
+                                                              .isTrue
+                                                          ? Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                const LoadingIndicator(),
+                                                                txt(
+                                                                    txt:
+                                                                        'Please wait\n Comment is being added',
+                                                                    fontSize:
+                                                                        14)
+                                                              ],
+                                                            )
+                                                          : projectController
+                                                                  .comments
+                                                                  .isEmpty
+                                                              ? Center(
+                                                                  child: txt(
+                                                                      txt:
+                                                                          'Add comments here',
+                                                                      fontSize:
+                                                                          14),
                                                                 )
-                                                              : LiquidCircularProgressIndicator(
-                                                                  value:
-                                                                      progress /
-                                                                          100,
-                                                                  valueColor:
-                                                                      const AlwaysStoppedAnimation(
-                                                                          Colors
-                                                                              .pinkAccent),
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .white,
-                                                                  direction: Axis
-                                                                      .vertical,
-                                                                  center: Text(
-                                                                    "$progress%",
-                                                                    style: GoogleFonts.poppins(
-                                                                        color: Colors
-                                                                            .black87,
-                                                                        fontSize:
-                                                                            25.0),
-                                                                  ),
-                                                                ),
-                                                        ),
-                                                      )),
+                                                              : ListView
+                                                                  .builder(
+                                                                      controller:
+                                                                          _scrollController,
+                                                                      itemCount: projectController
+                                                                          .comments
+                                                                          .length,
+                                                                      itemBuilder:
+                                                                          (context,
+                                                                              i) {
+                                                                        String
+                                                                            comment =
+                                                                            projectController.comments[i]['comment'].toString();
+                                                                        String
+                                                                            type =
+                                                                            projectController.comments[i]['type'].toString();
+                                                                        String
+                                                                            username =
+                                                                            projectController.comments[i]['username'].toString();
+                                                                        String
+                                                                            firstChar =
+                                                                            '';
 
-                                                  // projectController
-                                                  //         .isUploading
-                                                  //         .isTrue
-                                                  //     ?
-                                                  //     // Container(
-                                                  //     //     color: Colors
-                                                  //     //         .orange,
-                                                  //     //     height: 200,
-                                                  //     //     width: 200,
-                                                  //     //     child:
-                                                  //     //         LiquidCircularProgressIndicator(
-                                                  //     //       value: projectController
-                                                  //     //               .progress
-                                                  //     //               .value /
-                                                  //     //           100,
-                                                  //     //       valueColor:
-                                                  //     //           AlwaysStoppedAnimation(
-                                                  //     //               Colors
-                                                  //     //                   .pinkAccent),
-                                                  //     //       backgroundColor:
-                                                  //     //           Colors
-                                                  //     //               .white,
-                                                  //     //       direction: Axis
-                                                  //     //           .vertical,
-                                                  //     //       center: Text(
-                                                  //     //         "${projectController.progress.value}%",
-                                                  //     //         style: GoogleFonts.poppins(
-                                                  //     //             color: Colors
-                                                  //     //                 .black87,
-                                                  //     //             fontSize:
-                                                  //     //                 16.0),
-                                                  //     //       ),
-                                                  //     //     ),
-                                                  //     //   )
-                                                  //     Column(
-                                                  //         mainAxisAlignment:
-                                                  //             MainAxisAlignment
-                                                  //                 .center,
-                                                  //         children: [
-                                                  //           const LoadingIndicator(),
-                                                  //           txt(
-                                                  //               txt:
-                                                  //                   'Please wait\n Comment is being added',
-                                                  //               fontSize:
-                                                  //                   14)
-                                                  //         ],
-                                                  //       )
-                                                  //     : projectController
-                                                  //             .comments
-                                                  //             .isEmpty
-                                                  //         ? Center(
-                                                  //             child: txt(
-                                                  //                 txt:
-                                                  //                     'Add comments here',
-                                                  //                 fontSize:
-                                                  //                     14),
-                                                  //           )
-                                                  //         : ListView.builder(
-                                                  //             controller: _scrollController,
-                                                  //             // shrinkWrap:
-                                                  //             //     true,
-                                                  //             // reverse:
-                                                  //             //     true,
-                                                  //             itemCount: projectController.comments.length,
-                                                  //             itemBuilder: (context, i) {
-                                                  //               String comment = projectController
-                                                  //                   .comments[
-                                                  //                       i]
-                                                  //                       [
-                                                  //                       'comment']
-                                                  //                   .toString();
-                                                  //               String type = projectController
-                                                  //                   .comments[
-                                                  //                       i]
-                                                  //                       [
-                                                  //                       'type']
-                                                  //                   .toString();
-                                                  //               String username = projectController
-                                                  //                   .comments[
-                                                  //                       i]
-                                                  //                       [
-                                                  //                       'username']
-                                                  //                   .toString();
-                                                  //               String
-                                                  //                   firstChar =
-                                                  //                   '';
+                                                                        for (int i =
+                                                                                0;
+                                                                            i < username.length;
+                                                                            i++) {
+                                                                          firstChar +=
+                                                                              username[i];
+                                                                        }
 
-                                                  //               for (int i =
-                                                  //                       0;
-                                                  //                   i < username.length;
-                                                  //                   i++) {
-                                                  //                 firstChar +=
-                                                  //                     username[i];
-                                                  //               }
-
-                                                  //               return usersMsg(
-                                                  //                   context,
-                                                  //                   username: firstChar[
-                                                  //                       0],
-                                                  //                   type:
-                                                  //                       type,
-                                                  //                   comment:
-                                                  //                       comment);
-                                                  //             }));
-                                                  // }),
+                                                                        return usersMsg(
+                                                                            context,
+                                                                            username: firstChar[
+                                                                                0],
+                                                                            type:
+                                                                                type,
+                                                                            comment:
+                                                                                comment);
+                                                                      })),
                                                   const Spacer(),
                                                   Container(
                                                     width:
@@ -1328,99 +1212,127 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                             commentController,
                                                         decoration:
                                                             InputDecoration(
-                                                                suffixIcon:
-                                                                    SizedBox(
-                                                                  width: 50,
-                                                                  child: Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .end,
-                                                                    children: [
-                                                                      Builder(builder:
-                                                                          (context) {
-                                                                        return InkWell(
-                                                                          onTap:
-                                                                              () async {
-                                                                            FilePickerResult?
-                                                                                result =
-                                                                                await FilePicker.platform.pickFiles();
+                                                          suffixIcon: SizedBox(
+                                                            width: 50,
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .end,
+                                                              children: [
+                                                                Builder(builder:
+                                                                    (context) {
+                                                                  return InkWell(
+                                                                    onTap:
+                                                                        () async {
+                                                                      // FilePickerResult?
+                                                                      //     result =
+                                                                      //     await FilePicker.platform.pickFiles();
 
-                                                                            if (result !=
-                                                                                null) {
-                                                                              Uint8List? file = result.files.first.bytes;
-                                                                              String fileName = result.files.first.name;
+                                                                      // if (result !=
+                                                                      //     null) {
+                                                                      //   Uint8List? file = result.files.first.bytes;
+                                                                      //   String fileName = result.files.first.name;
 
-                                                                              UploadTask task = FirebaseStorage.instance.ref().child("files/$fileName").putData(file!);
+                                                                      //   UploadTask task = FirebaseStorage.instance.ref().child("files/$fileName").putData(file!);
 
-                                                                              task.snapshotEvents.listen((event) {
-                                                                                setState(() {
-                                                                                  progress = ((event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) * 100).roundToDouble();
+                                                                      //   task.snapshotEvents.listen((event) {
+                                                                      //     setState(() {
+                                                                      //       progress = ((event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) * 100).roundToDouble();
 
-                                                                                  if (progress == 100) {
-                                                                                    event.ref.getDownloadURL().then((downloadUrl) => print(downloadUrl));
-                                                                                  }
+                                                                      //       if (progress == 100) {
+                                                                      //         event.ref.getDownloadURL().then((downloadUrl) => print(downloadUrl));
+                                                                      //       }
 
-                                                                                  print(progress);
-                                                                                });
-                                                                              });
-                                                                            }
-                                                                            // await projectController.addNewCommentFile(
-                                                                            //   username: profileController.user['name'],
-                                                                            // );
+                                                                      //       print(progress);
+                                                                      //     });
+                                                                      //   });
+                                                                      // }
+                                                                      await projectController
+                                                                          .addNewCommentFile(
+                                                                        username:
+                                                                            profileController.user['name'],
+                                                                      );
 
-                                                                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                                                                              if (_scrollController.hasClients) {
-                                                                                _scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                                                                              }
-                                                                            });
-                                                                          },
-                                                                          child: const Icon(
-                                                                              Icons.attach_file,
-                                                                              color: Color(brownishColor)),
-                                                                        );
-                                                                      }),
-                                                                      InkWell(
-                                                                        onTap:
-                                                                            () async {
-                                                                          await projectController
-                                                                              .addNewComment(
-                                                                            comment:
-                                                                                commentController.text,
-                                                                            username:
-                                                                                profileController.user['name'],
-                                                                          );
-
+                                                                      WidgetsBinding
+                                                                          .instance
+                                                                          .addPostFrameCallback(
+                                                                              (_) {
+                                                                        if (_scrollController
+                                                                            .hasClients) {
+                                                                          _scrollController.animateTo(
+                                                                              _scrollController.position.maxScrollExtent,
+                                                                              duration: const Duration(milliseconds: 300),
+                                                                              curve: Curves.easeOut);
+                                                                        }
+                                                                      });
+                                                                    },
+                                                                    child: const Icon(
+                                                                        Icons
+                                                                            .attach_file,
+                                                                        color: Color(
+                                                                            brownishColor)),
+                                                                  );
+                                                                }),
+                                                                InkWell(
+                                                                  onTap:
+                                                                      () async {
+                                                                    await projectController
+                                                                        .addNewComment(
+                                                                      comment:
                                                                           commentController
-                                                                              .clear();
+                                                                              .text,
+                                                                      username:
+                                                                          profileController
+                                                                              .user['name'],
+                                                                    );
 
-                                                                          WidgetsBinding
-                                                                              .instance
-                                                                              .addPostFrameCallback((_) {
-                                                                            if (_scrollController.hasClients) {
-                                                                              _scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                                                                            }
-                                                                          });
-                                                                        },
-                                                                        child: const Icon(
-                                                                            Icons
-                                                                                .send,
-                                                                            color:
-                                                                                Color(brownishColor)),
-                                                                      ),
-                                                                    ],
-                                                                  ),
+                                                                    commentController
+                                                                        .clear();
+
+                                                                    WidgetsBinding
+                                                                        .instance
+                                                                        .addPostFrameCallback(
+                                                                            (_) {
+                                                                      if (_scrollController
+                                                                          .hasClients) {
+                                                                        _scrollController.animateTo(
+                                                                            _scrollController
+                                                                                .position.maxScrollExtent,
+                                                                            duration:
+                                                                                const Duration(milliseconds: 300),
+                                                                            curve: Curves.easeOut);
+                                                                      }
+                                                                    });
+                                                                  },
+                                                                  child: const Icon(
+                                                                      Icons
+                                                                          .send,
+                                                                      color: Color(
+                                                                          brownishColor)),
                                                                 ),
-                                                                border:
-                                                                    InputBorder
-                                                                        .none,
-                                                                hintText:
-                                                                    'Add Comment...',
-                                                                hintStyle: const TextStyle(
-                                                                    color: Color(
-                                                                        brownishColor),
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600)),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          border:
+                                                              InputBorder.none,
+                                                          hintText:
+                                                              'Add Comment...',
+                                                          hintStyle: GoogleFonts
+                                                              .montserrat(
+                                                            textStyle:
+                                                                const TextStyle(
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .visible,
+                                                              letterSpacing: 0,
+                                                              color: Color(
+                                                                  brownishColor),
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                            ),
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
@@ -1456,7 +1368,12 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
         ],
       ),
       child: Center(
-        child: txt(txt: title, fontColor: Colors.white, fontSize: 18),
+        child: txt(
+            txt: title,
+            font: 'comfortaa',
+            fontWeight: FontWeight.bold,
+            fontColor: Colors.white,
+            fontSize: 18),
       ),
     );
   }
