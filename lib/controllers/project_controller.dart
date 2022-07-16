@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:projectx/models/project.dart';
 import 'package:projectx/models/project_member.dart';
@@ -10,12 +9,13 @@ import 'package:projectx/models/task.dart' as task_model;
 import 'package:projectx/pages/project_dashboard.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../constants/style.dart';
+import 'package:firebase_dart/storage.dart' as firebase_dart_storage;
+import 'package:firebase_dart/core.dart' as firebase_dart;
 
 class ProjectController extends GetxController {
   final Rx<Map<String, dynamic>> _project = Rx<Map<String, dynamic>>({});
   Map<String, dynamic> get project => _project.value;
 
-  RxBool isUploading = false.obs;
   // RxBool isAssetUpdating = false.obs;
   RxBool isTasksUpdating = false.obs;
   RxBool isNewTasksUpdating = false.obs;
@@ -27,10 +27,12 @@ class ProjectController extends GetxController {
   RxList<dynamic> toDoTasks = <dynamic>[].obs;
   RxList<dynamic> inProgressTasks = <dynamic>[].obs;
   RxList<dynamic> completedTasks = <dynamic>[].obs;
-  // Rx<double> progress = 0.0.obs;
+  Rx<double> progress = 0.0.obs;
 
   Rx<String> _uid = "".obs;
   Rx<String> _projectId = "".obs;
+  // ignore: prefer_typing_uninitialized_variables
+  var app;
 
   updateProjectAndUserId({String? uid, String? projectId}) {
     _uid.value = uid!;
@@ -38,6 +40,19 @@ class ProjectController extends GetxController {
     getProjectData();
     getUsers();
     getProjectTasks();
+    initialize();
+  }
+
+  initialize() async {
+    app = await firebase_dart.Firebase.initializeApp(
+      options: const firebase_dart.FirebaseOptions(
+          apiKey: "AIzaSyC9Jzj22llAEY9Zj1LjVMOxI8kVIFjP2VY",
+          authDomain: "ava-project-ab57c.firebaseapp.com",
+          projectId: "ava-project-ab57c",
+          storageBucket: "ava-project-ab57c.appspot.com",
+          messagingSenderId: "69104603518",
+          appId: "1:69104603518:web:4ff45ea30c6e823b1fe32f"),
+    );
   }
 
   getProjectAssets() async {
@@ -686,103 +701,75 @@ class ProjectController extends GetxController {
   }
 
   addNewCommentFile({username}) async {
-    if (!kIsWeb) {
-    } else {
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(withData: true);
+
+    if (result != null) {
+      Uint8List? file = result.files.first.bytes;
+      String fileName = result.files.first.name;
+      String? urlDownload;
+
       try {
-        FilePickerResult? result = await FilePicker.platform.pickFiles();
+        var storage =
+            firebase_dart_storage.FirebaseStorage.instanceFor(app: app);
+        var ref = storage.ref().child("files/$fileName").putData(file!);
+        ref.snapshotEvents.listen((event) {
+          progress.value = ((event.bytesTransferred.toDouble() /
+                  event.totalBytes.toDouble()) *
+              100);
+          if (event.state == firebase_dart_storage.TaskState.success) {
+            event.ref.getDownloadURL().then((downloadUrl) async {
+              urlDownload = downloadUrl;
 
-        if (result != null) {
-          Uint8List? file = result.files.first.bytes;
-          String fileName = result.files.first.name;
-
-          UploadTask task = FirebaseStorage.instance
-              .ref()
-              .child("files/$fileName")
-              .putData(file!);
-
-          task.snapshotEvents.listen((event) {
-            // setState(() {
-            //   progress = ((event.bytesTransferred.toDouble() /
-            //               event.totalBytes.toDouble()) *
-            //           100)
-            //       .roundToDouble();
-
-            //   if (progress == 100) {
-            //     event.ref
-            //         .getDownloadURL()
-            //         .then((downloadUrl) => print(downloadUrl));
-            //   }
-
-            //   print(progress);
-            // });
-          });
-        }
-        // FilePickerResult? result =
-        //     await FilePicker.platform.pickFiles(allowMultiple: false);
-
-        // UploadTask uploadTask;
-        // String urlDownload;
-
-        // if (result != null) {
-        //   isUploading.value = true;
-        //   // List<File> files = result.files.single.map((files) => File(path!)).toList();
-        //   // List<File> filesNames =
-        //   //     result.names.map((name) => File(name!)).toList();
-
-        //   Uint8List? uploadfile = result.files.single.bytes;
-
-        //   String filename = result.files.single.name;
-
-        //   final ref =
-        //       FirebaseStorage.instance.ref().child('commentFiles/$filename');
-        //   uploadTask = ref.putData(uploadfile!);
-
-        //   uploadTask.snapshotEvents.listen((event) {
-        //     // ((event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) *
-        //     //     100) as Rx<double>;
-
-        //     // if (progress == 100) {
-        //     //   event.ref.getDownloadURL().then((downloadUrl) {
-        //     //     urlDownload = downloadUrl;
-        //     //   });
-        //     //   isUploading.value = false;
-        //     // }
-        //   });
-
-        // final snapshot = await uploadTask.whenComplete(() {});
-        // final urlDownload = await snapshot.ref.getDownloadURL();
-        // for (var i = 0; i < projectMembers.length; i++) {
-        //   await firestore
-        //       .collection('users')
-        //       .doc(projectMembers[i]['uid'])
-        //       .collection('projects')
-        //       .doc(_projectId.value)
-        //       .collection('comments')
-        //       .add({
-        //     "type": 'file',
-        //     "comment": urlDownload,
-        //     "username": username
-        //   });
-        // }
-        // isUploading.value = false;
-
-        // comments.add(
-        //     {"type": 'file', "comment": urlDownload, "username": username});
-        // }
-        //  else {
-        //   // User canceled the picker
-        // }
+              comments.add({
+                "type": 'file',
+                "comment": urlDownload,
+                "username": username
+              });
+              if (!kIsWeb) {
+                for (var i = 0; i < projectMembers.length; i++) {
+                  await firedartFirestore
+                      .collection('users')
+                      .document(projectMembers[i]['uid'])
+                      .collection('projects')
+                      .document(_projectId.value)
+                      .collection('comments')
+                      .add({
+                    "type": 'file',
+                    "comment": urlDownload,
+                    "username": username
+                  });
+                }
+              } else {
+                for (var i = 0; i < projectMembers.length; i++) {
+                  await firestore
+                      .collection('users')
+                      .doc(projectMembers[i]['uid'])
+                      .collection('projects')
+                      .doc(_projectId.value)
+                      .collection('comments')
+                      .add({
+                    "type": 'file',
+                    "comment": urlDownload,
+                    "username": username
+                  });
+                }
+              }
+            });
+          }
+        });
       } catch (e) {
         //define error
         getErrorSnackBar(
           "Something went wrong, Please try again",
         );
       }
+    } else {
+      // User canceled the picker
     }
   }
 
   addNewComment({comment, username}) async {
-    isUploading.value = true;
     comments.add({"type": 'text', "comment": comment, "username": username});
     if (!kIsWeb) {
       try {
@@ -812,9 +799,7 @@ class ProjectController extends GetxController {
               .collection('comments')
               .add({"type": 'text', "comment": comment, "username": username});
         }
-        isUploading.value = false;
       } catch (e) {
-        isUploading.value = false;
         //define error
         getErrorSnackBar(
           "Something went wrong, Please try again",

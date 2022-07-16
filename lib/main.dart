@@ -9,16 +9,20 @@ import 'package:firedart/firedart.dart' as firedart;
 import 'controllers/auth_controller.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+import 'package:firebase_dart/implementation/pure_dart.dart'
+    as pure_dart_implementation;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (!kIsWeb) {
     var firebaseAuth = firedart.FirebaseAuth(
         'AIzaSyC9Jzj22llAEY9Zj1LjVMOxI8kVIFjP2VY', firedart.VolatileStore());
-    // firedart.Firestore.initialize("ava-project-ab57c");
     firedart.Firestore('ava-project-ab57c', auth: firebaseAuth);
     firedart.Firestore.initialize("ava-project-ab57c");
   }
+  pure_dart_implementation.FirebaseDart.setup();
+
   await Firebase.initializeApp(
     options: const FirebaseOptions(
         apiKey: "AIzaSyC9Jzj22llAEY9Zj1LjVMOxI8kVIFjP2VY",

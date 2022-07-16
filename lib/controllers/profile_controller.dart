@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
 import '../constants/style.dart';
-import 'package:firedart/firedart.dart' as firedart;
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ProfileController extends GetxController {

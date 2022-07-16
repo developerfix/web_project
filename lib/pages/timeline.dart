@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gantt_chart/gantt_chart.dart';
 import 'package:get/get.dart';
 
@@ -176,8 +175,7 @@ class _TimelineState extends State<Timeline> {
         ),
       );
     }
-    print(startDateOfTasks);
-    print(endDateOfTasks);
+
     startDateOfTasks.sort((a, b) {
       //sorting in ascending order
       return DateTime.parse(a.toString())
@@ -188,9 +186,6 @@ class _TimelineState extends State<Timeline> {
       return DateTime.parse(a.toString())
           .compareTo(DateTime.parse(b.toString()));
     });
-
-    print(startDateOfTasks);
-    print(endDateOfTasks);
 
     differenceInDays = DateTime(endDateOfTasks.last.year,
             endDateOfTasks.last.month, endDateOfTasks.last.day)
@@ -203,11 +198,11 @@ class _TimelineState extends State<Timeline> {
     return Obx(() {
       return Scaffold(
         // backgroundColor: Colors.grey.shade300,
-        backgroundColor: Color(darkgreyishColor),
+        backgroundColor: const Color(darkgreyishColor),
         key: _key,
         appBar: customAppBar(
           context,
-          color: Color(darkgreyishColor),
+          color: const Color(darkgreyishColor),
           username: profileController.user['name'],
           title:
               txt(txt: 'Timeline view', fontSize: 18, fontColor: Colors.white),
@@ -243,7 +238,7 @@ class _TimelineState extends State<Timeline> {
                         stickyAreaEventBuilder:
                             (context, eventIndex, event, eventColor) {
                           return Container(
-                            color: Color(secondaryColor),
+                            color: const Color(secondaryColor),
                             child: Center(
                                 child: txt(
                                     txt: event.displayName!,
@@ -254,7 +249,7 @@ class _TimelineState extends State<Timeline> {
 
                         weekHeaderBuilder: (context, weekDate) {
                           return Container(
-                            color: Color(darkgreyishColor),
+                            color: const Color(darkgreyishColor),
                             child: Center(
                                 child: txt(
                                     txt:
@@ -297,7 +292,7 @@ class _TimelineState extends State<Timeline> {
                         // }),
                         stickyAreaDayBuilder: (context) {
                           return Container(
-                            color: Color(secondaryColor),
+                            color: const Color(secondaryColor),
                             child: Center(
                                 child: txt(
                                     txt: 'Tasks',
@@ -310,7 +305,7 @@ class _TimelineState extends State<Timeline> {
                         dayHeaderHeight: screenHeight(context) * 0.05,
                         // maxDuration:
                         //     Duration(days: differenceInDays.inDays + 7),
-                        maxDuration: Duration(days: 365),
+                        maxDuration: const Duration(days: 365),
                         startDate: DateTime(startDateOfTasks[0].year,
                             startDateOfTasks[0].month, startDateOfTasks[0].day),
                         dayWidth: screenWidth(context) * 0.03,

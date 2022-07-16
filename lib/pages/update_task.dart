@@ -588,7 +588,6 @@ class _UpdateTaskState extends State<UpdateTask> {
                   children: [
                     InkWell(
                       onTap: () {
-                        print(titleController.text);
                         // if (titleController.text.isNotEmpty &&
                         //     descriptionController.text.isNotEmpty &&
                         //     taskCoPilot != widget.copilot &&

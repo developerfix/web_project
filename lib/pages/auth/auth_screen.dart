@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-import 'package:get/get.dart' as getx;
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/auth_controller.dart';
 import 'package:projectx/widgets/popup_textfield.dart';
 
 import '../../controllers/input_validators.dart';
-import '../recent_project.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key}) : super(key: key);
@@ -420,7 +415,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       SizedBox(
                         width: screenWidth(context) * 0.005,
                       ),
-                      const Expanded(child: const Divider())
+                      const Expanded(child: Divider())
                     ],
                   ),
                   SizedBox(
@@ -450,7 +445,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SvgPicture.asset('assets/svgs/google-icon.svg'),
-                            SizedBox(
+                            const SizedBox(
                               width: 20,
                             ),
                             txt(txt: 'Sign in with Google', fontSize: 22)

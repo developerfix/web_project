@@ -54,8 +54,8 @@ class _AddNewTaskState extends State<AddNewTask> {
         body: SingleChildScrollView(
           child: Padding(
             padding: constraints.maxWidth < 800
-                ? EdgeInsets.fromLTRB(10, 30, 10, 50)
-                : EdgeInsets.fromLTRB(100, 30, 100, 50),
+                ? const EdgeInsets.fromLTRB(10, 30, 10, 50)
+                : const EdgeInsets.fromLTRB(100, 30, 100, 50),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -126,7 +126,7 @@ class _AddNewTaskState extends State<AddNewTask> {
                                     initialDate: DateTime.now(),
                                     context: context,
                                     firstDate: DateTime.now()
-                                        .subtract(Duration(days: 0)),
+                                        .subtract(const Duration(days: 0)),
                                     lastDate: DateTime(2100),
                                   );
 
@@ -196,7 +196,7 @@ class _AddNewTaskState extends State<AddNewTask> {
                                     initialDate: DateTime.now(),
                                     context: context,
                                     firstDate: DateTime.now()
-                                        .subtract(Duration(days: 0)),
+                                        .subtract(const Duration(days: 0)),
                                     lastDate: DateTime(2100),
                                   );
 
@@ -267,7 +267,7 @@ class _AddNewTaskState extends State<AddNewTask> {
                                     initialDate: DateTime.now(),
                                     context: context,
                                     firstDate: DateTime.now()
-                                        .subtract(Duration(days: 0)),
+                                        .subtract(const Duration(days: 0)),
                                     lastDate: DateTime(2100),
                                   );
 
@@ -337,7 +337,7 @@ class _AddNewTaskState extends State<AddNewTask> {
                                     initialDate: DateTime.now(),
                                     context: context,
                                     firstDate: DateTime.now()
-                                        .subtract(Duration(days: 0)),
+                                        .subtract(const Duration(days: 0)),
                                     lastDate: DateTime(2100),
                                   );
 
@@ -956,7 +956,6 @@ class _AddNewTaskState extends State<AddNewTask> {
                         }).toList(),
 
                         onChanged: (value) {
-                          print(value.toString());
                           setState(() {
                             phaseValue = value.toString();
                           });
@@ -1022,7 +1021,6 @@ class _AddNewTaskState extends State<AddNewTask> {
                         }).toList(),
 
                         onChanged: (value) {
-                          print(value.toString());
                           setState(() {
                             phaseValue = value.toString();
                           });

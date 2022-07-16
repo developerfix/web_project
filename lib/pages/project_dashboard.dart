@@ -1,10 +1,4 @@
-import 'dart:typed_data';
-
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
-import 'package:universal_html/html.dart' as html;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -43,7 +37,6 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
   bool isAssetsRefreshing = false;
   bool isCommentsRefreshing = false;
-  double progress = 0.0;
 
   @override
   void initState() {
@@ -148,20 +141,20 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                 },
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
+                                  children: const [
+                                    Icon(
                                       Icons.add,
                                       color: Color(brownishColor),
                                       size: 30,
                                     ),
-                                    txt(
-                                      txt: "ASSETS",
-                                      font: 'comfortaa',
-                                      fontSize: 30.0,
-                                      fontColor: const Color(brownishColor),
-                                      letterSpacing: 5,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    // txt(
+                                    //   txt: "ASSETS",
+                                    //   font: 'comfortaa',
+                                    //   fontSize: 30.0,
+                                    //   fontColor: const Color(brownishColor),
+                                    //   letterSpacing: 5,
+                                    //   fontWeight: FontWeight.bold,
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -529,16 +522,26 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 txt(
-                                                  txt:
-                                                      '@${projectController.project['lead']} ',
+                                                  txt: projectController
+                                                                  .project[
+                                                              'lead'] ==
+                                                          'assign lead'
+                                                      ? projectController
+                                                          .project['lead']
+                                                      : '@${projectController.project['lead']} ',
                                                   fontSize: 20,
                                                   minFontSize: 8,
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),
                                                 txt(
-                                                  txt:
-                                                      '@${projectController.project['copilot']}',
+                                                  txt: projectController
+                                                                  .project[
+                                                              'copilot'] ==
+                                                          'assign co-pilot'
+                                                      ? projectController
+                                                          .project['copilot']
+                                                      : '@${projectController.project['copilot']} ',
                                                   fontSize: 20,
                                                   minFontSize: 8,
                                                   overflow:
@@ -1088,79 +1091,106 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                         screenHeight(context) *
                                                             0.03,
                                                   ),
-                                                  SizedBox(
-                                                      height: screenHeight(
-                                                              context) *
-                                                          0.55,
-                                                      width:
-                                                          screenWidth(context) *
-                                                              0.3,
-                                                      child: projectController
-                                                              .isUploading
-                                                              .isTrue
-                                                          ? Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                const LoadingIndicator(),
-                                                                txt(
-                                                                    txt:
-                                                                        'Please wait\n Comment is being added',
-                                                                    fontSize:
-                                                                        14)
-                                                              ],
-                                                            )
-                                                          : projectController
-                                                                  .comments
-                                                                  .isEmpty
-                                                              ? Center(
-                                                                  child: txt(
-                                                                      txt:
-                                                                          'Add comments here',
-                                                                      fontSize:
-                                                                          14),
-                                                                )
-                                                              : ListView
-                                                                  .builder(
-                                                                      controller:
-                                                                          _scrollController,
-                                                                      itemCount: projectController
-                                                                          .comments
-                                                                          .length,
-                                                                      itemBuilder:
-                                                                          (context,
-                                                                              i) {
-                                                                        String
-                                                                            comment =
-                                                                            projectController.comments[i]['comment'].toString();
-                                                                        String
-                                                                            type =
-                                                                            projectController.comments[i]['type'].toString();
-                                                                        String
-                                                                            username =
-                                                                            projectController.comments[i]['username'].toString();
-                                                                        String
-                                                                            firstChar =
-                                                                            '';
+                                                  Obx(() {
+                                                    return SizedBox(
+                                                        height: screenHeight(
+                                                                context) *
+                                                            0.55,
+                                                        width:
+                                                            screenWidth(context) *
+                                                                0.3,
+                                                        child:
+                                                            projectController
+                                                                            .progress
+                                                                            .value !=
+                                                                        100 &&
+                                                                    projectController
+                                                                            .progress
+                                                                            .value !=
+                                                                        0.0
+                                                                ? Stack(
+                                                                    children: [
+                                                                      Positioned
+                                                                          .fill(
+                                                                              child: Opacity(
+                                                                        opacity:
+                                                                            0.5,
+                                                                        child: Container(
+                                                                            color:
+                                                                                Colors.white),
+                                                                      )),
+                                                                      Align(
+                                                                        alignment:
+                                                                            Alignment.center,
+                                                                        child:
+                                                                            Column(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.center,
+                                                                          children: [
+                                                                            SizedBox(
+                                                                              height: 200,
+                                                                              width: 300,
+                                                                              child: LiquidCircularProgressIndicator(
+                                                                                value: projectController.progress.value / 100,
+                                                                                valueColor: const AlwaysStoppedAnimation(Color(secondaryColor)),
+                                                                                backgroundColor: Colors.white,
+                                                                                direction: Axis.vertical,
+                                                                                center: Text(
+                                                                                  "${projectController.progress.value.ceil()}%",
+                                                                                  style: GoogleFonts.poppins(color: Colors.black, fontSize: 18),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                            Padding(
+                                                                              padding: const EdgeInsets.all(8.0),
+                                                                              child: txt(txt: 'Please wait\n File is being uploaded', fontSize: 14),
+                                                                            )
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  )
+                                                                : projectController
+                                                                        .comments
+                                                                        .isEmpty
+                                                                    ? Center(
+                                                                        child: txt(
+                                                                            txt:
+                                                                                'Add comments here',
+                                                                            fontSize:
+                                                                                14),
+                                                                      )
+                                                                    : ListView.builder(
+                                                                        controller: _scrollController,
+                                                                        itemCount: projectController.comments.length,
+                                                                        itemBuilder: (context, i) {
+                                                                          String
+                                                                              comment =
+                                                                              projectController.comments[i]['comment'].toString();
+                                                                          String
+                                                                              type =
+                                                                              projectController.comments[i]['type'].toString();
+                                                                          String
+                                                                              username =
+                                                                              projectController.comments[i]['username'].toString();
+                                                                          String
+                                                                              firstChar =
+                                                                              '';
 
-                                                                        for (int i =
-                                                                                0;
-                                                                            i < username.length;
-                                                                            i++) {
-                                                                          firstChar +=
-                                                                              username[i];
-                                                                        }
+                                                                          for (int i = 0;
+                                                                              i < username.length;
+                                                                              i++) {
+                                                                            firstChar +=
+                                                                                username[i];
+                                                                          }
 
-                                                                        return usersMsg(
-                                                                            context,
-                                                                            username: firstChar[
-                                                                                0],
-                                                                            type:
-                                                                                type,
-                                                                            comment:
-                                                                                comment);
-                                                                      })),
+                                                                          return usersMsg(
+                                                                              context,
+                                                                              username: firstChar[0],
+                                                                              type: type,
+                                                                              comment: comment);
+                                                                        }));
+                                                  }),
                                                   const Spacer(),
                                                   Container(
                                                     width:
@@ -1209,29 +1239,6 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                                   return InkWell(
                                                                     onTap:
                                                                         () async {
-                                                                      // FilePickerResult?
-                                                                      //     result =
-                                                                      //     await FilePicker.platform.pickFiles();
-
-                                                                      // if (result !=
-                                                                      //     null) {
-                                                                      //   Uint8List? file = result.files.first.bytes;
-                                                                      //   String fileName = result.files.first.name;
-
-                                                                      //   UploadTask task = FirebaseStorage.instance.ref().child("files/$fileName").putData(file!);
-
-                                                                      //   task.snapshotEvents.listen((event) {
-                                                                      //     setState(() {
-                                                                      //       progress = ((event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) * 100).roundToDouble();
-
-                                                                      //       if (progress == 100) {
-                                                                      //         event.ref.getDownloadURL().then((downloadUrl) => print(downloadUrl));
-                                                                      //       }
-
-                                                                      //       print(progress);
-                                                                      //     });
-                                                                      //   });
-                                                                      // }
                                                                       await projectController
                                                                           .addNewCommentFile(
                                                                         username:
@@ -1811,8 +1818,23 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
     );
   }
 
-  downloadFile(url) {
-    html.AnchorElement anchorElement = html.AnchorElement(href: url);
-    anchorElement.click();
+  downloadFile(url) async {
+//    Uri uri = Uri.parse(url);
+
+// Uint8List bytes = await readBytes(uri);
+// await FileSaver.instance.saveFile(filename, bytes, 'jpg',
+//     mimeType: MimeType.JPEG); /
+
+    // final File file = File(url);
+    // final filename = basename(file.path);
+    // final exxtension = extension(file.path);
+    // print(bytes);
+    // print(filename);
+    // print(exxtension);
+    // await FileSaver.instance.saveFile(filename, bytes, exxtension);
+    // print('success');
+
+    // html.AnchorElement anchorElement = html.AnchorElement(href: url);
+    // anchorElement.click();
   }
 }
