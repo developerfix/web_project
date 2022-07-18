@@ -9,6 +9,7 @@ import 'package:projectx/widgets/custom_appbar.dart';
 import 'package:projectx/widgets/loading_indicator.dart';
 
 import '../widgets/custom_drawer.dart';
+import '../widgets/select_from_users_popup.dart';
 import '../widgets/select_task_members_popup.dart';
 
 class SelectProjectMembers extends StatefulWidget {
@@ -206,7 +207,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                         left: 15, right: 15, top: 5),
                                     child: InkWell(
                                       onTap: () {
-                                        selectTaskMembersPopup(context,
+                                        selectFromUsersPopup(context,
                                                 title:
                                                     'Select Pilot for this task')
                                             .then((value) {
@@ -278,7 +279,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                         left: 15, right: 15, top: 5),
                                     child: InkWell(
                                       onTap: () {
-                                        selectTaskMembersPopup(context,
+                                        selectFromUsersPopup(context,
                                                 title:
                                                     'Select Co-Pilot for this task')
                                             .then((value) {
@@ -343,7 +344,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                         left: 15, right: 15, top: 5),
                                     child: InkWell(
                                       onTap: () {
-                                        selectTaskMembersPopup(context,
+                                        selectFromUsersPopup(context,
                                                 title:
                                                     'Select Co-Pilot for this task')
                                             .then((value) {

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../controllers/project_controller.dart';
 
-Future<dynamic> selectTaskMembersPopup(BuildContext context, {String? title}) {
+Future<dynamic> selectFromUsersPopup(BuildContext context, {String? title}) {
   final projectController = Get.put(ProjectController());
 
   return showDialog(
@@ -32,10 +32,9 @@ Future<dynamic> selectTaskMembersPopup(BuildContext context, {String? title}) {
                   width: screenWidth(context) * 0.25,
                   child: Obx(() {
                     return ListView.builder(
-                        itemCount: projectController.projectMembers.length,
+                        itemCount: projectController.users.length,
                         itemBuilder: (context, i) {
-                          String username =
-                              projectController.projectMembers[i]['username'];
+                          String username = projectController.users[i]['name'];
                           return screenWidth(context) < 600
                               ? InkWell(
                                   onTap: () {

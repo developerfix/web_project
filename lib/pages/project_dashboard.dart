@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/auth_controller.dart';
 import 'package:projectx/controllers/profile_controller.dart';
@@ -1277,7 +1280,6 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                                           profileController
                                                                               .user['name'],
                                                                     );
-
                                                                     commentController
                                                                         .clear();
 
@@ -1822,17 +1824,18 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 //    Uri uri = Uri.parse(url);
 
 // Uint8List bytes = await readBytes(uri);
+// Uint8List imgbytes = await url. readAsBytes();
 // await FileSaver.instance.saveFile(filename, bytes, 'jpg',
 //     mimeType: MimeType.JPEG); /
 
-    // final File file = File(url);
-    // final filename = basename(file.path);
-    // final exxtension = extension(file.path);
-    // print(bytes);
-    // print(filename);
-    // print(exxtension);
-    // await FileSaver.instance.saveFile(filename, bytes, exxtension);
-    // print('success');
+//     final File file = File(url);
+//     final filename = basename(file.path);
+//     final exxtension = extension(file.path);
+//     print(bytes);
+//     print(filename);
+//     print(exxtension);
+//     await FileSaver.instance.saveFile(filename, bytes, exxtension);
+//     print('success');
 
     // html.AnchorElement anchorElement = html.AnchorElement(href: url);
     // anchorElement.click();

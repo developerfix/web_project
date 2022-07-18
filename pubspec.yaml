@@ -42,6 +42,7 @@ dependencies:
   firebase_core_desktop: any
   firebase_storage: ^10.2.18
   firedart: ^0.9.0+1
+  async: any
   path: any
   flutter:
     sdk: flutter
