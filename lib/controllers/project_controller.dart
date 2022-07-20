@@ -42,7 +42,6 @@ class ProjectController extends GetxController {
     _projectId.value = projectId!;
     getProjectData();
     getUsers();
-    getProjectTasks();
     initialize();
   }
 
@@ -59,6 +58,7 @@ class ProjectController extends GetxController {
   }
 
   getProjectAssets() async {
+    assets.clear();
     if (!kIsWeb) {
       try {
         var projectAssets = await firedartFirestore
@@ -93,6 +93,7 @@ class ProjectController extends GetxController {
   }
 
   getProjectMembers() async {
+    projectMembers.clear();
     if (!kIsWeb) {
       await firedartFirestore
           .collection('users')
@@ -474,6 +475,7 @@ class ProjectController extends GetxController {
       getProjectMembers();
       getProjectAssets();
       getProjectComments();
+      getProjectTasks();
 
       // final projectData = projectDataDoc.data()! as dynamic;
       String title = projectDataDoc['title'];
@@ -499,6 +501,7 @@ class ProjectController extends GetxController {
       getProjectMembers();
       getProjectAssets();
       getProjectComments();
+      getProjectTasks();
 
       final projectData = projectDataDoc.data()! as dynamic;
       String title = projectData['title'];
@@ -651,24 +654,21 @@ class ProjectController extends GetxController {
   }
 
   getProjectComments() async {
+    comments.clear();
     if (!kIsWeb) {
-      try {
-        var projectComments = await firedartFirestore
-            .collection('users')
-            .document(_uid.value)
-            .collection('projects')
-            .document(_projectId.value)
-            .collection('comments')
-            .orderBy(
-              'created',
-            )
-            .get();
+      var projectComments = await firedartFirestore
+          .collection('users')
+          .document(_uid.value)
+          .collection('projects')
+          .document(_projectId.value)
+          .collection('comments')
+          .orderBy(
+            'created',
+          )
+          .get();
 
-        for (var comment in projectComments) {
-          comments.add(comment);
-        }
-      } catch (e) {
-        print(e);
+      for (var comment in projectComments) {
+        comments.add(comment);
       }
     } else {
       QuerySnapshot projectComments = await firestore
@@ -1005,38 +1005,91 @@ class ProjectController extends GetxController {
     List<ProjectMember>? removedMembers,
   }) async {
     if (!kIsWeb) {
-    } else {
-      print(members);
-      print(removedMembers);
       FutureGroup futureGroup = FutureGroup();
 
       isMembersUpdating.value = true;
+      var exitedMembersList = [];
       projectMembers.clear();
+      try {
+        for (var i = 0; i < removedMembers!.length; i++) {
+          futureGroup.add(firedartFirestore
+              .collection('users')
+              .document(removedMembers[i].uid!)
+              .collection('projects')
+              .document(_projectId.value)
+              .delete());
 
-      for (var i = 0; i < removedMembers!.length; i++) {
-        futureGroup.add(firestore
-            .collection('users')
-            .doc(removedMembers[i].uid)
-            .collection('projects')
-            .doc(_projectId.value)
-            .delete());
-      }
+          futureGroup.add(firedartFirestore
+              .collection('users')
+              .document(removedMembers[i].uid!)
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('assets')
+              .get()
+              .then((value) {
+            for (var doc in value) {
+              doc.reference.delete();
+            }
+          }));
+          futureGroup.add(firedartFirestore
+              .collection('users')
+              .document(removedMembers[i].uid!)
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('comments')
+              .get()
+              .then((value) {
+            for (var doc in value) {
+              doc.reference.delete();
+            }
+          }));
+          futureGroup.add(firedartFirestore
+              .collection('users')
+              .document(removedMembers[i].uid!)
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('members')
+              .get()
+              .then((value) {
+            for (var doc in value) {
+              doc.reference.delete();
+            }
+          }));
+          futureGroup.add(firedartFirestore
+              .collection('users')
+              .document(removedMembers[i].uid!)
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('tasks')
+              .get()
+              .then((value) {
+            for (var doc in value) {
+              doc.reference.delete();
+            }
+          }));
+        }
 
-      for (var i = 0; i < members!.length; i++) {
-        await firestore
+        await firedartFirestore
             .collection('users')
-            .doc(members[i].uid)
+            .document(_uid.value)
             .collection('projects')
-            .doc(_projectId.value)
+            .document(_projectId.value)
+            .collection('members')
             .get()
-            .then((DocumentSnapshot documentSnapshot) async {
-          if (documentSnapshot.exists) {
+            .then((value) {
+          for (var doc in value) {
+            exitedMembersList.add(doc.id);
+          }
+        });
+
+        for (var i = 0; i < members!.length; i++) {
+          if (exitedMembersList.contains(members[i].uid!)) {
             futureGroup.add(
-              firestore
+              firedartFirestore
                   .collection('users')
-                  .doc(members[i].uid)
+                  .document(members[i].uid!)
                   .collection('projects')
-                  .doc(_projectId.value)
+                  .document(_projectId.value)
                   .update(
                 {
                   'copilot': copilot,
@@ -1046,93 +1099,33 @@ class ProjectController extends GetxController {
             );
 
             for (var projectMember in members) {
-              futureGroup.add(firestore
-                  .collection('users')
-                  .doc(members[i].uid)
-                  .collection('projects')
-                  .doc(_projectId.value)
-                  .collection('members')
-                  .doc(projectMember.uid)
-                  .get()
-                  .then((DocumentSnapshot document) async {
-                if (document.exists) {
-                } else {
-                  await firestore
-                      .collection('users')
-                      .doc(members[i].uid)
-                      .collection('projects')
-                      .doc(_projectId.value)
-                      .collection('members')
-                      .doc(projectMember.uid)
-                      .set({
-                    'uid': projectMember.uid,
-                    'username': projectMember.username
-                  });
-                }
-              }));
+              if (exitedMembersList.contains(projectMember.uid)) {
+              } else {
+                futureGroup.add(firedartFirestore
+                    .collection('users')
+                    .document(members[i].uid!)
+                    .collection('projects')
+                    .document(_projectId.value)
+                    .collection('members')
+                    .document(projectMember.uid!)
+                    .set({
+                  'uid': projectMember.uid,
+                  'username': projectMember.username
+                }));
+              }
             }
 
-            // for (var asset in assets) {
-            //   futureGroup.add(firestore
-            //       .collection('users')
-            //       .doc(members[i].uid)
-            //       .collection('projects')
-            //       .doc(_projectId.value)
-            //       .collection('assets')
-            //       .add({"type": asset['type'], "path": asset['path']}));
-            // }
-
-            // for (var comment in comments) {
-            //   futureGroup.add(firestore
-            //       .collection('users')
-            //       .doc(members[i].uid)
-            //       .collection('projects')
-            //       .doc(_projectId.value)
-            //       .collection('comments')
-            //       .add({
-            //     "type": comment['type'],
-            //     "comment": comment['comment'],
-            //     "username": comment['username']
-            //   }));
-            // }
-
-            // var tasksList = toDoTasks + inProgressTasks + completedTasks;
-            // for (var task in tasksList) {
-            //   futureGroup.add(firestore
-            //       .collection('users')
-            //       .doc(members[i].uid)
-            //       .collection('projects')
-            //       .doc(_projectId.value)
-            //       .collection('tasks')
-            //       .add({
-            //     'taskTitle': task['taskTitle'],
-            //     'phase': task['phase'],
-            //     'taskDescription': task['taskDescription'],
-            //     'pilot': task['pilot'],
-            //     'copilot': task['copilot'],
-            //     'startDate': task['startDate'],
-            //     'endDate': task['endDate'],
-            //     'status': task['status'],
-            //     'priorityLevel': task['priorityLevel']
-            //   }));
-            // }
-
             for (var removedMember in removedMembers) {
-              futureGroup.add(firestore
+              futureGroup.add(firedartFirestore
                   .collection('users')
-                  .doc(members[i].uid)
+                  .document(members[i].uid!)
                   .collection('projects')
-                  .doc(_projectId.value)
+                  .document(_projectId.value)
                   .collection('members')
-                  .doc(removedMember.uid)
+                  .document(removedMember.uid!)
                   .delete());
             }
           } else {
-            print(members[i].username);
-            print(members);
-            print(assets);
-            print(comments);
-
             Project project = Project(
                 copilot: copilot,
                 lead: lead,
@@ -1140,58 +1133,63 @@ class ProjectController extends GetxController {
                 subtitle: subtitle,
                 title: title);
 
-            await firestore
+            futureGroup.add(firedartFirestore
                 .collection('users')
-                .doc(members[i].uid)
+                .document(members[i].uid!)
                 .collection('projects')
-                .doc(_projectId.value)
-                .set(project.toJson());
+                .document(_projectId.value)
+                .set(project.toJson()));
 
             for (var member in members) {
-              futureGroup.add(firestore
+              futureGroup.add(firedartFirestore
                   .collection('users')
-                  .doc(members[i].uid)
+                  .document(members[i].uid!)
                   .collection('projects')
-                  .doc(_projectId.value)
+                  .document(_projectId.value)
                   .collection('members')
-                  .doc(
-                    member.uid,
+                  .document(
+                    member.uid!,
                   )
                   .set({'uid': member.uid, 'username': member.username}));
             }
 
             for (var asset in assets) {
-              futureGroup.add(firestore
+              futureGroup.add(firedartFirestore
                   .collection('users')
-                  .doc(members[i].uid)
+                  .document(members[i].uid!)
                   .collection('projects')
-                  .doc(_projectId.value)
+                  .document(_projectId.value)
                   .collection('assets')
-                  .add({"type": asset['type'], "path": asset['path']}));
+                  .add({
+                "type": asset['type'],
+                "path": asset['path'],
+                "created": asset['created']
+              }));
             }
 
             for (var comment in comments) {
-              futureGroup.add(firestore
+              futureGroup.add(firedartFirestore
                   .collection('users')
-                  .doc(members[i].uid)
+                  .document(members[i].uid!)
                   .collection('projects')
-                  .doc(_projectId.value)
+                  .document(_projectId.value)
                   .collection('comments')
                   .add({
                 "type": comment['type'],
                 "comment": comment['comment'],
-                "username": comment['username']
+                "username": comment['username'],
+                "created": comment['created']
               }));
             }
 
             var tasksList = toDoTasks + inProgressTasks + completedTasks;
-            print(tasksList);
+
             for (var task in tasksList) {
-              futureGroup.add(firestore
+              futureGroup.add(firedartFirestore
                   .collection('users')
-                  .doc(members[i].uid)
+                  .document(members[i].uid!)
                   .collection('projects')
-                  .doc(_projectId.value)
+                  .document(_projectId.value)
                   .collection('tasks')
                   .add({
                 'taskTitle': task['taskTitle'],
@@ -1206,20 +1204,237 @@ class ProjectController extends GetxController {
               }));
             }
           }
-        });
+        }
+        futureGroup.close();
+        getProjectData();
+
+        isMembersUpdating.value = false;
+
+        getSuccessSnackBar("Members updated successfully");
+      } catch (e) {
+        print(e);
+        isMembersUpdating.value = false;
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
       }
-      futureGroup.close();
-      getProjectData();
+    } else {
+      FutureGroup futureGroup = FutureGroup();
 
-      isMembersUpdating.value = false;
+      isMembersUpdating.value = true;
+      projectMembers.clear();
+      try {
+        for (var i = 0; i < removedMembers!.length; i++) {
+          futureGroup.add(firestore
+              .collection('users')
+              .doc(removedMembers[i].uid)
+              .collection('projects')
+              .doc(_projectId.value)
+              .delete());
 
-      getSuccessSnackBar("Members updated successfully");
-      //  catch (e) {
-      //   isMembersUpdating.value = false;
-      //   getErrorSnackBar(
-      //     "Something went wrong, Please try again",
-      //   );
-      // }
+          futureGroup.add(firestore
+              .collection('users')
+              .doc(removedMembers[i].uid)
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('assets')
+              .get()
+              .then((QuerySnapshot querySnapshot) {
+            for (var doc in querySnapshot.docs) {
+              doc.reference.delete();
+            }
+          }));
+          futureGroup.add(firestore
+              .collection('users')
+              .doc(removedMembers[i].uid)
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('comments')
+              .get()
+              .then((QuerySnapshot querySnapshot) {
+            for (var doc in querySnapshot.docs) {
+              doc.reference.delete();
+            }
+          }));
+          futureGroup.add(firestore
+              .collection('users')
+              .doc(removedMembers[i].uid)
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('members')
+              .get()
+              .then((QuerySnapshot querySnapshot) {
+            for (var doc in querySnapshot.docs) {
+              doc.reference.delete();
+            }
+          }));
+          futureGroup.add(firestore
+              .collection('users')
+              .doc(removedMembers[i].uid)
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('tasks')
+              .get()
+              .then((QuerySnapshot querySnapshot) {
+            for (var doc in querySnapshot.docs) {
+              doc.reference.delete();
+            }
+          }));
+        }
+
+        for (var i = 0; i < members!.length; i++) {
+          await firestore
+              .collection('users')
+              .doc(members[i].uid)
+              .collection('projects')
+              .doc(_projectId.value)
+              .get()
+              .then((DocumentSnapshot documentSnapshot) {
+            if (documentSnapshot.exists) {
+              futureGroup.add(
+                firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .update(
+                  {
+                    'copilot': copilot,
+                    'lead': lead,
+                  },
+                ),
+              );
+
+              for (var projectMember in members) {
+                futureGroup.add(firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('members')
+                    .doc(projectMember.uid)
+                    .get()
+                    .then((DocumentSnapshot document) async {
+                  if (document.exists) {
+                  } else {
+                    await firestore
+                        .collection('users')
+                        .doc(members[i].uid)
+                        .collection('projects')
+                        .doc(_projectId.value)
+                        .collection('members')
+                        .doc(projectMember.uid)
+                        .set({
+                      'uid': projectMember.uid,
+                      'username': projectMember.username
+                    });
+                  }
+                }));
+              }
+
+              for (var removedMember in removedMembers) {
+                futureGroup.add(firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('members')
+                    .doc(removedMember.uid)
+                    .delete());
+              }
+            } else {
+              Project project = Project(
+                  copilot: copilot,
+                  lead: lead,
+                  projectId: _projectId.value,
+                  subtitle: subtitle,
+                  title: title);
+
+              futureGroup.add(firestore
+                  .collection('users')
+                  .doc(members[i].uid)
+                  .collection('projects')
+                  .doc(_projectId.value)
+                  .set(project.toJson()));
+
+              for (var member in members) {
+                futureGroup.add(firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('members')
+                    .doc(
+                      member.uid,
+                    )
+                    .set({'uid': member.uid, 'username': member.username}));
+              }
+
+              for (var asset in assets) {
+                futureGroup.add(firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('assets')
+                    .add({
+                  "type": asset['type'],
+                  "path": asset['path'],
+                  "created": asset['created']
+                }));
+              }
+
+              for (var comment in comments) {
+                futureGroup.add(firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('comments')
+                    .add({
+                  "type": comment['type'],
+                  "comment": comment['comment'],
+                  "username": comment['username'],
+                  "created": comment['created']
+                }));
+              }
+
+              var tasksList = toDoTasks + inProgressTasks + completedTasks;
+
+              for (var task in tasksList) {
+                futureGroup.add(firestore
+                    .collection('users')
+                    .doc(members[i].uid)
+                    .collection('projects')
+                    .doc(_projectId.value)
+                    .collection('tasks')
+                    .add({
+                  'taskTitle': task['taskTitle'],
+                  'phase': task['phase'],
+                  'taskDescription': task['taskDescription'],
+                  'pilot': task['pilot'],
+                  'copilot': task['copilot'],
+                  'startDate': task['startDate'],
+                  'endDate': task['endDate'],
+                  'status': task['status'],
+                  'priorityLevel': task['priorityLevel']
+                }));
+              }
+            }
+          });
+        }
+        futureGroup.close();
+        getProjectData();
+
+        isMembersUpdating.value = false;
+
+        getSuccessSnackBar("Members updated successfully");
+      } catch (e) {
+        isMembersUpdating.value = false;
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
+      }
     }
   }
 }

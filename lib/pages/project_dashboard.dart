@@ -1189,7 +1189,8 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
                                                                           return usersMsg(
                                                                               context,
-                                                                              username: firstChar[0],
+                                                                              username: username,
+                                                                              nameFirstChar: firstChar[0],
                                                                               type: type,
                                                                               comment: comment);
                                                                         }));
@@ -1714,17 +1715,21 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   }
 
   Padding usersMsg(BuildContext context,
-      {String? comment, String? type, String? username}) {
+      {String? comment,
+      String? type,
+      String? username,
+      String? nameFirstChar}) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
             backgroundColor: const Color(brownishColor),
             maxRadius: 25,
             child: Center(
               child: txt(
-                  txt: username!.capitalize.toString(),
+                  txt: nameFirstChar!.capitalize.toString(),
                   fontSize: 20,
                   fontColor: Colors.white),
             ),
@@ -1732,12 +1737,36 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
           SizedBox(
             width: screenWidth(context) * 0.005,
           ),
+          // txt(
+          //   txt: '@${username!}:',
+          //   fontSize: 12,
+          //   maxLines: 1,
+          // ),
           type == 'text'
               ? Flexible(
-                  child: txt(
-                  txt: comment!,
-                  fontSize: 20,
-                  maxLines: 20,
+                  child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                          text: '@${username!}:\n',
+                          style: GoogleFonts.montserrat(
+                            textStyle: const TextStyle(
+                                overflow: TextOverflow.visible,
+                                color: Color(brownishColor),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14),
+                          )),
+                      TextSpan(
+                          text: comment!,
+                          style: GoogleFonts.montserrat(
+                            textStyle: const TextStyle(
+                                overflow: TextOverflow.visible,
+                                color: Color(brownishColor),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18),
+                          )),
+                    ],
+                  ),
                 ))
               : InkWell(
                   onTap: () {
