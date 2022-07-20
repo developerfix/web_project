@@ -42,6 +42,8 @@ dependencies:
   firebase_core_desktop: any
   firebase_storage: ^10.2.18
   firedart: ^0.9.0+1
+  isolate_downloader: ^1.0.4
+  dio_range_download: ^1.0.1
   async: any
   path: any
   flutter:

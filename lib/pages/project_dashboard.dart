@@ -1,10 +1,15 @@
+import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:dio_range_download/dio_range_download.dart';
+import 'package:flutter/services.dart';
+import 'package:isolate_downloader/isolate_downloader.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:file_saver/file_saver.dart';
+import 'package:path/path.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/auth_controller.dart';
 import 'package:projectx/controllers/profile_controller.dart';
@@ -1102,8 +1107,23 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                         width:
                                                             screenWidth(context) *
                                                                 0.3,
-                                                        child:
-                                                            projectController
+                                                        child: projectController
+                                                                .isCommentFileUpdatingBefore
+                                                                .isTrue
+                                                            ? Column(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  const LoadingIndicator(),
+                                                                  txt(
+                                                                      txt:
+                                                                          'Please wait\n File is being uploaded',
+                                                                      fontSize:
+                                                                          14)
+                                                                ],
+                                                              )
+                                                            : projectController
                                                                             .progress
                                                                             .value !=
                                                                         100 &&
@@ -1154,46 +1174,40 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                                     ],
                                                                   )
                                                                 : projectController
-                                                                        .comments
-                                                                        .isEmpty
-                                                                    ? Center(
-                                                                        child: txt(
-                                                                            txt:
-                                                                                'Add comments here',
-                                                                            fontSize:
-                                                                                14),
+                                                                        .isCommentFileUpdatingAfter
+                                                                        .isTrue
+                                                                    ? Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.center,
+                                                                        children: [
+                                                                          const LoadingIndicator(),
+                                                                          txt(
+                                                                              txt: 'Uploading, Almost finished',
+                                                                              fontSize: 14)
+                                                                        ],
                                                                       )
-                                                                    : ListView.builder(
-                                                                        controller: _scrollController,
-                                                                        itemCount: projectController.comments.length,
-                                                                        itemBuilder: (context, i) {
-                                                                          String
-                                                                              comment =
-                                                                              projectController.comments[i]['comment'].toString();
-                                                                          String
-                                                                              type =
-                                                                              projectController.comments[i]['type'].toString();
-                                                                          String
-                                                                              username =
-                                                                              projectController.comments[i]['username'].toString();
-                                                                          String
-                                                                              firstChar =
-                                                                              '';
+                                                                    : projectController
+                                                                            .comments
+                                                                            .isEmpty
+                                                                        ? Center(
+                                                                            child:
+                                                                                txt(txt: 'Add comments here', fontSize: 14),
+                                                                          )
+                                                                        : ListView.builder(
+                                                                            controller: _scrollController,
+                                                                            itemCount: projectController.comments.length,
+                                                                            itemBuilder: (context, i) {
+                                                                              String comment = projectController.comments[i]['comment'].toString();
+                                                                              String type = projectController.comments[i]['type'].toString();
+                                                                              String username = projectController.comments[i]['username'].toString();
+                                                                              String firstChar = '';
 
-                                                                          for (int i = 0;
-                                                                              i < username.length;
-                                                                              i++) {
-                                                                            firstChar +=
-                                                                                username[i];
-                                                                          }
+                                                                              for (int i = 0; i < username.length; i++) {
+                                                                                firstChar += username[i];
+                                                                              }
 
-                                                                          return usersMsg(
-                                                                              context,
-                                                                              username: username,
-                                                                              nameFirstChar: firstChar[0],
-                                                                              type: type,
-                                                                              comment: comment);
-                                                                        }));
+                                                                              return usersMsg(context, username: username, nameFirstChar: firstChar[0], type: type, comment: comment);
+                                                                            }));
                                                   }),
                                                   const Spacer(),
                                                   Container(
@@ -1850,21 +1864,95 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   }
 
   downloadFile(url) async {
-//    Uri uri = Uri.parse(url);
+    // var startTime;
+    // print("start");
+    // bool isStarted = false;
+    // var urll = url;
+    // var savePath = "C:/Users/DELL/Downloads";
+    // // CancelToken cancelToken = CancelToken();
+    // Response res = (await RangeDownload.downloadWithChunks(urll, savePath,
+    //     //isRangeDownload: false,//Support normal download
+    //     // maxChunk: 6,
+    //     // dio: Dio(),//Optional parameters "dio".Convenient to customize request settings.
+    //     // cancelToken: cancelToken,
+    //     onReceiveProgress: (received, total) {
+    //   if (!isStarted) {
+    //     startTime = DateTime.now();
+    //     isStarted = true;
+    //   }
+    //   if (total != -1) {
+    //     print("${(received / total * 100).floor()}%");
+    //     // if (received / total * 100.floor() > 50) {
+    //     //   cancelToken.cancel();
+    //     // }
+    //   }
+    //   if ((received / total * 100).floor() >= 100) {
+    //     var duration = (DateTime.now().millisecondsSinceEpoch -
+    //             startTime.millisecondsSinceEpoch) /
+    //         1000;
+    //     print(duration.toString() + "s");
+    //     print((duration ~/ 60).toString() +
+    //         "m" +
+    //         (duration % 60).toString() +
+    //         "s");
+    //   }
+    // })) as Response;
+    // print(res.statusCode);
+    // print(res.statusMessage);
+    // print(res.data);
+//     final downloader = await IsolateDownloader.getInstance(jobCount: 1);
+//     while (!downloader.isReady()) {
+//       await Future.delayed(const Duration(milliseconds: 100));
+//     }
+//     final task = DownloadTask.create(
+//       taskId: 0,
+//       url: url,
+//       downloadPath: 'large.jpeg',
+//     );
+//     bool isComplete = false;
+//     late double totalSize = 0;
+//     double downloadSize = 0;
 
-// Uint8List bytes = await readBytes(uri);
-// Uint8List imgbytes = await url. readAsBytes();
-// await FileSaver.instance.saveFile(filename, bytes, 'jpg',
-//     mimeType: MimeType.JPEG); /
+//     task.sizeCallback = (sz) => totalSize = sz;
+//     task.downloadCallback = (sz) {
+//       downloadSize += sz;
+//       print(
+//           '[${(downloadSize / totalSize * 100).toStringAsFixed(1)}%] $downloadSize/$totalSize');
+//     };
+//     task.completeCallback = () => isComplete = true;
 
-//     final File file = File(url);
-//     final filename = basename(file.path);
-//     final exxtension = extension(file.path);
-//     print(bytes);
-//     print(filename);
-//     print(exxtension);
-//     await FileSaver.instance.saveFile(filename, bytes, exxtension);
-//     print('success');
+// //
+//     downloader.appendTask(task);
+//     while (!isComplete) {
+//       //
+//       //  get task status by taskid
+//       //
+//       print(downloader.getStatus(0).state);
+//       print(downloader.getStatus(0).totalSize);
+//       print(downloader.getStatus(0).countSize);
+//       await Future.delayed(const Duration(milliseconds: 100));
+//     }
+//     print(task.data);
+//
+//  wait for complete
+//
+// while (!isComplete) {
+//   await Future.delayed(const Duration(milliseconds: 100));
+// }
+
+    // final File file = File(url);
+
+    // Uint8List bytes = (await NetworkAssetBundle(Uri.parse(url)).load(url))
+    //     .buffer
+    //     .asUint8List();
+
+    // final filename = basename(file.path);
+    // final exxtension = extension(file.path);
+    // // print(bytes);
+    // // print(filename);
+    // // print(exxtension);
+    // await FileSaver.instance.saveFile(filename, bytes, exxtension);
+    // print('success');
 
     // html.AnchorElement anchorElement = html.AnchorElement(href: url);
     // anchorElement.click();

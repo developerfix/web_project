@@ -3,8 +3,6 @@ import 'dart:typed_data';
 import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firedart/generated/google/protobuf/timestamp.pb.dart'
-    as firedart_timestamp;
 import 'package:get/get.dart';
 import 'package:projectx/models/project.dart';
 import 'package:projectx/models/project_member.dart';
@@ -19,7 +17,8 @@ class ProjectController extends GetxController {
   final Rx<Map<String, dynamic>> _project = Rx<Map<String, dynamic>>({});
   Map<String, dynamic> get project => _project.value;
 
-  // RxBool isAssetUpdating = false.obs;
+  RxBool isCommentFileUpdatingBefore = false.obs;
+  RxBool isCommentFileUpdatingAfter = false.obs;
   RxBool isTasksUpdating = false.obs;
   RxBool isNewTasksUpdating = false.obs;
   RxBool isMembersUpdating = false.obs;
@@ -743,14 +742,18 @@ class ProjectController extends GetxController {
       String? urlDownload;
 
       try {
+        isCommentFileUpdatingBefore.value = true;
         var storage =
             firebase_dart_storage.FirebaseStorage.instanceFor(app: app);
         var ref = storage.ref().child("files/$fileName").putData(file!);
+
         ref.snapshotEvents.listen((event) {
+          isCommentFileUpdatingBefore.value = false;
           progress.value = ((event.bytesTransferred.toDouble() /
                   event.totalBytes.toDouble()) *
               100);
           if (event.state == firebase_dart_storage.TaskState.success) {
+            isCommentFileUpdatingAfter.value = true;
             event.ref.getDownloadURL().then((downloadUrl) async {
               urlDownload = downloadUrl;
 
@@ -759,6 +762,7 @@ class ProjectController extends GetxController {
                 "comment": urlDownload,
                 "username": username
               });
+
               if (!kIsWeb) {
                 for (var i = 0; i < projectMembers.length; i++) {
                   await firedartFirestore
@@ -796,10 +800,13 @@ class ProjectController extends GetxController {
                   });
                 }
               }
+              isCommentFileUpdatingAfter.value = false;
             });
           }
         });
       } catch (e) {
+        isCommentFileUpdatingBefore.value = false;
+        isCommentFileUpdatingAfter.value = false;
         //define error
         getErrorSnackBar(
           "Something went wrong, Please try again",
