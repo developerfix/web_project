@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gantt_chart/gantt_chart.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/profile_controller.dart';
@@ -78,7 +79,6 @@ class _TimelineState extends State<Timeline> {
         GanttAbsoluteEvent(
           startDate: parsedStartDate,
           endDate: parsedEndDate,
-          suggestedColor: const Color(secondaryColor),
           displayName: projectController.toDoTasks[i]['taskTitle'],
         ),
       );
@@ -124,7 +124,6 @@ class _TimelineState extends State<Timeline> {
         GanttAbsoluteEvent(
           startDate: parsedStartDate,
           endDate: parsedEndDate,
-          suggestedColor: Colors.yellowAccent,
           displayName: projectController.inProgressTasks[i]['taskTitle'],
         ),
       );
@@ -170,7 +169,6 @@ class _TimelineState extends State<Timeline> {
         GanttAbsoluteEvent(
           startDate: parsedStartDate,
           endDate: parsedEndDate,
-          suggestedColor: Colors.greenAccent,
           displayName: projectController.completedTasks[i]['taskTitle'],
         ),
       );
@@ -204,8 +202,12 @@ class _TimelineState extends State<Timeline> {
           context,
           color: const Color(darkgreyishColor),
           username: profileController.user['name'],
-          title:
-              txt(txt: 'Timeline view', fontSize: 18, fontColor: Colors.white),
+          title: txt(
+              txt: 'Timeline view',
+              fontSize: 18,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 3,
+              fontColor: Colors.white),
         ),
         endDrawer: const EndDrawerWidget(),
         body: tasksList.isEmpty
@@ -222,99 +224,77 @@ class _TimelineState extends State<Timeline> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           txt(
                               txt: 'GANTT',
-                              fontSize: 40,
+                              font: 'comfortaa',
+                              fontSize: 54,
                               letterSpacing: 5,
-                              fontColor: Colors.white)
+                              fontWeight: FontWeight.w100,
+                              fontColor: Colors.white),
+                          Column(
+                            children: [
+                              txt(
+                                  txt: projectController.project['title'] +
+                                      ' ' +
+                                      '2022',
+                                  font: 'comfortaa',
+                                  fontSize: 30,
+                                  letterSpacing: 5,
+                                  fontWeight: FontWeight.w200,
+                                  fontColor: Colors.white),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              txt(
+                                  txt: projectController.project['subtitle'],
+                                  font: 'comfortaa',
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w200,
+                                  letterSpacing: 5,
+                                  fontColor: Colors.white),
+                            ],
+                          )
                         ],
                       ),
                       SizedBox(
                         height: screenHeight(context) * 0.1,
                       ),
                       GanttChartView(
-                        stickyAreaEventBuilder:
-                            (context, eventIndex, event, eventColor) {
-                          return Container(
-                            color: const Color(secondaryColor),
+                        stickyAreaEventBuilder: (context, eventIndex, event) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
                             child: Center(
-                                child: txt(
-                                    txt: event.displayName!,
-                                    fontSize: 18,
-                                    fontColor: Colors.white)),
+                              child: Text(
+                                event.getDisplayName(context).toUpperCase(),
+                                style: GoogleFonts.comfortaa(
+                                  textStyle: const TextStyle(
+                                    fontSize: 12.0,
+                                    overflow: TextOverflow.visible,
+                                    letterSpacing: 0,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
                           );
                         },
-
-                        weekHeaderBuilder: (context, weekDate) {
-                          return Container(
-                            color: const Color(darkgreyishColor),
-                            child: Center(
-                                child: txt(
-                                    txt:
-                                        '${weekDate.day}/${weekDate.month}/${weekDate.year}',
-                                    fontSize: 18,
-                                    fontColor: Colors.white)),
-                          );
-                        },
-                        // stickyAreaWeekBuilder: (context) {
-                        //   return Container(
-                        //     color: Color(secondaryColor),
-                        //     child: Center(
-                        //         child: txt(
-                        //             txt: projectController.project['title'],
-                        //             fontSize: 18,
-                        //             fontColor: Colors.white)),
-                        //   );
-                        // },
-                        // dayHeaderBuilder: ((context, date) {
-                        //   return Container(
-                        //     color: Color(secondaryColor),
-                        //     child: Center(
-                        //         child: txt(
-                        //             txt: date.weekday == 7
-                        //                 ? 'Sun'
-                        //                 : date.weekday == 6
-                        //                     ? 'Sat'
-                        //                     : date.weekday == 5
-                        //                         ? 'Fri'
-                        //                         : date.weekday == 4
-                        //                             ? 'Thur'
-                        //                             : date.weekday == 3
-                        //                                 ? 'Wed'
-                        //                                 : date.weekday == 2
-                        //                                     ? 'Tue'
-                        //                                     : 'Mon',
-                        //             fontSize: 18,
-                        //             fontColor: Colors.white)),
-                        //   );
-                        // }),
-                        stickyAreaDayBuilder: (context) {
-                          return Container(
-                            color: const Color(secondaryColor),
-                            child: Center(
-                                child: txt(
-                                    txt: 'Tasks',
-                                    fontSize: 18,
-                                    fontColor: Colors.white)),
-                          );
-                        },
-                        holidayColor: Colors.grey.shade500,
-
                         dayHeaderHeight: screenHeight(context) * 0.05,
+
                         // maxDuration:
                         //     Duration(days: differenceInDays.inDays + 7),
                         maxDuration: const Duration(days: 365),
                         startDate: DateTime(startDateOfTasks[0].year,
                             startDateOfTasks[0].month, startDateOfTasks[0].day),
-                        dayWidth: screenWidth(context) * 0.03,
+
                         eventHeight: screenHeight(context) * 0.1,
                         stickyAreaWidth: screenWidth(context) * 0.1,
                         showStickyArea: true,
-                        showDays: false,
-                        weekEnds: const {WeekDay.friday, WeekDay.saturday},
-                        startOfTheWeek: WeekDay.sunday,
+
+                        showDays: true,
+
                         events: tasksList,
                       ),
                     ],

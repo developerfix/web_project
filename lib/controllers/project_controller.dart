@@ -754,13 +754,14 @@ class ProjectController extends GetxController {
               100);
           if (event.state == firebase_dart_storage.TaskState.success) {
             isCommentFileUpdatingAfter.value = true;
+
             event.ref.getDownloadURL().then((downloadUrl) async {
               urlDownload = downloadUrl;
 
               comments.add({
                 "type": 'file',
                 "comment": urlDownload,
-                "username": username
+                "username": username,
               });
 
               if (!kIsWeb) {
@@ -775,6 +776,7 @@ class ProjectController extends GetxController {
                     "type": 'file',
                     "comment": urlDownload,
                     "username": username,
+                    'filename': event.ref.name,
                     "created": DateTime.now()
                         .millisecondsSinceEpoch
                         .toString()
@@ -793,6 +795,7 @@ class ProjectController extends GetxController {
                     "type": 'file',
                     "comment": urlDownload,
                     "username": username,
+                    'filename': event.ref.name,
                     "created": DateTime.now()
                         .millisecondsSinceEpoch
                         .toString()

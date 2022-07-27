@@ -9,9 +9,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:projectx/pages/auth/auth_screen.dart';
 import 'package:projectx/pages/recent_project.dart';
 import 'package:projectx/models/user.dart' as model;
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/style.dart';
 import 'package:firedart/firedart.dart' as firedart;
 import 'package:flutter/foundation.dart' show kIsWeb;
+// import 'package:googleapis_auth/googleapis_auth.dart';
+
+import 'package:googleapis_auth/auth_io.dart';
 
 class AuthController extends GetxController {
   static AuthController instance = Get.find();
@@ -38,9 +43,6 @@ class AuthController extends GetxController {
         isLoging = true;
         update();
         Get.to(() => const RecentProjects());
-        // Get.offAll(() => AddNewTask(
-        //       projectId: "23",
-        //     ));
       }
     });
   }
@@ -94,30 +96,56 @@ class AuthController extends GetxController {
     }
   }
 
+  void _lauchAuthInBrowser(String url) async {
+    await canLaunchUrl(Uri.parse(url))
+        ? await launchUrl(Uri.parse(url))
+        : throw 'Could not lauch $url';
+  }
+
   void googleLogin(BuildContext context) async {
     if (!kIsWeb) {
+      isLoging = true;
+      update();
+
       try {
-        // final result =
-        await DesktopWebviewAuth.signIn(GoogleSignInArgs(
-          clientId:
-              // '69104603518-p559e135bhua3er1124roao29f3mvebj.apps.googleusercontent.com',
-              '448618578101-sg12d2qin42cpr00f8b0gehs5s7inm0v.apps.googleusercontent.com',
-          scope: 'https://www.googleapis.com/auth/plus.me '
-              'https://www.googleapis.com/auth/userinfo.email',
-          redirectUri:
-              'https://react-native-firebase-testing.firebaseapp.com/__/auth/handler',
-          // redirectUri: 'https://localhost:2720/',
-          // redirectUri:
-          //     'https://ava-project-ab57c.firebaseapp.com/__/auth/handler',
-        ));
-        // final credential =
-        //     GoogleAuthProvider.credential(accessToken: result!.accessToken);
+        var id = ClientId(
+          '69104603518-p559e135bhua3er1124roao29f3mvebj.apps.googleusercontent.com',
+          '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',
+        );
+        var scopes = [
+          'email',
+          'profile',
+        ];
 
-        // FirebaseAuth.instance.signInWithCredential(credential);
+        var client = http.Client();
+        obtainAccessCredentialsViaUserConsent(
+                id, scopes, client, (url) => _lauchAuthInBrowser(url))
+            .then((AccessCredentials? credentials) async {
+          final crendentials = GoogleAuthProvider.credential(
+              accessToken: credentials?.accessToken.data);
 
-        // print(result.accessToken);
-        // print(result.tokenSecret);
+          final UserCredential userCredential =
+              await _auth.signInWithCredential(crendentials);
+
+          User? registereduser = userCredential.user;
+
+          model.User user = model.User(
+              name: registereduser!.displayName,
+              email: registereduser.email,
+              uid: registereduser.uid,
+              profilePhoto: '',
+              noOfProjects: 0);
+
+          await firedartFirestore
+              .collection('users')
+              .document(registereduser.uid)
+              .set(user.toJson());
+
+          getSuccessSnackBar("Successfully logged in");
+          client.close();
+        });
       } catch (err) {
+        print(err);
         // something went wrong
       }
     } else {

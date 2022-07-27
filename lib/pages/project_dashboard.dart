@@ -1,14 +1,14 @@
 import 'dart:io';
-import 'dart:typed_data';
+import 'package:universal_html/html.dart' as html;
 
-import 'package:dio_range_download/dio_range_download.dart';
-import 'package:flutter/services.dart';
-import 'package:isolate_downloader/isolate_downloader.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:file_saver/file_saver.dart';
+import 'package:dio/dio.dart';
 import 'package:path/path.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/auth_controller.dart';
@@ -21,6 +21,7 @@ import 'package:projectx/pages/recent_project.dart';
 import 'package:projectx/pages/timeline.dart';
 import 'package:projectx/widgets/asset_popup.dart';
 import 'package:projectx/widgets/loading_indicator.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../widgets/custom_drawer.dart';
 
@@ -288,7 +289,10 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                   children: [
                                     InkWell(
                                       onTap: () {
-                                        Get.to(const RecentProjects());
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          Get.to(const RecentProjects());
+                                        });
                                       },
                                       child: const Icon(
                                         Icons.home,
@@ -1200,13 +1204,14 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                                               String comment = projectController.comments[i]['comment'].toString();
                                                                               String type = projectController.comments[i]['type'].toString();
                                                                               String username = projectController.comments[i]['username'].toString();
+                                                                              String filename = projectController.comments[i]['filename'].toString();
                                                                               String firstChar = '';
 
                                                                               for (int i = 0; i < username.length; i++) {
                                                                                 firstChar += username[i];
                                                                               }
 
-                                                                              return usersMsg(context, username: username, nameFirstChar: firstChar[0], type: type, comment: comment);
+                                                                              return usersMsg(context, username: username, filename: filename, nameFirstChar: firstChar[0], type: type, comment: comment);
                                                                             }));
                                                   }),
                                                   const Spacer(),
@@ -1732,6 +1737,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
       {String? comment,
       String? type,
       String? username,
+      String? filename,
       String? nameFirstChar}) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
@@ -1784,7 +1790,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                 ))
               : InkWell(
                   onTap: () {
-                    downloadFile(comment);
+                    downloadFile(comment, filename);
                   },
                   child: screenWidth(context) < 1800
                       ? Container(
@@ -1801,11 +1807,31 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                               ),
                             ],
                           ),
-                          child: Center(
-                            child: txt(
-                                txt: 'Download file',
-                                fontSize: 14,
-                                fontColor: Colors.white),
+                          child: Column(
+                            children: [
+                              Flexible(
+                                  child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                        text: '@${username!}:\n',
+                                        style: GoogleFonts.montserrat(
+                                          textStyle: const TextStyle(
+                                              overflow: TextOverflow.visible,
+                                              color: Color(brownishColor),
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 14),
+                                        )),
+                                  ],
+                                ),
+                              )),
+                              Center(
+                                child: txt(
+                                    txt: 'Download file',
+                                    fontSize: 14,
+                                    fontColor: Colors.white),
+                              ),
+                            ],
                           ),
                         )
                       : Container(
@@ -1863,98 +1889,29 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
     );
   }
 
-  downloadFile(url) async {
-    // var startTime;
-    // print("start");
-    // bool isStarted = false;
-    // var urll = url;
-    // var savePath = "C:/Users/DELL/Downloads";
-    // // CancelToken cancelToken = CancelToken();
-    // Response res = (await RangeDownload.downloadWithChunks(urll, savePath,
-    //     //isRangeDownload: false,//Support normal download
-    //     // maxChunk: 6,
-    //     // dio: Dio(),//Optional parameters "dio".Convenient to customize request settings.
-    //     // cancelToken: cancelToken,
-    //     onReceiveProgress: (received, total) {
-    //   if (!isStarted) {
-    //     startTime = DateTime.now();
-    //     isStarted = true;
-    //   }
-    //   if (total != -1) {
-    //     print("${(received / total * 100).floor()}%");
-    //     // if (received / total * 100.floor() > 50) {
-    //     //   cancelToken.cancel();
-    //     // }
-    //   }
-    //   if ((received / total * 100).floor() >= 100) {
-    //     var duration = (DateTime.now().millisecondsSinceEpoch -
-    //             startTime.millisecondsSinceEpoch) /
-    //         1000;
-    //     print(duration.toString() + "s");
-    //     print((duration ~/ 60).toString() +
-    //         "m" +
-    //         (duration % 60).toString() +
-    //         "s");
-    //   }
-    // })) as Response;
-    // print(res.statusCode);
-    // print(res.statusMessage);
-    // print(res.data);
-//     final downloader = await IsolateDownloader.getInstance(jobCount: 1);
-//     while (!downloader.isReady()) {
-//       await Future.delayed(const Duration(milliseconds: 100));
-//     }
-//     final task = DownloadTask.create(
-//       taskId: 0,
-//       url: url,
-//       downloadPath: 'large.jpeg',
-//     );
-//     bool isComplete = false;
-//     late double totalSize = 0;
-//     double downloadSize = 0;
+  downloadFile(url, filename) async {
+    if (!kIsWeb) {
+      try {
+        String? res = await FilePicker.platform.saveFile(
+          fileName: filename.split('.').first,
+        );
 
-//     task.sizeCallback = (sz) => totalSize = sz;
-//     task.downloadCallback = (sz) {
-//       downloadSize += sz;
-//       print(
-//           '[${(downloadSize / totalSize * 100).toStringAsFixed(1)}%] $downloadSize/$totalSize');
-//     };
-//     task.completeCallback = () => isComplete = true;
+        if (res != null) {
+          var dio = Dio();
 
-// //
-//     downloader.appendTask(task);
-//     while (!isComplete) {
-//       //
-//       //  get task status by taskid
-//       //
-//       print(downloader.getStatus(0).state);
-//       print(downloader.getStatus(0).totalSize);
-//       print(downloader.getStatus(0).countSize);
-//       await Future.delayed(const Duration(milliseconds: 100));
-//     }
-//     print(task.data);
-//
-//  wait for complete
-//
-// while (!isComplete) {
-//   await Future.delayed(const Duration(milliseconds: 100));
-// }
+          var ext = filename.split('.').last;
 
-    // final File file = File(url);
-
-    // Uint8List bytes = (await NetworkAssetBundle(Uri.parse(url)).load(url))
-    //     .buffer
-    //     .asUint8List();
-
-    // final filename = basename(file.path);
-    // final exxtension = extension(file.path);
-    // // print(bytes);
-    // // print(filename);
-    // // print(exxtension);
-    // await FileSaver.instance.saveFile(filename, bytes, exxtension);
-    // print('success');
-
-    // html.AnchorElement anchorElement = html.AnchorElement(href: url);
-    // anchorElement.click();
+          String fullPath = "$res.$ext";
+          await dio.download(url, fullPath);
+        }
+      } catch (e) {
+        print(e);
+      }
+    } else {
+      html.window.open(
+        url,
+        filename,
+      );
+    }
   }
 }
