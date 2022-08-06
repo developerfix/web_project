@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:projectx/constants/style.dart';
-import 'package:projectx/pages/project_dashboard.dart';
+import 'package:projectx/pages/project_dashboard.dart' as dashboard;
 import 'package:projectx/pages/see_all_projs.dart';
 import 'package:projectx/widgets/loading_indicator.dart';
 
@@ -30,7 +30,10 @@ class _RecentProjectsState extends State<RecentProjects> {
   void initState() {
     super.initState();
 
-    profileController.updateUserId(_uid);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      profileController.updateUserId(_uid);
+      // executes after build
+    });
   }
 
   itemCount(int length) {
@@ -98,6 +101,7 @@ class _RecentProjectsState extends State<RecentProjects> {
               key: _key,
               drawerEnableOpenDragGesture: false,
               appBar: customAppBar(context,
+                  isNeedAppbar: false,
                   username: profileController.user['name']),
               endDrawer: const EndDrawerWidget(),
               backgroundColor: const Color(mainColor),
@@ -152,9 +156,10 @@ class _RecentProjectsState extends State<RecentProjects> {
                                                       ['projectId'];
                                               return InkWell(
                                                   onTap: (() {
-                                                    Get.to(ProjectDashboard(
-                                                      projectId: projectId,
-                                                    ));
+                                                    Get.to(() => dashboard
+                                                            .ProjectDashboard(
+                                                          projectId: projectId,
+                                                        ));
                                                   }),
                                                   child: Padding(
                                                     padding:
@@ -168,7 +173,8 @@ class _RecentProjectsState extends State<RecentProjects> {
                                       profileController.projects.length > 5
                                           ? InkWell(
                                               onTap: (() {
-                                                Get.to(const SeeAllProjects());
+                                                Get.to(() =>
+                                                    const SeeAllProjects());
                                               }),
                                               child: Container(
                                                 width: 230,
@@ -219,15 +225,17 @@ class _RecentProjectsState extends State<RecentProjects> {
                             txt(
                                 txt: 'Create New Project',
                                 fontSize: 30.0,
+                                font: 'Comfortaa',
                                 fontColor: Colors.white,
                                 letterSpacing: 2),
                             SizedBox(
                               width: screenWidth(context) * 0.003,
                             ),
-                            SvgPicture.asset(
-                              'assets/svgs/plus.svg',
+                            const Icon(
+                              Icons.add,
                               color: Colors.white,
-                            )
+                              size: 50,
+                            ),
                           ],
                         ),
                       ),

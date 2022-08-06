@@ -9,6 +9,7 @@ int _value = 1;
 
 Future<dynamic> addAssetPopUp(BuildContext context) {
   final pathController = TextEditingController();
+  final pathNameController = TextEditingController();
 
   final projectController = Get.put(ProjectController());
 
@@ -22,7 +23,7 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
           child: AlertDialog(
             content: SizedBox(
               height: screenHeight(context) * 0.4,
-              width: screenWidth(context) * 0.3,
+              width: screenWidth(context) * 0.5,
               child: Padding(
                 padding: screenWidth(context) < 800
                     ? const EdgeInsets.all(8.0)
@@ -76,28 +77,78 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                           ? Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                txt(
-                                  txt: 'Path:',
-                                  fontSize: 30,
+                                SizedBox(
+                                  width: screenWidth(context) * 0.15,
+                                  child: txt(
+                                    txt: 'URL Path:',
+                                    fontSize: 30,
+                                  ),
                                 ),
                                 SizedBox(
                                   width: screenWidth(context) * 0.02,
                                 ),
                                 popUpTextField(context,
-                                    controller: pathController, hint: '...'),
+                                    controller: pathController,
+                                    hint:
+                                        'https://www.youtube.com/channel/UCYfdidRxbB8Qhf0Nx7ioOYw'),
+                                SizedBox(
+                                  width: screenWidth(context) * 0.03,
+                                ),
+                                SizedBox(
+                                  width: screenWidth(context) * 0.15,
+                                  child: txt(
+                                    txt: 'Suggested name for URL:',
+                                    fontSize: 30,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: screenWidth(context) * 0.02,
+                                ),
+                                popUpTextField(context,
+                                    controller: pathController,
+                                    hint: 'exp: Youtube news section'),
                               ],
                             )
-                          : Row(
+                          : Column(
                               children: [
-                                txt(
-                                  txt: 'Path:',
-                                  fontSize: 30,
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                      width: screenWidth(context) * 0.15,
+                                      child: txt(
+                                        txt: 'URL Path:',
+                                        fontSize: 30,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: screenWidth(context) * 0.02,
+                                    ),
+                                    popUpTextField(context,
+                                        controller: pathController,
+                                        hint:
+                                            'https://www.youtube.com/channel/UCYfdidRxbB8Qhf0Nx7ioOYw'),
+                                  ],
                                 ),
                                 SizedBox(
-                                  width: screenWidth(context) * 0.02,
+                                  height: screenHeight(context) * 0.05,
                                 ),
-                                popUpTextField(context,
-                                    controller: pathController, hint: '...'),
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                      width: screenWidth(context) * 0.15,
+                                      child: txt(
+                                        txt: 'Suggested name for URL:',
+                                        fontSize: 30,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: screenWidth(context) * 0.02,
+                                    ),
+                                    popUpTextField(context,
+                                        controller: pathNameController,
+                                        hint: 'exp: Youtube news section'),
+                                  ],
+                                ),
                               ],
                             ),
                     ],
@@ -144,6 +195,7 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                             Get.back();
                             projectController.addNewAsset(
                               path: pathController.text.trim(),
+                              pathName: pathNameController.text.trim(),
                             );
                           }
                         },

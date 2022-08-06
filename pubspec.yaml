@@ -67,7 +67,7 @@ dependencies:
   gantt_chart:
     git:
       url: https://github.com/developerfix/flutter_gantt_chart.git
-      ref: master
+      ref: 25b63f4
 
 dev_dependencies:
   flutter_lints: ^2.0.0

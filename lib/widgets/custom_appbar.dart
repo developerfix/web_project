@@ -6,7 +6,7 @@ import '../constants/style.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 AppBar customAppBar(BuildContext context,
-    {Widget? title, String? username, Color? color}) {
+    {Widget? title, String? username, bool? isNeedAppbar, Color? color}) {
   String firstChar = '';
   if (username != null) {
     for (int i = 0; i < username.length; i++) {
@@ -25,19 +25,21 @@ AppBar customAppBar(BuildContext context,
       child: !kIsWeb
           ? Row(
               children: [
-                InkWell(
-                  onTap: (() {
-                    Get.back();
-                  }),
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(Icons.arrow_back_sharp),
-                  ),
-                ),
+                isNeedAppbar == null
+                    ? InkWell(
+                        onTap: (() {
+                          Get.back();
+                        }),
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.arrow_back_sharp),
+                        ),
+                      )
+                    : Container(),
                 Expanded(
                   child: InkWell(
                       onTap: () {
-                        Get.to(const RecentProjects());
+                        Get.to(() => const RecentProjects());
                       },
                       child: Image.asset(
                         'assets/images/logoMini.png',
@@ -47,7 +49,7 @@ AppBar customAppBar(BuildContext context,
             )
           : InkWell(
               onTap: () {
-                Get.to(const RecentProjects());
+                Get.to(() => const RecentProjects());
               },
               child: Image.asset(
                 'assets/images/logoMini.png',

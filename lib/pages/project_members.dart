@@ -62,7 +62,8 @@ class _ProjectMembersListState extends State<ProjectMembersList> {
                                 children: [
                                   InkWell(
                                     onTap: () {
-                                      Get.to(const SelectProjectMembers());
+                                      Get.to(
+                                          () => const SelectProjectMembers());
                                     },
                                     child: txt(
                                         txt:
@@ -91,7 +92,8 @@ class _ProjectMembersListState extends State<ProjectMembersList> {
                                       fontColor: const Color(secondaryColor)),
                                   InkWell(
                                     onTap: () {
-                                      Get.to(const SelectProjectMembers());
+                                      Get.to(
+                                          () => const SelectProjectMembers());
                                     },
                                     child: Row(
                                       children: [

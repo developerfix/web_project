@@ -40,8 +40,9 @@ Future<dynamic> createProjectPopUp(
                         child: Column(
                           children: <Widget>[
                             txt(
-                              txt: 'Project Details',
+                              txt: 'Project',
                               fontSize: 50,
+                              font: 'Comfortaa',
                               letterSpacing: 6,
                               fontWeight: FontWeight.w700,
                             ),
@@ -60,11 +61,11 @@ Future<dynamic> createProjectPopUp(
                                         MainAxisAlignment.spaceEvenly,
                                     children: [
                                       txt(
-                                        txt: 'Title:',
+                                        txt: 'Name:',
                                         fontSize: 30,
                                       ),
                                       txt(
-                                        txt: 'Subtitle:',
+                                        txt: 'Description:',
                                         fontSize: 30,
                                       ),
                                     ],
@@ -153,7 +154,7 @@ Future<dynamic> createProjectPopUp(
                                     ),
                                     child: Center(
                                         child: txt(
-                                            txt: 'Proceed',
+                                            txt: 'Confirm',
                                             fontSize: 15,
                                             fontColor: Colors.white)),
                                   ),

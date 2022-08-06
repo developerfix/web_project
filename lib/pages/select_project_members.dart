@@ -30,8 +30,8 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
-  String taskPilot = 'Select from members';
-  String taskCoPilot = 'Select from members';
+  String taskPilot = '';
+  String taskCoPilot = '';
   String taskPilotId = '';
   String taskCoPilotId = '';
 
@@ -162,8 +162,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                             suffixIconColor:
                                                 const Color(secondaryColor),
                                             border: InputBorder.none,
-                                            hintText: taskPilot !=
-                                                    'Select from members'
+                                            hintText: taskPilot != ''
                                                 ? '@$taskPilot'
                                                 : taskPilot,
                                             hintStyle: const TextStyle(
@@ -229,8 +228,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                             suffixIconColor:
                                                 const Color(secondaryColor),
                                             border: InputBorder.none,
-                                            hintText: taskPilot !=
-                                                    'Select from members'
+                                            hintText: taskPilot != ''
                                                 ? '@$taskPilot'
                                                 : taskPilot,
                                             hintStyle: const TextStyle(
@@ -299,8 +297,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                             suffixIconColor:
                                                 const Color(secondaryColor),
                                             border: InputBorder.none,
-                                            hintText: taskCoPilot !=
-                                                    'Select from members'
+                                            hintText: taskCoPilot != ''
                                                 ? '@$taskCoPilot'
                                                 : taskCoPilot,
                                             hintStyle: const TextStyle(
@@ -364,8 +361,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                             suffixIconColor:
                                                 const Color(secondaryColor),
                                             border: InputBorder.none,
-                                            hintText: taskCoPilot !=
-                                                    'Select from members'
+                                            hintText: taskCoPilot != ''
                                                 ? '@$taskCoPilot'
                                                 : taskCoPilot,
                                             hintStyle: const TextStyle(
@@ -440,8 +436,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                           children: [
                             InkWell(
                               onTap: () {
-                                if (taskPilot == 'Select from members' ||
-                                    taskCoPilot == 'Select from members') {
+                                if (taskPilot == '' || taskCoPilot == '') {
                                 } else {
                                   users.add(ProjectMember(
                                       uid: taskPilotId, username: taskPilot));

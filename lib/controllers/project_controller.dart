@@ -59,21 +59,17 @@ class ProjectController extends GetxController {
   getProjectAssets() async {
     assets.clear();
     if (!kIsWeb) {
-      try {
-        var projectAssets = await firedartFirestore
-            .collection('users')
-            .document(_uid.value)
-            .collection('projects')
-            .document(_projectId.value)
-            .collection('assets')
-            .orderBy('created', descending: true)
-            .get();
+      var projectAssets = await firedartFirestore
+          .collection('users')
+          .document(_uid.value)
+          .collection('projects')
+          .document(_projectId.value)
+          .collection('assets')
+          .orderBy('created', descending: true)
+          .get();
 
-        for (var asset in projectAssets) {
-          assets.add(asset);
-        }
-      } catch (e) {
-        print(e);
+      for (var asset in projectAssets) {
+        assets.add(asset);
       }
     } else {
       QuerySnapshot projectAssets = await firestore
@@ -551,7 +547,7 @@ class ProjectController extends GetxController {
                 .collection('members')
                 .document('$uid')
                 .set({"uid": uid, 'username': username}).then((value) {
-              Get.to(ProjectDashboard(projectId: projectId));
+              Get.to(() => ProjectDashboard(projectId: projectId));
             });
           });
         });
@@ -586,7 +582,7 @@ class ProjectController extends GetxController {
                 .collection('members')
                 .doc(uid)
                 .set({"uid": uid, 'username': username}).then((value) {
-              Get.to(ProjectDashboard(projectId: projectId));
+              Get.to(() => ProjectDashboard(projectId: projectId));
             });
           });
         });
@@ -601,8 +597,8 @@ class ProjectController extends GetxController {
     }
   }
 
-  void addNewAsset({type, path}) async {
-    assets.insert(0, {"type": type, "path": path});
+  void addNewAsset({type, path, pathName}) async {
+    assets.insert(0, {"type": type, "path": path, "pathName": pathName});
     if (!kIsWeb) {
       try {
         for (var member in projectMembers) {
@@ -615,6 +611,7 @@ class ProjectController extends GetxController {
               .add({
             "type": type,
             "path": path,
+            "pathName": pathName,
             "created": DateTime.now()
                 .millisecondsSinceEpoch
                 .toString()
@@ -638,6 +635,7 @@ class ProjectController extends GetxController {
               .add({
             "type": type,
             "path": path,
+            "pathName": pathName,
             "created": DateTime.now()
                 .millisecondsSinceEpoch
                 .toString()
@@ -732,7 +730,7 @@ class ProjectController extends GetxController {
     }
   }
 
-  addNewCommentFile({username}) async {
+  addNewCommentFile({username, created}) async {
     FilePickerResult? result =
         await FilePicker.platform.pickFiles(withData: true);
 
@@ -762,6 +760,8 @@ class ProjectController extends GetxController {
                 "type": 'file',
                 "comment": urlDownload,
                 "username": username,
+                "filename": event.ref.name,
+                "created": created,
               });
 
               if (!kIsWeb) {
@@ -777,10 +777,7 @@ class ProjectController extends GetxController {
                     "comment": urlDownload,
                     "username": username,
                     'filename': event.ref.name,
-                    "created": DateTime.now()
-                        .millisecondsSinceEpoch
-                        .toString()
-                        .substring(0, 10)
+                    "created": created
                   });
                 }
               } else {
@@ -796,10 +793,7 @@ class ProjectController extends GetxController {
                     "comment": urlDownload,
                     "username": username,
                     'filename': event.ref.name,
-                    "created": DateTime.now()
-                        .millisecondsSinceEpoch
-                        .toString()
-                        .substring(0, 10)
+                    "created": created
                   });
                 }
               }
@@ -820,8 +814,13 @@ class ProjectController extends GetxController {
     }
   }
 
-  addNewComment({comment, username}) async {
-    comments.add({"type": 'text', "comment": comment, "username": username});
+  addNewComment({comment, username, created}) async {
+    comments.add({
+      "type": 'text',
+      "comment": comment,
+      "created": created,
+      "username": username
+    });
     if (!kIsWeb) {
       try {
         for (var i = 0; i < projectMembers.length; i++) {
@@ -835,14 +834,10 @@ class ProjectController extends GetxController {
             "type": 'text',
             "comment": comment,
             "username": username,
-            "created": DateTime.now()
-                .millisecondsSinceEpoch
-                .toString()
-                .substring(0, 10)
+            "created": created
           });
         }
       } catch (e) {
-        print(e);
         //define error
         getErrorSnackBar(
           "Something went wrong, Please try again",
@@ -861,10 +856,7 @@ class ProjectController extends GetxController {
             "type": 'text',
             "comment": comment,
             "username": username,
-            "created": DateTime.now()
-                .millisecondsSinceEpoch
-                .toString()
-                .substring(0, 10)
+            "created": created
           });
         }
       } catch (e) {

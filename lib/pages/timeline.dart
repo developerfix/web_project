@@ -195,12 +195,11 @@ class _TimelineState extends State<Timeline> {
   Widget build(BuildContext context) {
     return Obx(() {
       return Scaffold(
-        // backgroundColor: Colors.grey.shade300,
-        backgroundColor: const Color(darkgreyishColor),
+        backgroundColor: const Color(mainColor),
         key: _key,
         appBar: customAppBar(
           context,
-          color: const Color(darkgreyishColor),
+          color: const Color(mainColor),
           username: profileController.user['name'],
           title: txt(
               txt: 'Timeline view',
@@ -262,39 +261,18 @@ class _TimelineState extends State<Timeline> {
                         height: screenHeight(context) * 0.1,
                       ),
                       GanttChartView(
-                        stickyAreaEventBuilder: (context, eventIndex, event) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Center(
-                              child: Text(
-                                event.getDisplayName(context).toUpperCase(),
-                                style: GoogleFonts.comfortaa(
-                                  textStyle: const TextStyle(
-                                    fontSize: 12.0,
-                                    overflow: TextOverflow.visible,
-                                    letterSpacing: 0,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
                         dayHeaderHeight: screenHeight(context) * 0.05,
 
-                        // maxDuration:
-                        //     Duration(days: differenceInDays.inDays + 7),
+                        /*** max duration will be the difference
+                         * between startDateOfTasks.day  and endDateOfTasks.day */
+
                         maxDuration: const Duration(days: 365),
                         startDate: DateTime(startDateOfTasks[0].year,
                             startDateOfTasks[0].month, startDateOfTasks[0].day),
-
-                        eventHeight: screenHeight(context) * 0.1,
+                        eventHeight: screenHeight(context) * 0.07,
                         stickyAreaWidth: screenWidth(context) * 0.1,
                         showStickyArea: true,
-
                         showDays: true,
-
                         events: tasksList,
                       ),
                     ],

@@ -391,8 +391,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: master
-      resolved-ref: "19800a4e6f41e8b06fdc78d9f2cad188b87b3c2d"
+      ref: "25b63f4"
+      resolved-ref: "25b63f49f5d45003ba6ccd1f0df88a402bf4c9b1"
       url: "https://github.com/developerfix/flutter_gantt_chart.git"
     source: git
     version: "0.1.0"

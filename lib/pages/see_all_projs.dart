@@ -49,9 +49,9 @@ class _SeeAllProjectsState extends State<SeeAllProjects> {
                       profileController.projects[index]['projectId'];
                   return InkWell(
                       onTap: (() {
-                        Get.to(ProjectDashboard(
-                          projectId: projectId,
-                        ));
+                        Get.to(() => ProjectDashboard(
+                              projectId: projectId,
+                            ));
                       }),
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
