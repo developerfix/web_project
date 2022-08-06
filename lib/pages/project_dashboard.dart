@@ -1,28 +1,27 @@
-import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'package:projectx/widgets/edit_task_popup.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
-import 'package:path/path.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/auth_controller.dart';
 import 'package:projectx/controllers/profile_controller.dart';
 import 'package:projectx/controllers/project_controller.dart';
-import 'package:projectx/pages/add_new_task.dart';
 import 'package:projectx/pages/project_members.dart';
-import 'package:projectx/pages/update_task.dart';
 import 'package:projectx/pages/recent_project.dart';
 import 'package:projectx/pages/timeline.dart';
 import 'package:projectx/widgets/asset_popup.dart';
 import 'package:projectx/widgets/loading_indicator.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../widgets/add_new_task_popup.dart';
 import '../widgets/custom_drawer.dart';
 
 class ProjectDashboard extends StatefulWidget {
@@ -46,6 +45,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
   bool isAssetsRefreshing = false;
   bool isCommentsRefreshing = false;
+  bool showBorder = false;
 
   @override
   void initState() {
@@ -143,30 +143,18 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                         children: <Widget>[
                           DrawerHeader(
                             margin: EdgeInsets.zero,
-                            child: Center(
-                              child: InkWell(
-                                onTap: () {
-                                  addAssetPopUp(context);
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(
-                                      Icons.add,
-                                      color: Color(brownishColor),
-                                      size: 30,
-                                    ),
-                                    // txt(
-                                    //   txt: "ASSETS",
-                                    //   font: 'comfortaa',
-                                    //   fontSize: 30.0,
-                                    //   fontColor: const Color(brownishColor),
-                                    //   letterSpacing: 5,
-                                    //   fontWeight: FontWeight.bold,
-                                    // ),
-                                  ],
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                txt(
+                                  txt: "ASSETS",
+                                  font: 'comfortaa',
+                                  fontSize: 30.0,
+                                  fontColor: const Color(brownishColor),
+                                  letterSpacing: 5,
+                                  fontWeight: FontWeight.w700,
                                 ),
-                              ),
+                              ],
                             ),
                           ),
                           Obx(() {
@@ -174,9 +162,26 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                               height: screenHeight(context) * 0.6,
                               width: screenWidth(context) * 0.12,
                               child: projectController.assets.isEmpty
-                                  ? Center(
-                                      child: txt(
-                                          txt: 'Add assets here', fontSize: 14),
+                                  ? Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        InkWell(
+                                          onTap: () {
+                                            addAssetPopUp(context);
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: const [
+                                              Icon(
+                                                Icons.add,
+                                                color: Color(brownishColor),
+                                                size: 50,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     )
                                   : ListView.builder(
                                       itemCount:
@@ -184,6 +189,8 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                       itemBuilder: (context, i) {
                                         String path =
                                             projectController.assets[i]['path'];
+                                        String pathName = projectController
+                                            .assets[i]['pathName'];
                                         return constraints.maxWidth < 1200
                                             ? Padding(
                                                 padding:
@@ -199,7 +206,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                           Color(secondaryColor),
                                                     ),
                                                     txt(
-                                                        txt: path,
+                                                        txt: pathName,
                                                         fontSize: 14,
                                                         fontColor: const Color(
                                                             secondaryColor),
@@ -257,7 +264,13 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                     child: const Icon(
                                                       Icons.delete_sharp,
                                                     )),
-                                                onTap: () {},
+                                                onTap: () async {
+                                                  await canLaunchUrl(
+                                                          Uri.parse(path))
+                                                      ? await launchUrl(
+                                                          Uri.parse(path))
+                                                      : null;
+                                                },
                                               );
                                       }),
                             );
@@ -265,9 +278,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                           const Spacer(),
                           ListTile(
                               onTap: () {
-                                Get.to(AddNewTask(
-                                  projectId: widget.projectId,
-                                ));
+                                Get.to(addNewTaskPopUp(context));
                               },
                               leading: const Icon(
                                 Icons.task,
@@ -351,90 +362,182 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                       DrawerHeader(
                                         margin: EdgeInsets.zero,
                                         child: Center(
-                                          child: InkWell(
-                                            onTap: () {
-                                              addAssetPopUp(context);
-                                            },
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                const Icon(
-                                                  Icons.add,
-                                                  color: Color(brownishColor),
-                                                  size: 30,
-                                                ),
-                                                txt(
-                                                  txt: "ASSETS",
-                                                  fontSize: 30.0,
-                                                  fontColor: const Color(
-                                                      brownishColor),
-                                                  letterSpacing: 5,
-                                                  fontWeight: FontWeight.w700,
-                                                ),
-                                              ],
-                                            ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              txt(
+                                                txt: "ASSETS",
+                                                font: 'comfortaa',
+                                                fontSize: 30.0,
+                                                fontColor:
+                                                    const Color(brownishColor),
+                                                letterSpacing: 5,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
                                       Obx(() {
-                                        return SizedBox(
-                                          height: screenHeight(context) * 0.6,
-                                          width: screenWidth(context) * 0.12,
-                                          child: projectController
-                                                  .assets.isEmpty
-                                              ? Center(
-                                                  child: txt(
-                                                      txt: 'Add assets here',
-                                                      fontSize: 14),
-                                                )
-                                              : ListView.builder(
+                                        return Column(
+                                          children: [
+                                            SizedBox(
+                                              height:
+                                                  screenHeight(context) * 0.65,
+                                              width:
+                                                  screenWidth(context) * 0.12,
+                                              child: ListView.builder(
                                                   itemCount: projectController
                                                       .assets.length,
                                                   itemBuilder: (context, i) {
                                                     String path =
                                                         projectController
                                                             .assets[i]['path'];
-                                                    return ListTile(
-                                                      leading: const Icon(
-                                                        Icons.link,
-                                                      ),
-                                                      title: txt(
-                                                          txt: path,
-                                                          fontSize: 14,
-                                                          overflow: TextOverflow
-                                                              .ellipsis),
-                                                      trailing: InkWell(
-                                                          onTap: () async {
-                                                            setState(() {
-                                                              isAssetsRefreshing =
-                                                                  true;
-                                                            });
-                                                            await projectController
-                                                                .deleteProjectAsset(
-                                                                    path: projectController
-                                                                            .assets[i]
-                                                                        [
-                                                                        'path']);
-                                                            setState(() {
-                                                              isAssetsRefreshing =
-                                                                  false;
-                                                            });
-                                                          },
-                                                          child: const Icon(
-                                                            Icons.delete_sharp,
-                                                          )),
-                                                      onTap: () {},
-                                                    );
+                                                    String pathName =
+                                                        projectController
+                                                                .assets[i]
+                                                            ['pathName'];
+                                                    return InkWell(
+                                                        onTap: () async {
+                                                          await canLaunchUrl(
+                                                                  Uri.parse(
+                                                                      path))
+                                                              ? await launchUrl(
+                                                                  Uri.parse(
+                                                                      path))
+                                                              : null;
+                                                        },
+                                                        onHover: (hovered) {
+                                                          setState(() {
+                                                            showBorder =
+                                                                hovered;
+                                                          });
+                                                        },
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              const Icon(
+                                                                Icons.link,
+                                                                color: Color(
+                                                                    secondaryColor),
+                                                              ),
+                                                              txt(
+                                                                  txt: pathName,
+                                                                  fontSize: 14,
+                                                                  fontColor:
+                                                                      const Color(
+                                                                          secondaryColor),
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis),
+                                                              showBorder
+                                                                  ? PopupMenuButton(
+                                                                      onSelected:
+                                                                          (value) async {
+                                                                        // if (value ==
+                                                                        //     1) {
+                                                                        // } else if (value ==
+                                                                        //     2) {
+                                                                        print(
+                                                                            'pressed');
+                                                                        setState(
+                                                                            () {
+                                                                          isAssetsRefreshing =
+                                                                              true;
+                                                                        });
+                                                                        await projectController.deleteProjectAsset(
+                                                                            path:
+                                                                                projectController.assets[i]['path']);
+                                                                        setState(
+                                                                            () {
+                                                                          isAssetsRefreshing =
+                                                                              false;
+                                                                        });
+                                                                        // }
+                                                                      },
+                                                                      elevation:
+                                                                          3.2,
+                                                                      shape:
+                                                                          const RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.all(Radius.circular(8.0)),
+                                                                      ),
+                                                                      itemBuilder:
+                                                                          (context) =>
+                                                                              [
+                                                                                PopupMenuItem(
+                                                                                  value: 1,
+                                                                                  child: Text(
+                                                                                    'Edit',
+                                                                                    maxLines: 1,
+                                                                                    style: GoogleFonts.montserrat(
+                                                                                      textStyle: const TextStyle(
+                                                                                        fontSize: 14,
+                                                                                        overflow: TextOverflow.visible,
+                                                                                        color: Color(brownishColor),
+                                                                                        fontWeight: FontWeight.w600,
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                PopupMenuItem(
+                                                                                  value: 2,
+                                                                                  child: Text(
+                                                                                    'Delete',
+                                                                                    maxLines: 1,
+                                                                                    style: GoogleFonts.montserrat(
+                                                                                      textStyle: const TextStyle(
+                                                                                        fontSize: 14,
+                                                                                        overflow: TextOverflow.visible,
+                                                                                        color: Color(brownishColor),
+                                                                                        fontWeight: FontWeight.w600,
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                      child: const Icon(
+                                                                          Icons
+                                                                              .more_horiz,
+                                                                          color:
+                                                                              Color(
+                                                                            secondaryColor,
+                                                                          ),
+                                                                          size:
+                                                                              18))
+                                                                  : Container(),
+                                                            ],
+                                                          ),
+                                                        ));
                                                   }),
+                                            ),
+                                            // Spacer(),
+                                            InkWell(
+                                              onTap: () {
+                                                addAssetPopUp(context);
+                                              },
+                                              child: Center(
+                                                child: Icon(
+                                                  Icons.add,
+                                                  color: Color(brownishColor),
+                                                  size: 50,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         );
                                       }),
                                       const Spacer(),
                                       ListTile(
                                           onTap: () {
-                                            Get.to(AddNewTask(
-                                              projectId: widget.projectId,
-                                            ));
+                                            Get.to(addNewTaskPopUp(context));
                                           },
                                           leading: const Icon(
                                             Icons.task,
@@ -1205,13 +1308,15 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                                               String type = projectController.comments[i]['type'].toString();
                                                                               String username = projectController.comments[i]['username'].toString();
                                                                               String filename = projectController.comments[i]['filename'].toString();
+                                                                              var created = !kIsWeb ? projectController.comments[i]['created'] : (projectController.comments[i]['created'] as Timestamp).toDate();
+
                                                                               String firstChar = '';
 
                                                                               for (int i = 0; i < username.length; i++) {
                                                                                 firstChar += username[i];
                                                                               }
 
-                                                                              return usersMsg(context, username: username, filename: filename, nameFirstChar: firstChar[0], type: type, comment: comment);
+                                                                              return usersMsg(context, created: created, username: username, filename: filename, nameFirstChar: firstChar[0], type: type, comment: comment);
                                                                             }));
                                                   }),
                                                   const Spacer(),
@@ -1262,11 +1367,12 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                                   return InkWell(
                                                                     onTap:
                                                                         () async {
-                                                                      await projectController
-                                                                          .addNewCommentFile(
-                                                                        username:
-                                                                            profileController.user['name'],
-                                                                      );
+                                                                      await projectController.addNewCommentFile(
+                                                                          username: profileController.user[
+                                                                              'name'],
+                                                                          created: !kIsWeb
+                                                                              ? DateTime.now()
+                                                                              : Timestamp.now());
 
                                                                       WidgetsBinding
                                                                           .instance
@@ -1291,32 +1397,33 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                                                 InkWell(
                                                                   onTap:
                                                                       () async {
-                                                                    await projectController
-                                                                        .addNewComment(
-                                                                      comment:
-                                                                          commentController
+                                                                    if (commentController
+                                                                        .text
+                                                                        .isNotEmpty) {
+                                                                      await projectController.addNewComment(
+                                                                          comment: commentController
                                                                               .text,
-                                                                      username:
-                                                                          profileController
-                                                                              .user['name'],
-                                                                    );
-                                                                    commentController
-                                                                        .clear();
+                                                                          username: profileController.user[
+                                                                              'name'],
+                                                                          created: !kIsWeb
+                                                                              ? DateTime.now()
+                                                                              : Timestamp.now());
+                                                                      commentController
+                                                                          .clear();
 
-                                                                    WidgetsBinding
-                                                                        .instance
-                                                                        .addPostFrameCallback(
-                                                                            (_) {
-                                                                      if (_scrollController
-                                                                          .hasClients) {
-                                                                        _scrollController.animateTo(
-                                                                            _scrollController
-                                                                                .position.maxScrollExtent,
-                                                                            duration:
-                                                                                const Duration(milliseconds: 300),
-                                                                            curve: Curves.easeOut);
-                                                                      }
-                                                                    });
+                                                                      WidgetsBinding
+                                                                          .instance
+                                                                          .addPostFrameCallback(
+                                                                              (_) {
+                                                                        if (_scrollController
+                                                                            .hasClients) {
+                                                                          _scrollController.animateTo(
+                                                                              _scrollController.position.maxScrollExtent,
+                                                                              duration: const Duration(milliseconds: 300),
+                                                                              curve: Curves.easeOut);
+                                                                        }
+                                                                      });
+                                                                    }
                                                                   },
                                                                   child: const Icon(
                                                                       Icons
@@ -1516,7 +1623,8 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                         taskDescription: taskDescription,
                                         taskTitle: taskTitle);
                           } else if (value == 3) {
-                            Get.to(UpdateTask(
+                            Get.to(editTaskPopUp(
+                              context,
                               projectId: widget.projectId,
                               copilot: copilot,
                               endDate: endDate,
@@ -1734,11 +1842,19 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   }
 
   Padding usersMsg(BuildContext context,
-      {String? comment,
+      {DateTime? created,
+      String? comment,
       String? type,
       String? username,
       String? filename,
       String? nameFirstChar}) {
+    var formatter = DateFormat('MM/dd/yyyy');
+    final now = DateTime.now();
+    String formattedTime = DateFormat('k:mm:a').format(created!);
+    String formattedDateDay = formatter.format(created);
+    String formattedCommentDate = ', $formattedDateDay';
+    String formattedDateToday = formatter.format(now);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
       child: Row(
@@ -1768,7 +1884,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                   TextSpan(
                     children: [
                       TextSpan(
-                          text: '@${username!}:\n',
+                          text: username!,
                           style: GoogleFonts.montserrat(
                             textStyle: const TextStyle(
                                 overflow: TextOverflow.visible,
@@ -1777,12 +1893,22 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                 fontSize: 14),
                           )),
                       TextSpan(
+                          text:
+                              ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
+                          style: GoogleFonts.montserrat(
+                            textStyle: const TextStyle(
+                                overflow: TextOverflow.visible,
+                                color: Color(brownishColor),
+                                fontWeight: FontWeight.normal,
+                                fontSize: 14),
+                          )),
+                      TextSpan(
                           text: comment!,
                           style: GoogleFonts.montserrat(
                             textStyle: const TextStyle(
                                 overflow: TextOverflow.visible,
                                 color: Color(brownishColor),
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.normal,
                                 fontSize: 18),
                           )),
                     ],
@@ -1793,81 +1919,157 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                     downloadFile(comment, filename);
                   },
                   child: screenWidth(context) < 1800
-                      ? Container(
-                          width: screenWidth(context) * 0.1,
-                          height: screenHeight(context) * 0.05,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: const Color(secondaryColor),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.16),
-                                offset: const Offset(0, 3.0),
-                                blurRadius: 6.0,
-                              ),
-                            ],
-                          ),
+                      ? SizedBox(
+                          width: screenWidth(context) * 0.15,
+                          height: screenHeight(context) * 0.075,
                           child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Flexible(
-                                  child: Text.rich(
-                                TextSpan(
-                                  children: [
-                                    TextSpan(
-                                        text: '@${username!}:\n',
-                                        style: GoogleFonts.montserrat(
-                                          textStyle: const TextStyle(
-                                              overflow: TextOverflow.visible,
-                                              color: Color(brownishColor),
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 14),
-                                        )),
+                                child: Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                          text: username!,
+                                          style: GoogleFonts.montserrat(
+                                            textStyle: const TextStyle(
+                                                overflow: TextOverflow.visible,
+                                                color: Color(brownishColor),
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14),
+                                          )),
+                                      TextSpan(
+                                          text:
+                                              ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
+                                          style: GoogleFonts.montserrat(
+                                            textStyle: const TextStyle(
+                                                overflow: TextOverflow.visible,
+                                                color: Color(brownishColor),
+                                                fontWeight: FontWeight.normal,
+                                                fontSize: 14),
+                                          )),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const Spacer(),
+                              Container(
+                                width: screenWidth(context) * 0.1,
+                                height: screenHeight(context) * 0.045,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  color: const Color(secondaryColor),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.16),
+                                      offset: const Offset(0, 3.0),
+                                      blurRadius: 6.0,
+                                    ),
                                   ],
                                 ),
-                              )),
-                              Center(
-                                child: txt(
-                                    txt: 'Download file',
-                                    fontSize: 14,
-                                    fontColor: Colors.white),
+                                child: Column(
+                                  children: [
+                                    Flexible(
+                                        child: Text.rich(
+                                      TextSpan(
+                                        children: [
+                                          TextSpan(
+                                              text: '@${username}:\n',
+                                              style: GoogleFonts.montserrat(
+                                                textStyle: const TextStyle(
+                                                    overflow:
+                                                        TextOverflow.visible,
+                                                    color: Color(brownishColor),
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 14),
+                                              )),
+                                        ],
+                                      ),
+                                    )),
+                                    Center(
+                                      child: txt(
+                                          txt: 'Download file',
+                                          fontSize: 14,
+                                          fontColor: Colors.white),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         )
-                      : Container(
-                          width: screenWidth(context) * 0.1,
-                          height: screenHeight(context) * 0.05,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: const Color(secondaryColor),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.16),
-                                offset: const Offset(0, 3.0),
-                                blurRadius: 6.0,
+                      : SizedBox(
+                          width: screenWidth(context) * 0.15,
+                          height: screenHeight(context) * 0.075,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Flexible(
+                                child: Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                          text: username!,
+                                          style: GoogleFonts.montserrat(
+                                            textStyle: const TextStyle(
+                                                overflow: TextOverflow.visible,
+                                                color: Color(brownishColor),
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14),
+                                          )),
+                                      TextSpan(
+                                          text:
+                                              ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
+                                          style: GoogleFonts.montserrat(
+                                            textStyle: const TextStyle(
+                                                overflow: TextOverflow.visible,
+                                                color: Color(brownishColor),
+                                                fontWeight: FontWeight.normal,
+                                                fontSize: 14),
+                                          )),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const Spacer(),
+                              Container(
+                                width: screenWidth(context) * 0.1,
+                                height: screenHeight(context) * 0.045,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  color: const Color(secondaryColor),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.16),
+                                      offset: const Offset(0, 3.0),
+                                      blurRadius: 6.0,
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.download,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(
+                                        width: screenWidth(context) * 0.005,
+                                      ),
+                                      txt(
+                                          txt: 'click to download',
+                                          fontSize: 14,
+                                          fontColor: Colors.white),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ],
                           ),
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.download,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(
-                                  width: screenWidth(context) * 0.005,
-                                ),
-                                txt(
-                                    txt: 'click to download',
-                                    fontSize: 14,
-                                    fontColor: Colors.white),
-                              ],
-                            ),
-                          ),
-                        ),
-                )
+                        )),
         ],
       ),
     );
@@ -1891,21 +2093,17 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
   downloadFile(url, filename) async {
     if (!kIsWeb) {
-      try {
-        String? res = await FilePicker.platform.saveFile(
-          fileName: filename.split('.').first,
-        );
+      String? res = await FilePicker.platform.saveFile(
+        fileName: filename.split('.').first,
+      );
 
-        if (res != null) {
-          var dio = Dio();
+      if (res != null) {
+        var dio = Dio();
 
-          var ext = filename.split('.').last;
+        var ext = filename.split('.').last;
 
-          String fullPath = "$res.$ext";
-          await dio.download(url, fullPath);
-        }
-      } catch (e) {
-        print(e);
+        String fullPath = "$res.$ext";
+        await dio.download(url, fullPath);
       }
     } else {
       html.window.open(
