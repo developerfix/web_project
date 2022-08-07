@@ -30,7 +30,6 @@ String taskCoPilot = '';
 
 Future<dynamic> editTaskPopUp(
   BuildContext context, {
-  final String? projectId,
   final String? taskTitle,
   final String? phase,
   final String? taskDescription,

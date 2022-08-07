@@ -40,7 +40,7 @@ Widget txt(
       style: font == null
           ? GoogleFonts.montserrat(
               textStyle: TextStyle(
-                overflow: overflow ?? TextOverflow.visible,
+                overflow: overflow ?? TextOverflow.ellipsis,
                 letterSpacing: letterSpacing ?? 0,
                 color: fontColor ?? const Color(brownishColor),
                 fontWeight: fontWeight ?? FontWeight.w600,

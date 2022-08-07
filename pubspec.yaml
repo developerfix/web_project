@@ -45,9 +45,11 @@ dependencies:
   path_provider: ^2.0.11
   url_launcher: ^6.1.5
   image_picker: ^0.8.5+3
+  hovering: ^1.0.4
   dio: ^4.0.6
   async: any
   path: any
+  expandable: ^5.0.1
 
   flutter:
     sdk: flutter

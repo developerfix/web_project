@@ -23,6 +23,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/add_new_task_popup.dart';
 import '../widgets/custom_drawer.dart';
+import '../widgets/listOfTasks.dart';
+import '../widgets/usersmsg.dart';
 
 class ProjectDashboard extends StatefulWidget {
   final String projectId;
@@ -770,7 +772,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
                                                                                     final int priorityLevel = projectController.toDoTasks[i]['priorityLevel'];
                                                                                     final String status = projectController.toDoTasks[i]['status'];
-                                                                                    return listOfTasks(context, 'todo', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
+                                                                                    return listOfTasks(context, projectController, 'todo', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
                                                                                   },
                                                                                 ),
                                                                     ),
@@ -838,7 +840,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
                                                                                   final int priorityLevel = projectController.inProgressTasks[i]['priorityLevel'];
                                                                                   final String status = projectController.inProgressTasks[i]['status'];
-                                                                                  return listOfTasks(context, 'inProgress', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
+                                                                                  return listOfTasks(context, projectController, 'inProgress', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
                                                                                 },
                                                                               ),
                                                                   ),
@@ -911,7 +913,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
                                                                                     final int priorityLevel = projectController.completedTasks[i]['priorityLevel'];
                                                                                     final String status = projectController.completedTasks[i]['status'];
-                                                                                    return listOfTasks(context, 'completed', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
+                                                                                    return listOfTasks(context, projectController, 'completed', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
                                                                                   },
                                                                                 ),
                                                                     ),
@@ -988,7 +990,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
                                                                                     final int priorityLevel = projectController.toDoTasks[i]['priorityLevel'];
                                                                                     final String status = projectController.toDoTasks[i]['status'];
-                                                                                    return listOfTasks(context, 'todo', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
+                                                                                    return listOfTasks(context, projectController, 'todo', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
                                                                                   },
                                                                                 ),
                                                                     ),
@@ -1055,7 +1057,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
                                                                                   final int priorityLevel = projectController.inProgressTasks[i]['priorityLevel'];
                                                                                   final String status = projectController.inProgressTasks[i]['status'];
-                                                                                  return listOfTasks(context, 'inProgress', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
+                                                                                  return listOfTasks(context, projectController, 'inProgress', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
                                                                                 },
                                                                               ),
                                                                   ),
@@ -1127,7 +1129,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
                                                                                     final int priorityLevel = projectController.completedTasks[i]['priorityLevel'];
                                                                                     final String status = projectController.completedTasks[i]['status'];
-                                                                                    return listOfTasks(context, 'completed', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
+                                                                                    return listOfTasks(context, projectController, 'completed', taskTitle, phase, taskDescription, pilot, copilot, priorityLevel, status, startDate, endDate);
                                                                                   },
                                                                                 ),
                                                                     ),
@@ -1499,582 +1501,6 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
     );
   }
 
-  Container listOfTasks(
-      BuildContext context,
-      String? board,
-      String taskTitle,
-      String phase,
-      String taskDescription,
-      String pilot,
-      String copilot,
-      int priorityLevel,
-      String status,
-      String startDate,
-      String endDate) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(.2),
-              blurRadius: 10,
-            )
-          ]),
-      child: Column(
-        children: [
-          Container(
-              height: screenHeight(context) * 0.008,
-              decoration: BoxDecoration(
-                color: board == 'todo'
-                    ? Colors.grey.shade500
-                    : board == 'inProgress'
-                        ? Colors.yellow.shade600
-                        : Colors.greenAccent,
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-              )),
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: txt(
-                          txt: 'Title:',
-                          maxLines: 1,
-                          fontColor: Colors.black,
-                          fontSize: 16),
-                    ),
-                    Expanded(
-                        flex: 3,
-                        child:
-                            txt(txt: taskTitle, maxLines: 1000, fontSize: 16)),
-                    // const Spacer(),
-                    PopupMenuButton(
-                        onSelected: (value) async {
-                          if (value == 1) {
-                            status == 'todo'
-                                ? projectController.addToInProgress(
-                                    copilot: copilot,
-                                    endDate: endDate,
-                                    phase: phase,
-                                    pilot: pilot,
-                                    priorityLevel: priorityLevel,
-                                    startDate: startDate,
-                                    status: status,
-                                    taskDescription: taskDescription,
-                                    taskTitle: taskTitle)
-                                : status == 'inProgress'
-                                    ? projectController.addToTodo(
-                                        copilot: copilot,
-                                        endDate: endDate,
-                                        phase: phase,
-                                        pilot: pilot,
-                                        priorityLevel: priorityLevel,
-                                        startDate: startDate,
-                                        status: status,
-                                        taskDescription: taskDescription,
-                                        taskTitle: taskTitle)
-                                    : projectController.addToTodo(
-                                        copilot: copilot,
-                                        endDate: endDate,
-                                        phase: phase,
-                                        pilot: pilot,
-                                        priorityLevel: priorityLevel,
-                                        startDate: startDate,
-                                        status: status,
-                                        taskDescription: taskDescription,
-                                        taskTitle: taskTitle);
-                          } else if (value == 2) {
-                            status == 'todo'
-                                ? projectController.addToCompleted(
-                                    copilot: copilot,
-                                    endDate: endDate,
-                                    phase: phase,
-                                    pilot: pilot,
-                                    priorityLevel: priorityLevel,
-                                    startDate: startDate,
-                                    status: status,
-                                    taskDescription: taskDescription,
-                                    taskTitle: taskTitle)
-                                : status == 'inProgress'
-                                    ? projectController.addToCompleted(
-                                        copilot: copilot,
-                                        endDate: endDate,
-                                        phase: phase,
-                                        pilot: pilot,
-                                        priorityLevel: priorityLevel,
-                                        startDate: startDate,
-                                        status: status,
-                                        taskDescription: taskDescription,
-                                        taskTitle: taskTitle)
-                                    : projectController.addToInProgress(
-                                        copilot: copilot,
-                                        endDate: endDate,
-                                        phase: phase,
-                                        pilot: pilot,
-                                        priorityLevel: priorityLevel,
-                                        startDate: startDate,
-                                        status: status,
-                                        taskDescription: taskDescription,
-                                        taskTitle: taskTitle);
-                          } else if (value == 3) {
-                            Get.to(editTaskPopUp(
-                              context,
-                              projectId: widget.projectId,
-                              copilot: copilot,
-                              endDate: endDate,
-                              phase: phase,
-                              pilot: pilot,
-                              priorityLevel: priorityLevel,
-                              startDate: startDate,
-                              status: status,
-                              taskDescription: taskDescription,
-                              taskTitle: taskTitle,
-                            ));
-                          } else {
-                            projectController.deleteProjectTask(
-                                status: status,
-                                taskDescription: taskDescription,
-                                taskTitle: taskTitle);
-                          }
-                        },
-                        elevation: 3.2,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        ),
-                        itemBuilder: (context) => [
-                              PopupMenuItem(
-                                value: 1,
-                                child: Text(
-                                  status == 'todo'
-                                      ? 'Add to Inprogress'
-                                      : status == 'inProgress'
-                                          ? 'Add to Todo'
-                                          : 'Add to Todo',
-                                  maxLines: 1,
-                                  style: GoogleFonts.montserrat(
-                                    textStyle: const TextStyle(
-                                      fontSize: 14,
-                                      overflow: TextOverflow.visible,
-                                      color: Color(brownishColor),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 2,
-                                child: Text(
-                                  status == 'todo'
-                                      ? 'Add to Completed'
-                                      : status == 'inProgress'
-                                          ? 'Add to Completed'
-                                          : 'Add to Inprogress',
-                                  maxLines: 1,
-                                  style: GoogleFonts.montserrat(
-                                    textStyle: const TextStyle(
-                                      fontSize: 14,
-                                      overflow: TextOverflow.visible,
-                                      color: Color(brownishColor),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 3,
-                                child: Text(
-                                  'Edit',
-                                  maxLines: 1,
-                                  style: GoogleFonts.montserrat(
-                                    textStyle: const TextStyle(
-                                      fontSize: 14,
-                                      overflow: TextOverflow.visible,
-                                      color: Color(brownishColor),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 4,
-                                child: Text(
-                                  'Delete',
-                                  maxLines: 1,
-                                  style: GoogleFonts.montserrat(
-                                    textStyle: const TextStyle(
-                                      fontSize: 14,
-                                      overflow: TextOverflow.visible,
-                                      color: Color(brownishColor),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                        child: const Icon(Icons.edit,
-                            color: Color(
-                              secondaryColor,
-                            ),
-                            size: 18))
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: txt(
-                          txt: 'Phase:',
-                          maxLines: 1,
-                          fontColor: Colors.black,
-                          fontSize: 16),
-                    ),
-                    Expanded(
-                        flex: 3,
-                        child: txt(txt: phase, maxLines: 1000, fontSize: 16)),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: txt(
-                          txt: 'Description:',
-                          maxLines: 1,
-                          fontColor: Colors.black,
-                          fontSize: 16),
-                    ),
-                    Expanded(
-                        flex: 3,
-                        child: txt(
-                            txt: taskDescription,
-                            maxLines: 1000,
-                            fontSize: 16)),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: txt(
-                          txt: 'Pilot:',
-                          maxLines: 1,
-                          fontColor: Colors.black,
-                          fontSize: 16),
-                    ),
-                    Expanded(
-                        flex: 3,
-                        child: txt(txt: pilot, maxLines: 1000, fontSize: 16)),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: txt(
-                          txt: 'Co-pilot:',
-                          maxLines: 1,
-                          fontColor: Colors.black,
-                          fontSize: 16),
-                    ),
-                    Expanded(
-                        flex: 3,
-                        child: txt(txt: copilot, maxLines: 1000, fontSize: 16)),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: txt(
-                          txt: 'Start Date:',
-                          maxLines: 1,
-                          fontColor: Colors.black,
-                          fontSize: 16),
-                    ),
-                    Expanded(
-                        flex: 3,
-                        child:
-                            txt(txt: startDate, maxLines: 1000, fontSize: 16)),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: txt(
-                          txt: 'End Date:',
-                          maxLines: 1,
-                          fontColor: Colors.black,
-                          fontSize: 16),
-                    ),
-                    Expanded(
-                        flex: 3,
-                        child: txt(txt: endDate, maxLines: 1000, fontSize: 16)),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: txt(
-                          maxLines: 1,
-                          txt: 'Priority Level:',
-                          fontColor: Colors.black,
-                          fontSize: 16),
-                    ),
-                    Expanded(
-                        flex: 3,
-                        child: txt(txt: 'High', maxLines: 1000, fontSize: 16)),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Padding usersMsg(BuildContext context,
-      {DateTime? created,
-      String? comment,
-      String? type,
-      String? username,
-      String? filename,
-      String? nameFirstChar}) {
-    var formatter = DateFormat('MM/dd/yyyy');
-    final now = DateTime.now();
-    String formattedTime = DateFormat('k:mm:a').format(created!);
-    String formattedDateDay = formatter.format(created);
-    String formattedCommentDate = ', $formattedDateDay';
-    String formattedDateToday = formatter.format(now);
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            backgroundColor: const Color(brownishColor),
-            maxRadius: 25,
-            child: Center(
-              child: txt(
-                  txt: nameFirstChar!.capitalize.toString(),
-                  fontSize: 20,
-                  fontColor: Colors.white),
-            ),
-          ),
-          SizedBox(
-            width: screenWidth(context) * 0.005,
-          ),
-          // txt(
-          //   txt: '@${username!}:',
-          //   fontSize: 12,
-          //   maxLines: 1,
-          // ),
-          type == 'text'
-              ? Flexible(
-                  child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                          text: username!,
-                          style: GoogleFonts.montserrat(
-                            textStyle: const TextStyle(
-                                overflow: TextOverflow.visible,
-                                color: Color(brownishColor),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14),
-                          )),
-                      TextSpan(
-                          text:
-                              ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
-                          style: GoogleFonts.montserrat(
-                            textStyle: const TextStyle(
-                                overflow: TextOverflow.visible,
-                                color: Color(brownishColor),
-                                fontWeight: FontWeight.normal,
-                                fontSize: 14),
-                          )),
-                      TextSpan(
-                          text: comment!,
-                          style: GoogleFonts.montserrat(
-                            textStyle: const TextStyle(
-                                overflow: TextOverflow.visible,
-                                color: Color(brownishColor),
-                                fontWeight: FontWeight.normal,
-                                fontSize: 18),
-                          )),
-                    ],
-                  ),
-                ))
-              : InkWell(
-                  onTap: () {
-                    downloadFile(comment, filename);
-                  },
-                  child: screenWidth(context) < 1800
-                      ? SizedBox(
-                          width: screenWidth(context) * 0.15,
-                          height: screenHeight(context) * 0.075,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Flexible(
-                                child: Text.rich(
-                                  TextSpan(
-                                    children: [
-                                      TextSpan(
-                                          text: username!,
-                                          style: GoogleFonts.montserrat(
-                                            textStyle: const TextStyle(
-                                                overflow: TextOverflow.visible,
-                                                color: Color(brownishColor),
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 14),
-                                          )),
-                                      TextSpan(
-                                          text:
-                                              ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
-                                          style: GoogleFonts.montserrat(
-                                            textStyle: const TextStyle(
-                                                overflow: TextOverflow.visible,
-                                                color: Color(brownishColor),
-                                                fontWeight: FontWeight.normal,
-                                                fontSize: 14),
-                                          )),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const Spacer(),
-                              Container(
-                                width: screenWidth(context) * 0.1,
-                                height: screenHeight(context) * 0.045,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  color: const Color(secondaryColor),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.16),
-                                      offset: const Offset(0, 3.0),
-                                      blurRadius: 6.0,
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  children: [
-                                    Flexible(
-                                        child: Text.rich(
-                                      TextSpan(
-                                        children: [
-                                          TextSpan(
-                                              text: '@${username}:\n',
-                                              style: GoogleFonts.montserrat(
-                                                textStyle: const TextStyle(
-                                                    overflow:
-                                                        TextOverflow.visible,
-                                                    color: Color(brownishColor),
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 14),
-                                              )),
-                                        ],
-                                      ),
-                                    )),
-                                    Center(
-                                      child: txt(
-                                          txt: 'Download file',
-                                          fontSize: 14,
-                                          fontColor: Colors.white),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : SizedBox(
-                          width: screenWidth(context) * 0.15,
-                          height: screenHeight(context) * 0.075,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Flexible(
-                                child: Text.rich(
-                                  TextSpan(
-                                    children: [
-                                      TextSpan(
-                                          text: username!,
-                                          style: GoogleFonts.montserrat(
-                                            textStyle: const TextStyle(
-                                                overflow: TextOverflow.visible,
-                                                color: Color(brownishColor),
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 14),
-                                          )),
-                                      TextSpan(
-                                          text:
-                                              ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
-                                          style: GoogleFonts.montserrat(
-                                            textStyle: const TextStyle(
-                                                overflow: TextOverflow.visible,
-                                                color: Color(brownishColor),
-                                                fontWeight: FontWeight.normal,
-                                                fontSize: 14),
-                                          )),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const Spacer(),
-                              Container(
-                                width: screenWidth(context) * 0.1,
-                                height: screenHeight(context) * 0.045,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  color: const Color(secondaryColor),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.16),
-                                      offset: const Offset(0, 3.0),
-                                      blurRadius: 6.0,
-                                    ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.download,
-                                        color: Colors.white,
-                                      ),
-                                      SizedBox(
-                                        width: screenWidth(context) * 0.005,
-                                      ),
-                                      txt(
-                                          txt: 'click to download',
-                                          fontSize: 14,
-                                          fontColor: Colors.white),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
-        ],
-      ),
-    );
-  }
-
   Container taskBox() {
     return Container(
       decoration: BoxDecoration(
@@ -2089,27 +1515,5 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
         ],
       ),
     );
-  }
-
-  downloadFile(url, filename) async {
-    if (!kIsWeb) {
-      String? res = await FilePicker.platform.saveFile(
-        fileName: filename.split('.').first,
-      );
-
-      if (res != null) {
-        var dio = Dio();
-
-        var ext = filename.split('.').last;
-
-        String fullPath = "$res.$ext";
-        await dio.download(url, fullPath);
-      }
-    } else {
-      html.window.open(
-        url,
-        filename,
-      );
-    }
   }
 }
