@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:hovering/hovering.dart';
 import 'package:projectx/constants/style.dart';
@@ -143,7 +142,12 @@ class _RecentProjectsState extends State<RecentProjects> {
                                         width: screenWidth(context) < 600
                                             ? 0
                                             : screenWidth(context) * 0.55,
-                                        child: ListView.builder(
+                                        child: ListView.separated(
+                                            separatorBuilder: (context, index) {
+                                              return const SizedBox(
+                                                width: 15,
+                                              );
+                                            },
                                             scrollDirection: Axis.horizontal,
                                             itemCount: itemCount(
                                                 profileController
@@ -250,28 +254,25 @@ class _RecentProjectsState extends State<RecentProjects> {
 
   HoverContainer recentProjectBox({String? text}) {
     return HoverContainer(
-      hoverMargin: EdgeInsets.all(0),
-      margin: EdgeInsets.all(8),
+      width: 250,
+      hoverWidth: 250,
       decoration: BoxDecoration(
-        color: Color(secondaryColor).withOpacity(0.5),
+        color: const Color(secondaryColor).withOpacity(0.5),
         borderRadius: BorderRadius.circular(12.0),
       ),
       hoverDecoration: BoxDecoration(
-        color: Color(secondaryColor),
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: SizedBox(
-        width: 250,
-        child: Center(
-            child: txt(
-                txt: text!,
-                fontSize: 30.0,
-                maxLines: 1,
-                minFontSize: 24,
-                letterSpacing: 2,
-                overflow: TextOverflow.ellipsis,
-                fontColor: Colors.white)),
-      ),
+          color: const Color(secondaryColor),
+          borderRadius: BorderRadius.circular(12.0),
+          boxShadow: null),
+      child: Center(
+          child: txt(
+              txt: text!,
+              fontSize: 30.0,
+              maxLines: 1,
+              minFontSize: 24,
+              letterSpacing: 2,
+              overflow: TextOverflow.ellipsis,
+              fontColor: Colors.white)),
     );
   }
 }
