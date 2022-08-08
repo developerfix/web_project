@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:desktop_webview_auth/desktop_webview_auth.dart';
-import 'package:desktop_webview_auth/google.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -145,7 +143,6 @@ class AuthController extends GetxController {
           client.close();
         });
       } catch (err) {
-        print(err);
         // something went wrong
       }
     } else {

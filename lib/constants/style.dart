@@ -64,7 +64,7 @@ getErrorSnackBar(String message) {
     '',
     snackPosition: SnackPosition.BOTTOM,
     backgroundColor: Colors.red.shade100,
-    colorText: Colors.black87,
+    colorText: Colors.black38,
     borderRadius: 10,
     margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
   );

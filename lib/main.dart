@@ -36,6 +36,8 @@ void main() async {
   Get.put(AuthController());
 
   runApp(GetMaterialApp(
+      defaultTransition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 600),
       builder: (context, child) => ResponsiveWrapper.builder(
           BouncingScrollWrapper.builder(context, child!),
           // maxWidth: 1200,

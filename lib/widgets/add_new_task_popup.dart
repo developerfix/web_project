@@ -3,12 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:projectx/constants/style.dart';
-import 'package:projectx/controllers/profile_controller.dart';
 import 'package:projectx/controllers/project_controller.dart';
-import 'package:projectx/widgets/custom_appbar.dart';
-import 'package:projectx/widgets/popup_textfield.dart';
 
-import '../widgets/custom_drawer.dart';
 import '../widgets/select_task_members_popup.dart';
 
 String phaseValue = '3D Design';
@@ -19,17 +15,19 @@ String taskCoPilot = '';
 
 final titleController = TextEditingController();
 final descriptionController = TextEditingController();
+final endDateController = TextEditingController();
+final startDateController = TextEditingController();
 
 Future<dynamic> addNewTaskPopUp(BuildContext context) {
   final ProjectController projectController = Get.find();
-  final ProfileController profileController = Get.find();
-  int _value = 2;
+  int value = 2;
 
-  final GlobalKey<ScaffoldState> _key = GlobalKey();
+  final GlobalKey<ScaffoldState> key = GlobalKey();
 
   final formKey = GlobalKey<FormState>();
 
   return showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return Form(
@@ -41,7 +39,7 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
               child: LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
                 return Scaffold(
-                  key: _key,
+                  key: key,
                   body: SingleChildScrollView(
                     child: Padding(
                       padding: constraints.maxWidth < 800
@@ -128,14 +126,14 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                             if (newStartDate == null) {
                                               return;
                                             } else {
-                                              startdate = newStartDate;
+                                              startDateController.text =
+                                                  '${newStartDate.year}/${newStartDate.month}/${newStartDate.day}';
                                             }
                                           },
                                           child: TextFormField(
                                             enabled: false,
-
                                             maxLines: null,
-                                            // controller: commentController,
+                                            controller: startDateController,
                                             decoration: InputDecoration(
                                                 suffixIcon: const Icon(
                                                     Icons.date_range),
@@ -202,14 +200,14 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                             if (newStartDate == null) {
                                               return;
                                             } else {
-                                              startdate = newStartDate;
+                                              startDateController.text =
+                                                  '${newStartDate.year}/${newStartDate.month}/${newStartDate.day}';
                                             }
                                           },
                                           child: TextFormField(
                                             enabled: false,
-
                                             maxLines: null,
-                                            // controller: commentController,
+                                            controller: startDateController,
                                             decoration: InputDecoration(
                                                 suffixIcon: const Icon(
                                                     Icons.date_range),
@@ -277,14 +275,14 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                             if (newEndDate == null) {
                                               return;
                                             } else {
-                                              endDate = newEndDate;
+                                              endDateController.text =
+                                                  '${newEndDate.year}/${newEndDate.month}/${newEndDate.day}';
                                             }
                                           },
                                           child: TextFormField(
                                             enabled: false,
-
                                             maxLines: null,
-                                            // controller: commentController,
+                                            controller: endDateController,
                                             decoration: InputDecoration(
                                                 suffixIcon: const Icon(
                                                     Icons.date_range),
@@ -351,14 +349,14 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                             if (newEndDate == null) {
                                               return;
                                             } else {
-                                              endDate = newEndDate;
+                                              endDateController.text =
+                                                  '${newEndDate.year}/${newEndDate.month}/${newEndDate.day}';
                                             }
                                           },
                                           child: TextFormField(
                                             enabled: false,
-
                                             maxLines: null,
-                                            // controller: commentController,
+                                            controller: endDateController,
                                             decoration: InputDecoration(
                                                 suffixIcon: const Icon(
                                                     Icons.date_range),
@@ -417,9 +415,9 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                     ),
                                     Radio(
                                         value: 1,
-                                        groupValue: _value,
+                                        groupValue: value,
                                         onChanged: (val) {
-                                          _value = 1;
+                                          value = 1;
                                         }),
                                   ],
                                 ),
@@ -443,9 +441,9 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                     ),
                                     Radio(
                                         value: 2,
-                                        groupValue: _value,
+                                        groupValue: value,
                                         onChanged: (val) {
-                                          _value = 2;
+                                          value = 2;
                                         }),
                                   ],
                                 ),
@@ -469,9 +467,9 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                     ),
                                     Radio(
                                         value: 3,
-                                        groupValue: _value,
+                                        groupValue: value,
                                         onChanged: (val) {
-                                          _value = 3;
+                                          value = 3;
                                         }),
                                   ],
                                 ),
@@ -487,10 +485,47 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                               children: [
                                 InkWell(
                                   onTap: () {
-                                    if (titleController.text.isNotEmpty &&
-                                        descriptionController.text.isNotEmpty &&
-                                        taskCoPilot != '' &&
-                                        taskPilot != '') {
+                                    Get.back();
+                                    titleController.text = '';
+                                    descriptionController.text = '';
+                                    startDateController.text = '';
+                                    endDateController.text = '';
+                                    taskPilot = '';
+                                    taskCoPilot = '';
+                                    startdate = DateTime.now();
+                                    endDate = DateTime.now();
+                                    phaseValue = '3D Design';
+                                    value = 2;
+                                  },
+                                  child: Container(
+                                    width: constraints.maxWidth < 800
+                                        ? screenWidth(context) * 0.3
+                                        : screenWidth(context) * 0.1,
+                                    height: screenHeight(context) * 0.05,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12.0),
+                                      color: const Color(0xFF958890),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.23),
+                                          offset: const Offset(0, 3.0),
+                                          blurRadius: 9.0,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Center(
+                                        child: txt(
+                                            txt: 'Cancel',
+                                            fontSize: 15,
+                                            fontColor: Colors.white)),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: screenWidth(context) * 0.005,
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    if (titleController.text.isNotEmpty) {
                                       Get.back();
                                       projectController.addNewTask(
                                           taskTitle: titleController.text,
@@ -499,15 +534,29 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                               descriptionController.text,
                                           pilot: taskPilot,
                                           copilot: taskCoPilot,
-                                          startDate:
-                                              '${startdate.year}/${startdate.month}/${startdate.day}',
-                                          endDate:
-                                              '${endDate.year}/${endDate.month}/${endDate.day}',
+                                          startDate: startDateController
+                                                  .text.isEmpty
+                                              ? '${startdate.year}/${startdate.month}/${startdate.day}'
+                                              : startDateController.text,
+                                          endDate: endDateController
+                                                  .text.isEmpty
+                                              ? '${endDate.year}/${endDate.month}/${endDate.day}'
+                                              : endDateController.text,
                                           status: 'todo',
-                                          priorityLevel: _value);
+                                          priorityLevel: value);
+                                      titleController.text = '';
+                                      descriptionController.text = '';
+                                      startDateController.text = '';
+                                      endDateController.text = '';
+                                      taskPilot = '';
+                                      taskCoPilot = '';
+                                      startdate = DateTime.now();
+                                      endDate = DateTime.now();
+                                      phaseValue = '3D Design';
+                                      value = 2;
                                     } else {
                                       getErrorSnackBar(
-                                          "Please fillout all the details");
+                                          "Please fillout the taskname");
                                     }
                                   },
                                   child: Container(

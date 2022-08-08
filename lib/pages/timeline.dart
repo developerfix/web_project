@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gantt_chart/gantt_chart.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/profile_controller.dart';

@@ -142,7 +142,7 @@ Padding usersMsg(BuildContext context,
                                     TextSpan(
                                       children: [
                                         TextSpan(
-                                            text: '@${username}:\n',
+                                            text: '@$username:\n',
                                             style: GoogleFonts.montserrat(
                                               textStyle: const TextStyle(
                                                   overflow:

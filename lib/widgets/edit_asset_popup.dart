@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 
 import '../controllers/project_controller.dart';
 
-Future<dynamic> addAssetPopUp(BuildContext context) {
+Future<dynamic> editAssetPopUp(BuildContext context,
+    {String? path, String? pathName}) {
   final pathController = TextEditingController();
   final pathNameController = TextEditingController();
 
@@ -28,7 +29,7 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                     : const EdgeInsets.all(20.0),
                 child: Column(children: <Widget>[
                   txt(
-                    txt: 'ADD ASSET',
+                    txt: 'EDIT ASSET',
                     font: 'comfortaa',
                     fontSize: screenWidth(context) < 800 ? 20 : 40,
                     letterSpacing: 6,
@@ -56,7 +57,7 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                                 ),
                                 popUpTextField(context,
                                     controller: pathController,
-                                    hint:
+                                    hint: path ??
                                         'https://www.youtube.com/channel/UCYfdidRxbB8Qhf0Nx7ioOYw'),
                                 SizedBox(
                                   width: screenWidth(context) * 0.03,
@@ -73,7 +74,8 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                                 ),
                                 popUpTextField(context,
                                     controller: pathController,
-                                    hint: 'exp: Youtube news section'),
+                                    hint: pathName ??
+                                        'exp: Youtube news section'),
                               ],
                             )
                           : Column(
@@ -92,7 +94,7 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                                     ),
                                     popUpTextField(context,
                                         controller: pathController,
-                                        hint:
+                                        hint: path ??
                                             'https://www.youtube.com/channel/UCYfdidRxbB8Qhf0Nx7ioOYw'),
                                   ],
                                 ),
@@ -113,7 +115,8 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                                     ),
                                     popUpTextField(context,
                                         controller: pathNameController,
-                                        hint: 'exp: Youtube news section'),
+                                        hint: pathName ??
+                                            'exp: Youtube news section'),
                                   ],
                                 ),
                               ],
@@ -157,10 +160,11 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                         width: screenWidth(context) * 0.01,
                       ),
                       InkWell(
-                        onTap: () {
+                        onTap: () async {
                           if (formKey.currentState!.validate()) {
                             Get.back();
-                            projectController.addNewAsset(
+                            projectController.deleteProjectAsset(path: path);
+                            projectController.editAsset(
                               path: pathController.text.trim(),
                               pathName: pathNameController.text.trim(),
                             );
@@ -184,7 +188,7 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                           ),
                           child: Center(
                               child: txt(
-                                  txt: 'Add',
+                                  txt: 'EDIT',
                                   fontSize: 15,
                                   fontColor: Colors.white)),
                         ),

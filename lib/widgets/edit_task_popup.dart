@@ -5,26 +5,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/profile_controller.dart';
 import 'package:projectx/controllers/project_controller.dart';
-import 'package:projectx/widgets/custom_appbar.dart';
-import 'package:projectx/widgets/popup_textfield.dart';
 
 import '../controllers/auth_controller.dart';
-import 'custom_drawer.dart';
 import 'select_task_members_popup.dart';
 
 final ProjectController projectController = Get.find();
 final ProfileController profileController = Get.find();
 final _uid = AuthController.instance.user!.uid;
-int _value = 1;
 
 final titleController = TextEditingController();
 final descriptionController = TextEditingController();
-
-final GlobalKey<ScaffoldState> _key = GlobalKey();
+final endDateController = TextEditingController();
+final startDateController = TextEditingController();
 
 String phaseValue = '';
-DateTime starttdate = DateTime.now();
-DateTime enddDate = DateTime.now();
 String taskPilot = '';
 String taskCoPilot = '';
 
@@ -41,14 +35,14 @@ Future<dynamic> editTaskPopUp(
   final int? priorityLevel,
 }) {
   final ProjectController projectController = Get.find();
-  final ProfileController profileController = Get.find();
-  int _value = 2;
+  int value = 2;
 
-  final GlobalKey<ScaffoldState> _key = GlobalKey();
+  final GlobalKey<ScaffoldState> key = GlobalKey();
 
   final formKey = GlobalKey<FormState>();
 
   return showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return Form(
@@ -60,7 +54,7 @@ Future<dynamic> editTaskPopUp(
               child: LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
                 return Scaffold(
-                  key: _key,
+                  key: key,
                   body: SingleChildScrollView(
                     child: Padding(
                       padding: constraints.maxWidth < 800
@@ -147,25 +141,21 @@ Future<dynamic> editTaskPopUp(
                                             if (newStartDate == null) {
                                               return;
                                             } else {
-                                              starttdate = newStartDate;
+                                              startDateController.text =
+                                                  '${newStartDate.year}/${newStartDate.month}/${newStartDate.day}';
                                             }
                                           },
                                           child: TextFormField(
                                             enabled: false,
-
                                             maxLines: null,
-                                            // controller: commentController,
+                                            controller: startDateController,
                                             decoration: InputDecoration(
                                                 suffixIcon: const Icon(
                                                     Icons.date_range),
                                                 suffixIconColor:
                                                     const Color(secondaryColor),
                                                 border: InputBorder.none,
-                                                hintText: startDate ==
-                                                        DateTime.now()
-                                                            .toString()
-                                                    ? startDate
-                                                    : '${starttdate.year}/${starttdate.month}/${starttdate.day}',
+                                                hintText: startDate,
                                                 hintStyle: const TextStyle(
                                                     color: Color(brownishColor),
                                                     fontWeight:
@@ -224,25 +214,21 @@ Future<dynamic> editTaskPopUp(
                                             if (newStartDate == null) {
                                               return;
                                             } else {
-                                              starttdate = newStartDate;
+                                              startDateController.text =
+                                                  '${newStartDate.year}/${newStartDate.month}/${newStartDate.day}';
                                             }
                                           },
                                           child: TextFormField(
                                             enabled: false,
-
                                             maxLines: null,
-                                            // controller: commentController,
+                                            controller: startDateController,
                                             decoration: InputDecoration(
                                                 suffixIcon: const Icon(
                                                     Icons.date_range),
                                                 suffixIconColor:
                                                     const Color(secondaryColor),
                                                 border: InputBorder.none,
-                                                hintText: startDate ==
-                                                        DateTime.now()
-                                                            .toString()
-                                                    ? startDate
-                                                    : '${starttdate.year}/${starttdate.month}/${starttdate.day}',
+                                                hintText: startDate,
                                                 hintStyle: const TextStyle(
                                                     color: Color(brownishColor),
                                                     fontWeight:
@@ -302,25 +288,21 @@ Future<dynamic> editTaskPopUp(
                                             if (newEndDate == null) {
                                               return;
                                             } else {
-                                              enddDate = newEndDate;
+                                              endDateController.text =
+                                                  '${newEndDate.year}/${newEndDate.month}/${newEndDate.day}';
                                             }
                                           },
                                           child: TextFormField(
                                             enabled: false,
-
                                             maxLines: null,
-                                            // controller: commentController,
+                                            controller: endDateController,
                                             decoration: InputDecoration(
                                                 suffixIcon: const Icon(
                                                     Icons.date_range),
                                                 suffixIconColor:
                                                     const Color(secondaryColor),
                                                 border: InputBorder.none,
-                                                hintText: endDate ==
-                                                        DateTime.now()
-                                                            .toString()
-                                                    ? endDate
-                                                    : '${enddDate.year}/${enddDate.month}/${enddDate.day}',
+                                                hintText: endDate,
                                                 hintStyle: const TextStyle(
                                                     color: Color(brownishColor),
                                                     fontWeight:
@@ -379,25 +361,21 @@ Future<dynamic> editTaskPopUp(
                                             if (newEndDate == null) {
                                               return;
                                             } else {
-                                              enddDate = newEndDate;
+                                              endDateController.text =
+                                                  '${newEndDate.year}/${newEndDate.month}/${newEndDate.day}';
                                             }
                                           },
                                           child: TextFormField(
                                             enabled: false,
-
+                                            controller: endDateController,
                                             maxLines: null,
-                                            // controller: commentController,
                                             decoration: InputDecoration(
                                                 suffixIcon: const Icon(
                                                     Icons.date_range),
                                                 suffixIconColor:
                                                     const Color(secondaryColor),
                                                 border: InputBorder.none,
-                                                hintText: endDate ==
-                                                        DateTime.now()
-                                                            .toString()
-                                                    ? endDate
-                                                    : '${enddDate.year}/${enddDate.month}/${enddDate.day}',
+                                                hintText: endDate,
                                                 hintStyle: const TextStyle(
                                                     color: Color(brownishColor),
                                                     fontWeight:
@@ -448,9 +426,9 @@ Future<dynamic> editTaskPopUp(
                                     ),
                                     Radio(
                                         value: 1,
-                                        groupValue: _value,
+                                        groupValue: value,
                                         onChanged: (val) {
-                                          _value = 1;
+                                          value = 1;
                                         }),
                                   ],
                                 ),
@@ -474,9 +452,9 @@ Future<dynamic> editTaskPopUp(
                                     ),
                                     Radio(
                                         value: 2,
-                                        groupValue: _value,
+                                        groupValue: value,
                                         onChanged: (val) {
-                                          _value = 2;
+                                          value = 2;
                                         }),
                                   ],
                                 ),
@@ -500,9 +478,9 @@ Future<dynamic> editTaskPopUp(
                                     ),
                                     Radio(
                                         value: 3,
-                                        groupValue: _value,
+                                        groupValue: value,
                                         onChanged: (val) {
-                                          _value = 3;
+                                          value = 3;
                                         }),
                                   ],
                                 ),
@@ -518,28 +496,81 @@ Future<dynamic> editTaskPopUp(
                               children: [
                                 InkWell(
                                   onTap: () {
-                                    if (titleController.text.isNotEmpty &&
-                                        descriptionController.text.isNotEmpty &&
-                                        taskCoPilot != '' &&
-                                        taskPilot != '') {
-                                      Get.back();
-                                      projectController.addNewTask(
-                                          taskTitle: titleController.text,
-                                          phase: phaseValue,
-                                          taskDescription:
-                                              descriptionController.text,
-                                          pilot: taskPilot,
-                                          copilot: taskCoPilot,
-                                          startDate:
-                                              '${starttdate.year}/${starttdate.month}/${starttdate.day}',
-                                          endDate:
-                                              '${enddDate.year}/${enddDate.month}/${enddDate.day}',
-                                          status: 'todo',
-                                          priorityLevel: _value);
-                                    } else {
-                                      getErrorSnackBar(
-                                          "Please fillout all the details");
-                                    }
+                                    Get.back();
+                                    titleController.text = '';
+                                    descriptionController.text = '';
+                                    taskPilot = '';
+                                    taskCoPilot = '';
+                                    endDateController.text = '';
+                                    startDateController.text = '';
+                                    phaseValue = '3D Design';
+                                    value = 2;
+                                  },
+                                  child: Container(
+                                    width: constraints.maxWidth < 800
+                                        ? screenWidth(context) * 0.3
+                                        : screenWidth(context) * 0.1,
+                                    height: screenHeight(context) * 0.05,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12.0),
+                                      color: const Color(0xFF958890),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.23),
+                                          offset: const Offset(0, 3.0),
+                                          blurRadius: 9.0,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Center(
+                                        child: txt(
+                                            txt: 'Cancel',
+                                            fontSize: 15,
+                                            fontColor: Colors.white)),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: screenWidth(context) * 0.005,
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    Get.back();
+                                    projectController.updateTask(
+                                        oldTaskDescription: taskDescription,
+                                        oldTaskTitle: taskTitle,
+                                        taskTitle: titleController.text.isEmpty
+                                            ? taskTitle
+                                            : titleController.text,
+                                        phase: phaseValue == ''
+                                            ? phase
+                                            : phaseValue,
+                                        taskDescription:
+                                            descriptionController.text.isEmpty
+                                                ? taskDescription
+                                                : descriptionController.text,
+                                        pilot:
+                                            taskPilot == '' ? pilot : taskPilot,
+                                        copilot: taskCoPilot == ''
+                                            ? copilot
+                                            : taskCoPilot,
+                                        startDate:
+                                            startDateController.text.isEmpty
+                                                ? startDate
+                                                : startDateController.text,
+                                        endDate: endDateController.text.isEmpty
+                                            ? endDate
+                                            : endDateController.text,
+                                        status: status,
+                                        priorityLevel: value);
+
+                                    titleController.text = '';
+                                    descriptionController.text = '';
+                                    taskPilot = '';
+                                    taskCoPilot = '';
+                                    endDateController.text = '';
+                                    startDateController.text = '';
+                                    phaseValue = '3D Design';
+                                    value = 2;
                                   },
                                   child: Container(
                                     width: constraints.maxWidth < 800

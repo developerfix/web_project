@@ -650,6 +650,59 @@ class ProjectController extends GetxController {
     }
   }
 
+  void editAsset({type, path, pathName}) async {
+    assets.insert(0, {"type": type, "path": path, "pathName": pathName});
+    if (!kIsWeb) {
+      try {
+        for (var member in projectMembers) {
+          await firedartFirestore
+              .collection('users')
+              .document(member['uid'])
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('assets')
+              .add({
+            "type": type,
+            "path": path,
+            "pathName": pathName,
+            "created": DateTime.now()
+                .millisecondsSinceEpoch
+                .toString()
+                .substring(0, 10)
+          });
+        }
+      } catch (e) {
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
+      }
+    } else {
+      try {
+        for (var member in projectMembers) {
+          await firestore
+              .collection('users')
+              .doc(member['uid'])
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('assets')
+              .add({
+            "type": type,
+            "path": path,
+            "pathName": pathName,
+            "created": DateTime.now()
+                .millisecondsSinceEpoch
+                .toString()
+                .substring(0, 10)
+          });
+        }
+      } catch (e) {
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
+      }
+    }
+  }
+
   getProjectComments() async {
     comments.clear();
     if (!kIsWeb) {
@@ -1214,7 +1267,6 @@ class ProjectController extends GetxController {
 
         getSuccessSnackBar("Members updated successfully");
       } catch (e) {
-        print(e);
         isMembersUpdating.value = false;
         getErrorSnackBar(
           "Something went wrong, Please try again",
