@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/project_controller.dart';
+import 'package:projectx/widgets/edit_task_popup.dart';
 
 import '../widgets/select_task_members_popup.dart';
+import 'loading_indicator.dart';
 
 String phaseValue = '3D Design';
 DateTime startdate = DateTime.now();
@@ -18,9 +21,10 @@ final descriptionController = TextEditingController();
 final endDateController = TextEditingController();
 final startDateController = TextEditingController();
 
+int selectedValue = 0;
+
 Future<dynamic> addNewTaskPopUp(BuildContext context) {
   final ProjectController projectController = Get.find();
-  int value = 2;
 
   final GlobalKey<ScaffoldState> key = GlobalKey();
 
@@ -395,86 +399,37 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                      width: constraints.maxWidth < 800
-                                          ? null
-                                          : screenWidth(context) * 0.1,
-                                      child: txt(
-                                        minFontSize: 18,
-                                        maxLines: constraints.maxWidth < 800
-                                            ? null
-                                            : 1,
-                                        txt: 'High Priority',
-                                        fontSize: 30,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: screenHeight(context) * 0.04,
-                                    ),
-                                    Radio(
-                                        value: 1,
-                                        groupValue: value,
-                                        onChanged: (val) {
-                                          value = 1;
-                                        }),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                      width: constraints.maxWidth < 800
-                                          ? null
-                                          : screenWidth(context) * 0.1,
-                                      child: txt(
-                                        minFontSize: 18,
-                                        maxLines: constraints.maxWidth < 800
-                                            ? null
-                                            : 1,
-                                        txt: 'Regular Priority',
-                                        fontSize: 30,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: screenHeight(context) * 0.04,
-                                    ),
-                                    Radio(
-                                        value: 2,
-                                        groupValue: value,
-                                        onChanged: (val) {
-                                          value = 2;
-                                        }),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                      width: constraints.maxWidth < 800
-                                          ? null
-                                          : screenWidth(context) * 0.1,
-                                      child: txt(
-                                        minFontSize: 18,
-                                        maxLines: constraints.maxWidth < 800
-                                            ? null
-                                            : 1,
-                                        txt: 'Future Priority',
-                                        fontSize: 30,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: screenHeight(context) * 0.04,
-                                    ),
-                                    Radio(
-                                        value: 3,
-                                        groupValue: value,
-                                        onChanged: (val) {
-                                          value = 3;
-                                        }),
-                                  ],
-                                ),
+                                StatefulBuilder(builder: (context, setState) {
+                                  return priorityWidget(
+                                      constraints, context, 'High Priority', 1,
+                                      (int? val) {
+                                    setState(() {
+                                      selectedValue = val!;
+                                    });
+                                  });
+                                }),
+                                StatefulBuilder(builder: (context, setState) {
+                                  return priorityWidget(constraints, context,
+                                      'Medium Priority', 2, (int? val) {
+                                    setState(() {
+                                      selectedValue = val!;
+                                    });
+                                  });
+                                }),
+                                StatefulBuilder(builder: (context, setState) {
+                                  return priorityWidget(constraints, context,
+                                      'Future Priority', 3, (int? val) {
+                                    setState(() {
+                                      selectedValue = val!;
+                                    });
+                                  });
+                                }),
                               ],
                             ),
+                          ),
+                          deliverablesWidget(context),
+                          SizedBox(
+                            height: screenWidth(context) * 0.03,
                           ),
                           SizedBox(
                             width: screenWidth(context) * 0.5,
@@ -495,7 +450,9 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                     startdate = DateTime.now();
                                     endDate = DateTime.now();
                                     phaseValue = '3D Design';
-                                    value = 2;
+                                    selectedValue = 2;
+                                    projectController.selectedDeliverables
+                                        .clear();
                                   },
                                   child: Container(
                                     width: constraints.maxWidth < 800
@@ -534,6 +491,8 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                               descriptionController.text,
                                           pilot: taskPilot,
                                           copilot: taskCoPilot,
+                                          deliverables: projectController
+                                              .selectedDeliverables,
                                           startDate: startDateController
                                                   .text.isEmpty
                                               ? '${startdate.year}/${startdate.month}/${startdate.day}'
@@ -543,7 +502,7 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                               ? '${endDate.year}/${endDate.month}/${endDate.day}'
                                               : endDateController.text,
                                           status: 'todo',
-                                          priorityLevel: value);
+                                          priorityLevel: selectedValue);
                                       titleController.text = '';
                                       descriptionController.text = '';
                                       startDateController.text = '';
@@ -553,7 +512,9 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                       startdate = DateTime.now();
                                       endDate = DateTime.now();
                                       phaseValue = '3D Design';
-                                      value = 2;
+                                      selectedValue = 2;
+                                      projectController.selectedDeliverables
+                                          .clear();
                                     } else {
                                       getErrorSnackBar(
                                           "Please fillout the taskname");
@@ -595,6 +556,33 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
           ),
         );
       });
+}
+
+StatefulBuilder priorityWidget(BoxConstraints constraints, BuildContext context,
+    String? priorityLabel, int? value, Function(int?)? onChanged) {
+  return StatefulBuilder(builder: (context, setState) {
+    return Row(
+      children: [
+        SizedBox(
+          width: constraints.maxWidth < 800 ? null : screenWidth(context) * 0.1,
+          child: txt(
+            minFontSize: 18,
+            maxLines: constraints.maxWidth < 800 ? null : 1,
+            txt: priorityLabel!,
+            fontSize: 30,
+          ),
+        ),
+        SizedBox(
+          height: screenHeight(context) * 0.04,
+        ),
+        Radio(
+          value: value!,
+          groupValue: selectedValue,
+          onChanged: onChanged,
+        )
+      ],
+    );
+  });
 }
 
 StatefulBuilder copilotWidget(BuildContext context) {
@@ -721,6 +709,166 @@ StatefulBuilder copilotWidget(BuildContext context) {
   });
 }
 
+StatefulBuilder deliverablesWidget(BuildContext context) {
+  return StatefulBuilder(builder: (context, setState) {
+    return Obx(() {
+      return Container(
+          child: screenWidth(context) < 800
+              ? Container()
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: screenWidth(context) * 0.1,
+                      child: txt(
+                        minFontSize: 18,
+                        maxLines: 1,
+                        txt: 'Deliverables:',
+                        fontSize: 30,
+                      ),
+                    ),
+                    SizedBox(
+                      width: screenWidth(context) * 0.04,
+                    ),
+                    projectController
+                            .isSelectedDeliverablesUpdatingBefore.isTrue
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const LoadingIndicator(),
+                              txt(
+                                  txt: 'Please wait\n File is being uploaded',
+                                  fontSize: 14)
+                            ],
+                          )
+                        : projectController.deliverableUplaodingProgress.value !=
+                                    100 &&
+                                projectController
+                                        .deliverableUplaodingProgress.value !=
+                                    0.0
+                            ? SizedBox(
+                                height: 40,
+                                width: 350,
+                                child: LiquidLinearProgressIndicator(
+                                    value: projectController
+                                            .deliverableUplaodingProgress
+                                            .value /
+                                        100,
+                                    valueColor: const AlwaysStoppedAnimation(Color(
+                                        secondaryColor)), // Defaults to the current Theme's accentColor.
+                                    backgroundColor: Colors.white,
+                                    borderColor: const Color(mainColor),
+                                    borderWidth: 5.0,
+                                    borderRadius: 12.0,
+                                    direction: Axis.horizontal,
+                                    center: txt(
+                                        txt:
+                                            "${projectController.deliverableUplaodingProgress.value.ceil()}%",
+                                        fontSize: 18)))
+                            : projectController
+                                    .isSelectedDeliverablesUpdatingAfter.isTrue
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const LoadingIndicator(),
+                                      txt(
+                                          txt: 'Uploading, Almost finished',
+                                          fontSize: 14)
+                                    ],
+                                  )
+                                : projectController.selectedDeliverables.isEmpty
+                                    ? ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all(
+                                                  const Color(secondaryColor)),
+                                        ),
+                                        onPressed: () {
+                                          // addTaskDeliverables()
+                                          projectController
+                                              .addTaskDeliverables();
+                                        },
+                                        child: Center(
+                                          child: txt(
+                                              txt: 'upload',
+                                              fontColor: Colors.white,
+                                              fontSize: 14),
+                                        ))
+                                    : SizedBox(
+                                        width: screenWidth(context) * 0.2,
+                                        height: screenHeight(context) * 0.2,
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: GridView.builder(
+                                                  itemCount: projectController
+                                                      .selectedDeliverables
+                                                      .length,
+                                                  gridDelegate:
+                                                      const SliverGridDelegateWithMaxCrossAxisExtent(
+                                                          maxCrossAxisExtent:
+                                                              200,
+                                                          childAspectRatio: 2,
+                                                          crossAxisSpacing: 20,
+                                                          mainAxisSpacing: 20),
+                                                  itemBuilder:
+                                                      ((context, index) {
+                                                    return Container(
+                                                        margin: const EdgeInsets
+                                                            .all(8.0),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        decoration: BoxDecoration(
+                                                            border: Border.all(
+                                                                color: const Color(
+                                                                    secondaryColor))),
+                                                        child: Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child: txt(
+                                                                  txt: projectController
+                                                                              .selectedDeliverables[
+                                                                          index]
+                                                                      [
+                                                                      'filename'],
+                                                                  maxLines: 2,
+                                                                  fontSize: 16),
+                                                            ),
+                                                            InkWell(
+                                                                onTap: () {
+                                                                  projectController
+                                                                      .selectedDeliverables
+                                                                      .removeAt(
+                                                                          index);
+                                                                },
+                                                                child: const Icon(
+                                                                    Icons
+                                                                        .close))
+                                                          ],
+                                                        ));
+                                                  })),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                projectController
+                                                    .addTaskDeliverables();
+                                              },
+                                              child: const Icon(
+                                                Icons.attach_file,
+                                                color: Color(secondaryColor),
+                                              ),
+                                            ),
+                                          ],
+                                        )),
+                  ],
+                ));
+    });
+  });
+}
+
 StatefulBuilder pilotWidget(BuildContext context) {
   return StatefulBuilder(builder: (context, setState) {
     return Container(
@@ -767,9 +915,7 @@ StatefulBuilder pilotWidget(BuildContext context) {
                         },
                         child: TextFormField(
                           enabled: false,
-
                           maxLines: null,
-                          // controller: commentController,
                           decoration: InputDecoration(
                               suffixIcon: const Icon(Icons.person_add),
                               suffixIconColor: const Color(secondaryColor),

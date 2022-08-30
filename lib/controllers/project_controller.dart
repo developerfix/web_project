@@ -18,6 +18,9 @@ class ProjectController extends GetxController {
   Map<String, dynamic> get project => _project.value;
 
   RxBool isCommentFileUpdatingBefore = false.obs;
+  RxBool isSelectedDeliverablesUpdatingBefore = false.obs;
+  RxBool isSelectedDeliverablesUpdatingAfter = false.obs;
+
   RxBool isCommentFileUpdatingAfter = false.obs;
   RxBool isTasksUpdating = false.obs;
   RxBool isNewTasksUpdating = false.obs;
@@ -29,7 +32,9 @@ class ProjectController extends GetxController {
   RxList<dynamic> toDoTasks = <dynamic>[].obs;
   RxList<dynamic> inProgressTasks = <dynamic>[].obs;
   RxList<dynamic> completedTasks = <dynamic>[].obs;
+  RxList<dynamic> selectedDeliverables = <dynamic>[].obs;
   Rx<double> progress = 0.0.obs;
+  Rx<double> deliverableUplaodingProgress = 0.0.obs;
 
   Rx<String> _uid = "".obs;
   Rx<String> _projectId = "".obs;
@@ -867,6 +872,61 @@ class ProjectController extends GetxController {
     }
   }
 
+  addTaskDeliverables() async {
+    FilePickerResult? result = await FilePicker.platform
+        .pickFiles(withData: true, allowMultiple: true);
+
+    if (result != null) {
+      Map<String?, Uint8List?> files = {};
+
+      for (int i = 0; i < result.files.length; i++) {
+        files[result.files[i].name] = result.files[i].bytes;
+      }
+
+      files.forEach((key, value) {
+        String? urlDownload;
+
+        try {
+          isSelectedDeliverablesUpdatingBefore.value = true;
+          var storage =
+              firebase_dart_storage.FirebaseStorage.instanceFor(app: app);
+          var ref = storage.ref().child("files/$key").putData(value!);
+
+          ref.snapshotEvents.listen((event) {
+            isSelectedDeliverablesUpdatingBefore.value = false;
+            deliverableUplaodingProgress.value =
+                ((event.bytesTransferred.toDouble() /
+                        event.totalBytes.toDouble()) *
+                    100);
+            if (event.state == firebase_dart_storage.TaskState.success) {
+              isSelectedDeliverablesUpdatingAfter.value = true;
+
+              event.ref.getDownloadURL().then((downloadUrl) async {
+                urlDownload = downloadUrl;
+
+                selectedDeliverables.add({
+                  "urlDownload": urlDownload,
+                  "filename": event.ref.name,
+                });
+
+                isSelectedDeliverablesUpdatingAfter.value = false;
+              });
+            }
+          });
+        } catch (e) {
+          isSelectedDeliverablesUpdatingBefore.value = false;
+          isSelectedDeliverablesUpdatingAfter.value = false;
+          //define error
+          getErrorSnackBar(
+            "Something went wrong, Please try again",
+          );
+        }
+      });
+    } else {
+      // User canceled the picker
+    }
+  }
+
   addNewComment({comment, username, created}) async {
     comments.add({
       "type": 'text',
@@ -932,8 +992,11 @@ class ProjectController extends GetxController {
       String? startDate,
       String? endDate,
       String? status,
+      List? deliverables,
       int? priorityLevel}) async {
     isTasksUpdating.value = true;
+
+    // FutureGroup futureGroup = FutureGroup();
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
@@ -947,34 +1010,71 @@ class ProjectController extends GetxController {
     try {
       if (!kIsWeb) {
         for (var i = 0; i < projectMembers.length; i++) {
-          await firedartFirestore
+          firedartFirestore
               .collection('users')
               .document(projectMembers[i]['uid'])
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
-              .add(task.toJson());
+              .add(task.toJson())
+              .then((value) async {
+            print(' deliverables: ${deliverables!.length}');
+            for (var item in deliverables) {}
+            // for (var item in deliverables!) {
+            //   firedartFirestore
+            //       .collection('users')
+            //       .document(projectMembers[i]['uid'])
+            //       .collection('projects')
+            //       .document(_projectId.value)
+            //       .collection('tasks')
+            //       .document(value.id)
+            //       .collection('deliverables')
+            //       .add({
+            //     "urlDownload": item['urlDownload'],
+            //     "filename": item['filename']
+            //   });
+            // }
+          });
         }
       } else {
         for (var i = 0; i < projectMembers.length; i++) {
-          await firestore
+          firestore
               .collection('users')
               .doc(projectMembers[i]['uid'])
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
-              .add(task.toJson());
+              .add(task.toJson())
+              .then((value) async {
+            for (var item in deliverables!) {
+              print(item);
+              // await firestore
+              //     .collection('users')
+              //     .doc(projectMembers[i]['uid'])
+              //     .collection('projects')
+              //     .doc(_projectId.value)
+              //     .collection('tasks')
+              //     .doc(value.id)
+              //     .collection('deliverables')
+              //     .add({
+              //   "urlDownload": item['urlDownload'],
+              //   "filename": item['filename']
+              // });
+            }
+          });
         }
       }
+      // futureGroup.close();
       getProjectTasks(); // toDoTasks.add(task);
       isTasksUpdating.value = false;
       getSuccessSnackBar("task added successfully");
     } catch (e) {
       isTasksUpdating.value = false;
       //define error
+      print(e);
       getErrorSnackBar(
-        "Something went wrong, Please try again",
-      );
+          // "Something went wrong, Please try again",
+          '$e');
     }
   }
 

@@ -61,7 +61,9 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                 return Scaffold(
                     key: _key,
                     drawerEnableOpenDragGesture: false,
-                    appBar: customAppBar(context, isNeedAppbar: false),
+                    appBar: customAppBar(context,
+                        username: profileController.user['name'],
+                        isNeedAppbar: false),
                     drawer: assetsSection(context),
                     endDrawer: const EndDrawerWidget(),
                     body: SizedBox(

@@ -130,7 +130,7 @@ class _RecentProjectsState extends State<RecentProjects> {
                                     letterSpacing: 8.0,
                                     fontColor: Colors.white),
                                 SizedBox(
-                                  height: screenHeight(context) * 0.03,
+                                  height: screenHeight(context) * 0.15,
                                 ),
                                 SizedBox(
                                   height: screenHeight(context) * 0.17,
@@ -225,7 +225,7 @@ class _RecentProjectsState extends State<RecentProjects> {
                           children: [
                             txt(
                                 txt: 'Create New Project',
-                                fontSize: 30.0,
+                                fontSize: 40.0,
                                 font: 'Comfortaa',
                                 fontColor: Colors.white,
                                 letterSpacing: 2),
@@ -267,8 +267,9 @@ class _RecentProjectsState extends State<RecentProjects> {
       child: Center(
           child: txt(
               txt: text!,
+              textAlign: TextAlign.center,
               fontSize: 30.0,
-              maxLines: 1,
+              maxLines: 3,
               minFontSize: 24,
               letterSpacing: 2,
               overflow: TextOverflow.ellipsis,

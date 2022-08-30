@@ -54,7 +54,7 @@ void main() async {
       scrollBehavior: MyCustomScrollBehavior(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        fontFamily: 'Montserrat',
       ),
       home: const MyApp()));
 }

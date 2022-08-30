@@ -198,7 +198,6 @@ class _TimelineState extends State<Timeline> {
         key: _key,
         appBar: customAppBar(
           context,
-          color: const Color(mainColor),
           username: profileController.user['name'],
           title: txt(
               txt: 'Timeline view',

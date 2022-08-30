@@ -161,13 +161,53 @@ Future<dynamic> editAssetPopUp(BuildContext context,
                       ),
                       InkWell(
                         onTap: () async {
-                          if (formKey.currentState!.validate()) {
-                            Get.back();
-                            projectController.deleteProjectAsset(path: path);
-                            projectController.editAsset(
-                              path: pathController.text.trim(),
-                              pathName: pathNameController.text.trim(),
-                            );
+                          if (pathNameController.text.isEmpty &&
+                              pathController.text.isEmpty) {
+                            getErrorSnackBar("Please make some changes first");
+                          } else {
+                            bool validURL =
+                                Uri.parse(pathController.text).isAbsolute;
+                            if (pathController.text.contains('https://')) {
+                              if (validURL) {
+                                Get.back();
+                                projectController.deleteProjectAsset(
+                                    path: path);
+                                projectController.editAsset(
+                                  path: pathController.text.isEmpty
+                                      ? path
+                                      : pathController.text.trim(),
+                                  pathName: pathNameController.text.isEmpty
+                                      ? pathName
+                                      : pathNameController.text.trim(),
+                                );
+                              } else {
+                                getErrorSnackBar(
+                                    'Please enter a valid url path');
+                              }
+                            } else {
+                              pathController.text =
+                                  'https://${pathController.text}';
+
+                              bool validURL =
+                                  Uri.parse(pathController.text).isAbsolute;
+
+                              if (validURL) {
+                                Get.back();
+                                projectController.deleteProjectAsset(
+                                    path: path);
+                                projectController.editAsset(
+                                  path: pathController.text.isEmpty
+                                      ? path
+                                      : pathController.text.trim(),
+                                  pathName: pathNameController.text.isEmpty
+                                      ? pathName
+                                      : pathNameController.text.trim(),
+                                );
+                              } else {
+                                getErrorSnackBar(
+                                    'Please enter a valid url path');
+                              }
+                            }
                           }
                         },
                         child: Container(

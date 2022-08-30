@@ -7,6 +7,7 @@ import 'package:projectx/controllers/profile_controller.dart';
 import 'package:projectx/controllers/project_controller.dart';
 
 import '../controllers/auth_controller.dart';
+import 'add_new_task_popup.dart';
 import 'select_task_members_popup.dart';
 
 final ProjectController projectController = Get.find();
@@ -32,6 +33,7 @@ Future<dynamic> editTaskPopUp(
   final String? startDate,
   final String? endDate,
   final String? status,
+  final List? deliverables,
   final int? priorityLevel,
 }) {
   final ProjectController projectController = Get.find();
@@ -487,6 +489,7 @@ Future<dynamic> editTaskPopUp(
                               ],
                             ),
                           ),
+                          deliverablesWidget(context),
                           SizedBox(
                             width: screenWidth(context) * 0.5,
                             child: Row(

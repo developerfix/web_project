@@ -112,327 +112,22 @@ Expanded dashboardMainSection(BuildContext context, BoxConstraints constraints,
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 10, right: 10),
-                                    child: Column(
-                                      children: [
-                                        statusContainer(context, 'TODO'),
-                                        SizedBox(
-                                          height: screenHeight(context) * 0.02,
-                                        ),
-                                        Container(
-                                          height: screenHeight(context) * 0.73,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xfff0f2f5),
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(10),
-                                              topRight: Radius.circular(10),
-                                            ),
-                                          ),
-                                          child: projectController
-                                                      .isTasksUpdating.isTrue ||
-                                                  projectController
-                                                      .isNewTasksUpdating.isTrue
-                                              ? Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    const LoadingIndicator(),
-                                                    txt(
-                                                        txt:
-                                                            'Please wait\n Task is being updated',
-                                                        fontSize: 14)
-                                                  ],
-                                                )
-                                              : projectController
-                                                      .toDoTasks.isEmpty
-                                                  ? Center(
-                                                      child: txt(
-                                                          txt:
-                                                              'No task in Todo list',
-                                                          fontSize: 14),
-                                                    )
-                                                  : ListView.builder(
-                                                      // shrinkWrap: true,
-                                                      // reverse: true,
-                                                      itemCount:
-                                                          projectController
-                                                              .toDoTasks.length,
-
-                                                      itemBuilder:
-                                                          (context, i) {
-                                                        final String taskTitle =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['taskTitle'];
-                                                        final String phase =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['phase'];
-                                                        final String
-                                                            taskDescription =
-                                                            projectController
-                                                                    .toDoTasks[i]
-                                                                [
-                                                                'taskDescription'];
-                                                        final String pilot =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['pilot'];
-                                                        final String copilot =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['copilot'];
-                                                        final String startDate =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['startDate'];
-                                                        final String endDate =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['endDate'];
-
-                                                        final int
-                                                            priorityLevel =
-                                                            projectController
-                                                                    .toDoTasks[i]
-                                                                [
-                                                                'priorityLevel'];
-                                                        final String status =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['status'];
-                                                        return listOfTasks(
-                                                            context,
-                                                            projectController,
-                                                            'todo',
-                                                            taskTitle,
-                                                            phase,
-                                                            taskDescription,
-                                                            pilot,
-                                                            copilot,
-                                                            priorityLevel,
-                                                            status,
-                                                            startDate,
-                                                            endDate);
-                                                      },
-                                                    ),
-                                        ),
-                                      ],
-                                    ),
+                                    child: todoKanbanList(
+                                        context, projectController),
                                   ),
                                 ),
                                 SizedBox(
                                   width: 400,
-                                  child: Column(
-                                    children: [
-                                      statusContainer(context, 'INPROGRESS'),
-                                      SizedBox(
-                                        height: screenHeight(context) * 0.02,
-                                      ),
-                                      Container(
-                                        height: screenHeight(context) * 0.73,
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xfff0f2f5),
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(10),
-                                            topRight: Radius.circular(10),
-                                          ),
-                                        ),
-                                        child: projectController
-                                                .isTasksUpdating.isTrue
-                                            ? Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  const LoadingIndicator(),
-                                                  txt(
-                                                      txt:
-                                                          'Please wait\n Task is being updated',
-                                                      fontSize: 14)
-                                                ],
-                                              )
-                                            : projectController
-                                                    .inProgressTasks.isEmpty
-                                                ? Center(
-                                                    child: txt(
-                                                        txt:
-                                                            'No task in progress',
-                                                        fontSize: 14),
-                                                  )
-                                                : ListView.builder(
-                                                    // shrinkWrap: true,
-                                                    // reverse: true,
-                                                    itemCount: projectController
-                                                        .inProgressTasks.length,
-
-                                                    itemBuilder: (context, i) {
-                                                      final String taskTitle =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['taskTitle'];
-                                                      final String phase =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['phase'];
-                                                      final String
-                                                          taskDescription =
-                                                          projectController
-                                                                  .inProgressTasks[i]
-                                                              [
-                                                              'taskDescription'];
-                                                      final String pilot =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['pilot'];
-                                                      final String copilot =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['copilot'];
-                                                      final String startDate =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['startDate'];
-                                                      final String endDate =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['endDate'];
-
-                                                      final int priorityLevel =
-                                                          projectController
-                                                                  .inProgressTasks[i]
-                                                              ['priorityLevel'];
-                                                      final String status =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['status'];
-                                                      return listOfTasks(
-                                                          context,
-                                                          projectController,
-                                                          'inProgress',
-                                                          taskTitle,
-                                                          phase,
-                                                          taskDescription,
-                                                          pilot,
-                                                          copilot,
-                                                          priorityLevel,
-                                                          status,
-                                                          startDate,
-                                                          endDate);
-                                                    },
-                                                  ),
-                                      ),
-                                    ],
-                                  ),
+                                  child: inprogressKanbanList(
+                                      context, projectController),
                                 ),
                                 SizedBox(
                                   width: 400,
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 10, right: 10),
-                                    child: Column(
-                                      children: [
-                                        statusContainer(context, 'COMPLETED'),
-                                        SizedBox(
-                                          height: screenHeight(context) * 0.02,
-                                        ),
-                                        Container(
-                                          height: screenHeight(context) * 0.73,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xfff0f2f5),
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(10),
-                                              topRight: Radius.circular(10),
-                                            ),
-                                          ),
-                                          child: projectController
-                                                  .isTasksUpdating.isTrue
-                                              ? Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    const LoadingIndicator(),
-                                                    txt(
-                                                        txt:
-                                                            'Please wait\n Task is being updated',
-                                                        fontSize: 14)
-                                                  ],
-                                                )
-                                              : projectController
-                                                      .completedTasks.isEmpty
-                                                  ? Center(
-                                                      child: txt(
-                                                          txt:
-                                                              'No task in completed list',
-                                                          fontSize: 14),
-                                                    )
-                                                  : ListView.builder(
-                                                      // shrinkWrap: true,
-                                                      // reverse: true,
-                                                      itemCount:
-                                                          projectController
-                                                              .completedTasks
-                                                              .length,
-
-                                                      itemBuilder:
-                                                          (context, i) {
-                                                        final String taskTitle =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['taskTitle'];
-                                                        final String phase =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['phase'];
-                                                        final String
-                                                            taskDescription =
-                                                            projectController
-                                                                    .completedTasks[i]
-                                                                [
-                                                                'taskDescription'];
-                                                        final String pilot =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['pilot'];
-                                                        final String copilot =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['copilot'];
-                                                        final String startDate =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['startDate'];
-                                                        final String endDate =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['endDate'];
-
-                                                        final int
-                                                            priorityLevel =
-                                                            projectController
-                                                                    .completedTasks[i]
-                                                                [
-                                                                'priorityLevel'];
-                                                        final String status =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['status'];
-                                                        return listOfTasks(
-                                                            context,
-                                                            projectController,
-                                                            'completed',
-                                                            taskTitle,
-                                                            phase,
-                                                            taskDescription,
-                                                            pilot,
-                                                            copilot,
-                                                            priorityLevel,
-                                                            status,
-                                                            startDate,
-                                                            endDate);
-                                                      },
-                                                    ),
-                                        ),
-                                      ],
-                                    ),
+                                    child: completedKanbanList(
+                                        context, projectController),
                                   ),
                                 ),
                               ],
@@ -443,323 +138,20 @@ Expanded dashboardMainSection(BuildContext context, BoxConstraints constraints,
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 10, right: 10),
-                                    child: Column(
-                                      children: [
-                                        statusContainer(context, 'TODO'),
-                                        SizedBox(
-                                          height: screenHeight(context) * 0.02,
-                                        ),
-                                        Container(
-                                          height: screenHeight(context) * 0.73,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xfff0f2f5),
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(10),
-                                              topRight: Radius.circular(10),
-                                            ),
-                                          ),
-                                          child: projectController
-                                                  .isTasksUpdating.isTrue
-                                              ? Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    const LoadingIndicator(),
-                                                    txt(
-                                                        txt:
-                                                            'Please wait\n Task is being updated',
-                                                        fontSize: 14)
-                                                  ],
-                                                )
-                                              : projectController
-                                                      .toDoTasks.isEmpty
-                                                  ? Center(
-                                                      child: txt(
-                                                          txt:
-                                                              'No task in Todo list',
-                                                          fontSize: 14),
-                                                    )
-                                                  : ListView.builder(
-                                                      // shrinkWrap: true,
-                                                      // reverse: true,
-                                                      itemCount:
-                                                          projectController
-                                                              .toDoTasks.length,
-
-                                                      itemBuilder:
-                                                          (context, i) {
-                                                        final String taskTitle =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['taskTitle'];
-                                                        final String phase =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['phase'];
-                                                        final String
-                                                            taskDescription =
-                                                            projectController
-                                                                    .toDoTasks[i]
-                                                                [
-                                                                'taskDescription'];
-                                                        final String pilot =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['pilot'];
-                                                        final String copilot =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['copilot'];
-                                                        final String startDate =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['startDate'];
-                                                        final String endDate =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['endDate'];
-
-                                                        final int
-                                                            priorityLevel =
-                                                            projectController
-                                                                    .toDoTasks[i]
-                                                                [
-                                                                'priorityLevel'];
-                                                        final String status =
-                                                            projectController
-                                                                    .toDoTasks[
-                                                                i]['status'];
-                                                        return listOfTasks(
-                                                            context,
-                                                            projectController,
-                                                            'todo',
-                                                            taskTitle,
-                                                            phase,
-                                                            taskDescription,
-                                                            pilot,
-                                                            copilot,
-                                                            priorityLevel,
-                                                            status,
-                                                            startDate,
-                                                            endDate);
-                                                      },
-                                                    ),
-                                        ),
-                                      ],
-                                    ),
+                                    child: todoKanbanList(
+                                        context, projectController),
                                   ),
                                 ),
                                 Expanded(
-                                  child: Column(
-                                    children: [
-                                      statusContainer(context, 'INPROGRESS'),
-                                      SizedBox(
-                                        height: screenHeight(context) * 0.02,
-                                      ),
-                                      Container(
-                                        height: screenHeight(context) * 0.73,
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xfff0f2f5),
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(10),
-                                            topRight: Radius.circular(10),
-                                          ),
-                                        ),
-                                        child: projectController
-                                                .isTasksUpdating.isTrue
-                                            ? Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  const LoadingIndicator(),
-                                                  txt(
-                                                      txt:
-                                                          'Please wait\n Task is being updated',
-                                                      fontSize: 14)
-                                                ],
-                                              )
-                                            : projectController
-                                                    .inProgressTasks.isEmpty
-                                                ? Center(
-                                                    child: txt(
-                                                        txt:
-                                                            'No task in progress',
-                                                        fontSize: 14),
-                                                  )
-                                                : ListView.builder(
-                                                    // shrinkWrap: true,
-                                                    // reverse: true,
-                                                    itemCount: projectController
-                                                        .inProgressTasks.length,
-
-                                                    itemBuilder: (context, i) {
-                                                      final String taskTitle =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['taskTitle'];
-                                                      final String phase =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['phase'];
-                                                      final String
-                                                          taskDescription =
-                                                          projectController
-                                                                  .inProgressTasks[i]
-                                                              [
-                                                              'taskDescription'];
-                                                      final String pilot =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['pilot'];
-                                                      final String copilot =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['copilot'];
-                                                      final String startDate =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['startDate'];
-                                                      final String endDate =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['endDate'];
-
-                                                      final int priorityLevel =
-                                                          projectController
-                                                                  .inProgressTasks[i]
-                                                              ['priorityLevel'];
-                                                      final String status =
-                                                          projectController
-                                                                  .inProgressTasks[
-                                                              i]['status'];
-                                                      return listOfTasks(
-                                                          context,
-                                                          projectController,
-                                                          'inProgress',
-                                                          taskTitle,
-                                                          phase,
-                                                          taskDescription,
-                                                          pilot,
-                                                          copilot,
-                                                          priorityLevel,
-                                                          status,
-                                                          startDate,
-                                                          endDate);
-                                                    },
-                                                  ),
-                                      ),
-                                    ],
-                                  ),
+                                  child: inprogressKanbanList(
+                                      context, projectController),
                                 ),
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 10, right: 10),
-                                    child: Column(
-                                      children: [
-                                        statusContainer(context, 'COMPLETED'),
-                                        SizedBox(
-                                          height: screenHeight(context) * 0.02,
-                                        ),
-                                        Container(
-                                          height: screenHeight(context) * 0.73,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xfff0f2f5),
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(10),
-                                              topRight: Radius.circular(10),
-                                            ),
-                                          ),
-                                          child: projectController
-                                                  .isTasksUpdating.isTrue
-                                              ? Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    const LoadingIndicator(),
-                                                    txt(
-                                                        txt:
-                                                            'Please wait\n Task is being updated',
-                                                        fontSize: 14)
-                                                  ],
-                                                )
-                                              : projectController
-                                                      .completedTasks.isEmpty
-                                                  ? Center(
-                                                      child: txt(
-                                                          txt:
-                                                              'No task in completed list',
-                                                          fontSize: 14),
-                                                    )
-                                                  : ListView.builder(
-                                                      // shrinkWrap: true,
-                                                      // reverse: true,
-                                                      itemCount:
-                                                          projectController
-                                                              .completedTasks
-                                                              .length,
-
-                                                      itemBuilder:
-                                                          (context, i) {
-                                                        final String taskTitle =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['taskTitle'];
-                                                        final String phase =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['phase'];
-                                                        final String
-                                                            taskDescription =
-                                                            projectController
-                                                                    .completedTasks[i]
-                                                                [
-                                                                'taskDescription'];
-                                                        final String pilot =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['pilot'];
-                                                        final String copilot =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['copilot'];
-                                                        final String startDate =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['startDate'];
-                                                        final String endDate =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['endDate'];
-
-                                                        final int
-                                                            priorityLevel =
-                                                            projectController
-                                                                    .completedTasks[i]
-                                                                [
-                                                                'priorityLevel'];
-                                                        final String status =
-                                                            projectController
-                                                                    .completedTasks[
-                                                                i]['status'];
-                                                        return listOfTasks(
-                                                            context,
-                                                            projectController,
-                                                            'completed',
-                                                            taskTitle,
-                                                            phase,
-                                                            taskDescription,
-                                                            pilot,
-                                                            copilot,
-                                                            priorityLevel,
-                                                            status,
-                                                            startDate,
-                                                            endDate);
-                                                      },
-                                                    ),
-                                        ),
-                                      ],
-                                    ),
+                                    child: completedKanbanList(
+                                        context, projectController),
                                   ),
                                 ),
                               ],
@@ -769,6 +161,232 @@ Expanded dashboardMainSection(BuildContext context, BoxConstraints constraints,
         ),
       ),
     ),
+  );
+}
+
+Column completedKanbanList(
+    BuildContext context, ProjectController projectController) {
+  return Column(
+    children: [
+      statusContainer(context, 'COMPLETED'),
+      SizedBox(
+        height: screenHeight(context) * 0.02,
+      ),
+      Container(
+        height: screenHeight(context) * 0.73,
+        decoration: const BoxDecoration(
+          color: Color(0xfff0f2f5),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+        ),
+        child: projectController.isTasksUpdating.isTrue
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const LoadingIndicator(),
+                  txt(txt: 'Please wait\n Task is being updated', fontSize: 14)
+                ],
+              )
+            : projectController.completedTasks.isEmpty
+                ? Center(
+                    child: txt(txt: 'No task in completed list', fontSize: 14),
+                  )
+                : ListView.builder(
+                    // shrinkWrap: true,
+                    // reverse: true,
+                    itemCount: projectController.completedTasks.length,
+
+                    itemBuilder: (context, i) {
+                      final String taskTitle =
+                          projectController.completedTasks[i]['taskTitle'];
+                      final String phase =
+                          projectController.completedTasks[i]['phase'];
+                      final String taskDescription = projectController
+                          .completedTasks[i]['taskDescription'];
+                      final String pilot =
+                          projectController.completedTasks[i]['pilot'];
+                      final String copilot =
+                          projectController.completedTasks[i]['copilot'];
+                      final String startDate =
+                          projectController.completedTasks[i]['startDate'];
+                      final String endDate =
+                          projectController.completedTasks[i]['endDate'];
+
+                      final int priorityLevel =
+                          projectController.completedTasks[i]['priorityLevel'];
+                      final String status =
+                          projectController.completedTasks[i]['status'];
+
+                      return listOfTasks(
+                          context,
+                          projectController,
+                          'completed',
+                          taskTitle,
+                          phase,
+                          taskDescription,
+                          pilot,
+                          copilot,
+                          priorityLevel,
+                          status,
+                          startDate,
+                          endDate);
+                    },
+                  ),
+      ),
+    ],
+  );
+}
+
+Column inprogressKanbanList(
+    BuildContext context, ProjectController projectController) {
+  return Column(
+    children: [
+      statusContainer(context, 'INPROGRESS'),
+      SizedBox(
+        height: screenHeight(context) * 0.02,
+      ),
+      Container(
+        height: screenHeight(context) * 0.73,
+        decoration: const BoxDecoration(
+          color: Color(0xfff0f2f5),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+        ),
+        child: projectController.isTasksUpdating.isTrue
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const LoadingIndicator(),
+                  txt(txt: 'Please wait\n Task is being updated', fontSize: 14)
+                ],
+              )
+            : projectController.inProgressTasks.isEmpty
+                ? Center(
+                    child: txt(txt: 'No task in progress', fontSize: 14),
+                  )
+                : ListView.builder(
+                    // shrinkWrap: true,
+                    // reverse: true,
+                    itemCount: projectController.inProgressTasks.length,
+
+                    itemBuilder: (context, i) {
+                      final String taskTitle =
+                          projectController.inProgressTasks[i]['taskTitle'];
+                      final String phase =
+                          projectController.inProgressTasks[i]['phase'];
+                      final String taskDescription = projectController
+                          .inProgressTasks[i]['taskDescription'];
+                      final String pilot =
+                          projectController.inProgressTasks[i]['pilot'];
+                      final String copilot =
+                          projectController.inProgressTasks[i]['copilot'];
+                      final String startDate =
+                          projectController.inProgressTasks[i]['startDate'];
+                      final String endDate =
+                          projectController.inProgressTasks[i]['endDate'];
+
+                      final int priorityLevel =
+                          projectController.inProgressTasks[i]['priorityLevel'];
+                      final String status =
+                          projectController.inProgressTasks[i]['status'];
+
+                      return listOfTasks(
+                          context,
+                          projectController,
+                          'inProgress',
+                          taskTitle,
+                          phase,
+                          taskDescription,
+                          pilot,
+                          copilot,
+                          priorityLevel,
+                          status,
+                          startDate,
+                          endDate);
+                    },
+                  ),
+      ),
+    ],
+  );
+}
+
+Column todoKanbanList(
+    BuildContext context, ProjectController projectController) {
+  return Column(
+    children: [
+      statusContainer(context, 'TODO'),
+      SizedBox(
+        height: screenHeight(context) * 0.02,
+      ),
+      Container(
+        height: screenHeight(context) * 0.73,
+        decoration: const BoxDecoration(
+          color: Color(0xfff0f2f5),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+        ),
+        child: projectController.isTasksUpdating.isTrue ||
+                projectController.isNewTasksUpdating.isTrue
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const LoadingIndicator(),
+                  txt(txt: 'Please wait\n Task is being updated', fontSize: 14)
+                ],
+              )
+            : projectController.toDoTasks.isEmpty
+                ? Center(
+                    child: txt(txt: 'No task in Todo list', fontSize: 14),
+                  )
+                : ListView.builder(
+                    // shrinkWrap: true,
+                    // reverse: true,
+                    itemCount: projectController.toDoTasks.length,
+
+                    itemBuilder: (context, i) {
+                      final String taskTitle =
+                          projectController.toDoTasks[i]['taskTitle'];
+                      final String phase =
+                          projectController.toDoTasks[i]['phase'];
+                      final String taskDescription =
+                          projectController.toDoTasks[i]['taskDescription'];
+                      final String pilot =
+                          projectController.toDoTasks[i]['pilot'];
+                      final String copilot =
+                          projectController.toDoTasks[i]['copilot'];
+                      final String startDate =
+                          projectController.toDoTasks[i]['startDate'];
+                      final String endDate =
+                          projectController.toDoTasks[i]['endDate'];
+
+                      final int priorityLevel =
+                          projectController.toDoTasks[i]['priorityLevel'];
+                      final String status =
+                          projectController.toDoTasks[i]['status'];
+
+                      return listOfTasks(
+                          context,
+                          projectController,
+                          'todo',
+                          taskTitle,
+                          phase,
+                          taskDescription,
+                          pilot,
+                          copilot,
+                          priorityLevel,
+                          status,
+                          startDate,
+                          endDate);
+                    },
+                  ),
+      ),
+    ],
   );
 }
 

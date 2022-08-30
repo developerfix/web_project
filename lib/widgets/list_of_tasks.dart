@@ -257,6 +257,13 @@ Widget listOfTasks(
                                   )
                                 ],
                               ),
+                              txt(
+                                  txt: copilot.isEmpty
+                                      ? ''
+                                      : copilot.substring(1),
+                                  maxLines: 2,
+                                  font: 'Comfortaa',
+                                  fontSize: 20),
                               const Divider(
                                 color: Color(secondaryColor),
                                 thickness: 2,
@@ -366,7 +373,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     taskDescription: taskDescription,
                     taskTitle: taskTitle);
       } else if (value == 3) {
-        Get.to(editTaskPopUp(
+        editTaskPopUp(
           context,
           copilot: copilot,
           endDate: endDate,
@@ -377,7 +384,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
           status: status,
           taskDescription: taskDescription,
           taskTitle: taskTitle,
-        ));
+        );
       } else {
         projectController.deleteProjectTask(
             status: status,

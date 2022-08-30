@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:projectx/widgets/photo_view.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/style.dart';
 
 Padding usersMsg(BuildContext context,
@@ -40,11 +42,6 @@ Padding usersMsg(BuildContext context,
         SizedBox(
           width: screenWidth(context) * 0.005,
         ),
-        // txt(
-        //   txt: '@${username!}:',
-        //   fontSize: 12,
-        //   maxLines: 1,
-        // ),
         type == 'text'
             ? Flexible(
                 child: Text.rich(
@@ -70,7 +67,7 @@ Padding usersMsg(BuildContext context,
                               fontSize: 14),
                         )),
                     TextSpan(
-                        text: comment!,
+                        text: comment,
                         style: GoogleFonts.montserrat(
                           textStyle: const TextStyle(
                               overflow: TextOverflow.visible,
@@ -168,7 +165,7 @@ Padding usersMsg(BuildContext context,
                       )
                     : SizedBox(
                         width: screenWidth(context) * 0.15,
-                        height: screenHeight(context) * 0.075,
+                        height: screenHeight(context) * 0.18,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,8 +199,8 @@ Padding usersMsg(BuildContext context,
                             ),
                             const Spacer(),
                             Container(
-                              width: screenWidth(context) * 0.1,
-                              height: screenHeight(context) * 0.045,
+                              width: screenWidth(context) * 0.15,
+                              height: screenHeight(context) * 0.15,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8.0),
                                 color: const Color(secondaryColor),
@@ -216,22 +213,10 @@ Padding usersMsg(BuildContext context,
                                 ],
                               ),
                               child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.download,
-                                      color: Colors.white,
-                                    ),
-                                    SizedBox(
-                                      width: screenWidth(context) * 0.005,
-                                    ),
-                                    txt(
-                                        txt: 'click to download',
-                                        fontSize: 14,
-                                        fontColor: Colors.white),
-                                  ],
-                                ),
+                                child: txt(
+                                    txt: filename!,
+                                    fontSize: 14,
+                                    fontColor: Colors.white),
                               ),
                             ),
                           ],
@@ -243,23 +228,28 @@ Padding usersMsg(BuildContext context,
 }
 
 downloadFile(url, filename) async {
-  if (!kIsWeb) {
-    String? res = await FilePicker.platform.saveFile(
-      fileName: filename.split('.').first,
-    );
+  Get.to(() => PhotoView(
+        url: url,
+      ));
 
-    if (res != null) {
-      var dio = Dio();
+  // if (!kIsWeb) {
+  //   String? res = await FilePicker.platform.saveFile(
+  //     fileName: filename.split('.').first,
+  //   );
 
-      var ext = filename.split('.').last;
+  //   if (res != null) {
+  //     var dio = Dio();
 
-      String fullPath = "$res.$ext";
-      await dio.download(url, fullPath);
-    }
-  } else {
-    html.window.open(
-      url,
-      filename,
-    );
-  }
+  //     var ext = filename.split('.').last;
+
+  //     String fullPath = "$res.$ext";
+  //     await dio.download(url, fullPath);
+  //   }
+  // } else {
+  // await canLaunchUrl(Uri.parse(url)) ? await launchUrl(Uri.parse(url)) : null;
+  // html.window.open(
+  //   url,
+  //   filename,
+  // );
+  // }
 }

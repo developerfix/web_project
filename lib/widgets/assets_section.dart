@@ -52,114 +52,165 @@ StatefulBuilder assetsSection(
                         String pathName =
                             projectController.assets[i]['pathName'];
                         return HoverCrossFadeWidget(
+                          cursor: SystemMouseCursors.click,
                           duration: const Duration(milliseconds: 100),
-                          firstChild: GestureDetector(
-                            onTap: () async {
-                              await canLaunchUrl(Uri.parse(path))
-                                  ? await launchUrl(Uri.parse(path))
-                                  : null;
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Icon(
-                                    Icons.link,
-                                    color: Color(secondaryColor),
-                                  ),
-                                  txt(
-                                      txt: pathName,
-                                      fontSize: 14,
-                                      fontColor: const Color(secondaryColor),
-                                      overflow: TextOverflow.ellipsis),
-                                  Container()
-                                ],
+                          firstChild: ListTile(
+                              onTap: () async {
+                                await canLaunchUrl(Uri.parse(path))
+                                    ? await launchUrl(Uri.parse(path))
+                                    : null;
+                              },
+                              title: Center(
+                                child: txt(
+                                    txt: pathName,
+                                    fontSize: 14,
+                                    fontColor: const Color(secondaryColor),
+                                    overflow: TextOverflow.ellipsis),
                               ),
-                            ),
-                          ),
-                          secondChild: GestureDetector(
+                              trailing: Icon(Icons.more_horiz,
+                                  color: Colors.white, size: 18)),
+                          secondChild: ListTile(
                             onTap: () async {
                               await canLaunchUrl(Uri.parse(path))
                                   ? await launchUrl(Uri.parse(path))
                                   : null;
                             },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Icon(
-                                    Icons.link,
-                                    color: Color(secondaryColor),
-                                  ),
-                                  txt(
-                                      txt: pathName,
-                                      fontSize: 14,
-                                      fontColor: const Color(secondaryColor),
-                                      overflow: TextOverflow.ellipsis),
-                                  PopupMenuButton(
-                                      onSelected: (value) async {
-                                        if (value == 1) {
-                                          Get.to(editAssetPopUp(context,
-                                              path: path, pathName: pathName));
-                                        } else {
-                                          await projectController
-                                              .deleteProjectAsset(
-                                                  path: projectController
-                                                      .assets[i]['path']);
-                                        }
-                                      },
-                                      elevation: 3.2,
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(8.0)),
-                                      ),
-                                      itemBuilder: (context) => [
-                                            PopupMenuItem(
-                                              value: 1,
-                                              child: Text(
-                                                'Edit',
-                                                maxLines: 1,
-                                                style: GoogleFonts.montserrat(
-                                                  textStyle: const TextStyle(
-                                                    fontSize: 14,
-                                                    overflow:
-                                                        TextOverflow.visible,
-                                                    color: Color(brownishColor),
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ),
+                            title: Center(
+                              child: txt(
+                                  txt: pathName,
+                                  fontSize: 14,
+                                  fontColor: const Color(secondaryColor),
+                                  overflow: TextOverflow.ellipsis),
+                            ),
+                            trailing: PopupMenuButton(
+                                onSelected: (value) async {
+                                  if (value == 1) {
+                                    editAssetPopUp(context,
+                                        path: path, pathName: pathName);
+                                  } else {
+                                    await projectController.deleteProjectAsset(
+                                        path: projectController.assets[i]
+                                            ['path']);
+                                  }
+                                },
+                                elevation: 3.2,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0)),
+                                ),
+                                itemBuilder: (context) => [
+                                      PopupMenuItem(
+                                        value: 1,
+                                        child: Text(
+                                          'Edit',
+                                          maxLines: 1,
+                                          style: GoogleFonts.montserrat(
+                                            textStyle: const TextStyle(
+                                              fontSize: 14,
+                                              overflow: TextOverflow.visible,
+                                              color: Color(brownishColor),
+                                              fontWeight: FontWeight.w600,
                                             ),
-                                            PopupMenuItem(
-                                              value: 2,
-                                              child: Text(
-                                                'Delete',
-                                                maxLines: 1,
-                                                style: GoogleFonts.montserrat(
-                                                  textStyle: const TextStyle(
-                                                    fontSize: 14,
-                                                    overflow:
-                                                        TextOverflow.visible,
-                                                    color: Color(brownishColor),
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                      child: const Icon(Icons.more_horiz,
-                                          color: Color(
-                                            secondaryColor,
                                           ),
-                                          size: 18))
-                                ],
-                              ),
-                            ),
+                                        ),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 2,
+                                        child: Text(
+                                          'Delete',
+                                          maxLines: 1,
+                                          style: GoogleFonts.montserrat(
+                                            textStyle: const TextStyle(
+                                              fontSize: 14,
+                                              overflow: TextOverflow.visible,
+                                              color: Color(brownishColor),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                child: const Icon(Icons.more_horiz,
+                                    color: Color(
+                                      secondaryColor,
+                                    ),
+                                    size: 18)),
                           ),
+
+                          // Padding(
+                          //   padding: const EdgeInsets.all(8.0),
+                          //   child: Row(
+                          //     mainAxisAlignment:
+                          //         MainAxisAlignment.spaceBetween,
+                          //     children: [
+                          //       const Icon(
+                          //         Icons.link,
+                          //         color: Color(secondaryColor),
+                          //       ),
+                          //       txt(
+                          //           txt: pathName,
+                          //           fontSize: 14,
+                          //           fontColor: const Color(secondaryColor),
+                          //           overflow: TextOverflow.ellipsis),
+                          //       PopupMenuButton(
+                          //           onSelected: (value) async {
+                          //             if (value == 1) {
+                          //               Get.to(editAssetPopUp(context,
+                          //                   path: path, pathName: pathName));
+                          //             } else {
+                          //               await projectController
+                          //                   .deleteProjectAsset(
+                          //                       path: projectController
+                          //                           .assets[i]['path']);
+                          //             }
+                          //           },
+                          //           elevation: 3.2,
+                          //           shape: const RoundedRectangleBorder(
+                          //             borderRadius: BorderRadius.all(
+                          //                 Radius.circular(8.0)),
+                          //           ),
+                          //           itemBuilder: (context) => [
+                          //                 PopupMenuItem(
+                          //                   value: 1,
+                          //                   child: Text(
+                          //                     'Edit',
+                          //                     maxLines: 1,
+                          //                     style: GoogleFonts.montserrat(
+                          //                       textStyle: const TextStyle(
+                          //                         fontSize: 14,
+                          //                         overflow:
+                          //                             TextOverflow.visible,
+                          //                         color: Color(brownishColor),
+                          //                         fontWeight: FontWeight.w600,
+                          //                       ),
+                          //                     ),
+                          //                   ),
+                          //                 ),
+                          //                 PopupMenuItem(
+                          //                   value: 2,
+                          //                   child: Text(
+                          //                     'Delete',
+                          //                     maxLines: 1,
+                          //                     style: GoogleFonts.montserrat(
+                          //                       textStyle: const TextStyle(
+                          //                         fontSize: 14,
+                          //                         overflow:
+                          //                             TextOverflow.visible,
+                          //                         color: Color(brownishColor),
+                          //                         fontWeight: FontWeight.w600,
+                          //                       ),
+                          //                     ),
+                          //                   ),
+                          //                 ),
+                          //               ],
+                          //           child: const Icon(Icons.more_horiz,
+                          //               color: Color(
+                          //                 secondaryColor,
+                          //               ),
+                          //               size: 18))
+                          //     ],
+                          //   ),
+                          // ),
                         );
                       }),
                 ),
@@ -181,7 +232,7 @@ StatefulBuilder assetsSection(
           const Spacer(),
           ListTile(
               onTap: () {
-                Get.to(addNewTaskPopUp(context));
+                addNewTaskPopUp(context);
               },
               leading: const Icon(
                 Icons.task,
@@ -189,7 +240,7 @@ StatefulBuilder assetsSection(
               title: txt(txt: 'Add new task', fontSize: 14)),
           ListTile(
               onTap: () {
-                Get.to(const ProjectMembersList());
+                Get.to(() => const ProjectMembersList());
               },
               leading: const Icon(
                 Icons.person_add,
@@ -199,7 +250,7 @@ StatefulBuilder assetsSection(
           ListTile(
             leading: InkWell(
               onTap: () {
-                Get.to(const RecentProjects());
+                Get.to(() => const RecentProjects());
               },
               child: const Icon(
                 Icons.home,
@@ -208,7 +259,7 @@ StatefulBuilder assetsSection(
             ),
             trailing: InkWell(
               onTap: () {
-                Get.to(const Timeline());
+                Get.to(() => const Timeline());
               },
               child: const Icon(
                 Icons.timeline,

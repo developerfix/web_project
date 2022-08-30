@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:projectx/controllers/project_controller.dart';
 import 'package:projectx/widgets/popup_textfield.dart';
 
@@ -8,6 +9,7 @@ import '../controllers/auth_controller.dart';
 import '../controllers/profile_controller.dart';
 import 'loading_indicator.dart';
 
+String categoryValue = '3D Design';
 Future<dynamic> createProjectPopUp(
   BuildContext context,
 ) {
@@ -33,21 +35,24 @@ Future<dynamic> createProjectPopUp(
                   key: formKey,
                   child: AlertDialog(
                     content: SizedBox(
-                      height: screenHeight(context) * 0.45,
+                      height: screenHeight(context) * 0.6,
                       width: screenWidth(context) * 0.3,
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
                           children: <Widget>[
                             txt(
-                              txt: 'Project',
+                              txt: 'NEW PROJECT',
                               fontSize: 50,
+                              fontColor: const Color(0XFFab9eab),
                               font: 'Comfortaa',
                               letterSpacing: 6,
                               fontWeight: FontWeight.w700,
                             ),
-                            SizedBox(
-                              height: screenHeight(context) * 0.025,
+                            const Padding(
+                              padding: EdgeInsets.only(top: 10),
+                              child: Divider(
+                                  thickness: 3, color: Color(0xffab9eab)),
                             ),
                             Row(
                               children: [
@@ -66,6 +71,10 @@ Future<dynamic> createProjectPopUp(
                                       ),
                                       txt(
                                         txt: 'Description:',
+                                        fontSize: 30,
+                                      ),
+                                      txt(
+                                        txt: 'Category:',
                                         fontSize: 30,
                                       ),
                                     ],
@@ -88,6 +97,7 @@ Future<dynamic> createProjectPopUp(
                                         hint: '...',
                                         controller: subTitleController,
                                       ),
+                                      categoryWidget(context)
                                     ],
                                   ),
                                 )
@@ -170,4 +180,56 @@ Future<dynamic> createProjectPopUp(
               }
             });
       });
+}
+
+StatefulBuilder categoryWidget(BuildContext context) {
+  return StatefulBuilder(builder: (context, setState) {
+    return Container(
+        width: screenWidth(context) * 0.2,
+        height: screenHeight(context) * 0.05,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.16),
+              offset: const Offset(0, 3.0),
+              blurRadius: 6.0,
+            ),
+          ],
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Center(
+          child: DropdownButtonFormField(
+            // itemHeight: 15,
+            // menuMaxHeight: 30,
+            items: <String>['3D Design', 'Optical Design'].map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+
+            onChanged: (value) {
+              setState(() {
+                categoryValue = value.toString();
+              });
+            },
+
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              filled: true,
+              hintStyle: GoogleFonts.montserrat(
+                textStyle: const TextStyle(
+                  overflow: TextOverflow.ellipsis,
+                  letterSpacing: 0,
+                  color: Color(brownishColor),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              hintText: categoryValue,
+              fillColor: Colors.white,
+            ),
+          ),
+        ));
+  });
 }

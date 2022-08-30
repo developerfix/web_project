@@ -5,8 +5,12 @@ import 'package:projectx/pages/recent_project.dart';
 import '../constants/style.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-AppBar customAppBar(BuildContext context,
-    {Widget? title, String? username, bool? isNeedAppbar, Color? color}) {
+AppBar customAppBar(
+  BuildContext context, {
+  Widget? title,
+  String? username,
+  bool? isNeedAppbar,
+}) {
   String firstChar = '';
   if (username != null) {
     for (int i = 0; i < username.length; i++) {
@@ -17,7 +21,7 @@ AppBar customAppBar(BuildContext context,
   }
 
   return AppBar(
-    backgroundColor: color ?? const Color(mainColor),
+    backgroundColor: const Color(mainColor),
     leadingWidth:
         screenWidth(context) > 1000 ? screenWidth(context) * 0.05 : null,
     leading: Padding(
@@ -35,7 +39,11 @@ AppBar customAppBar(BuildContext context,
                           child: Icon(Icons.arrow_back_sharp),
                         ),
                       )
-                    : Container(),
+                    : const Padding(
+                        padding: EdgeInsets.all(0.0),
+                        child: Icon(Icons.arrow_back_sharp,
+                            color: Color(mainColor)),
+                      ),
                 Expanded(
                   child: InkWell(
                       onTap: () {

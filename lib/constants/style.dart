@@ -28,6 +28,7 @@ Widget txt(
     double? minFontSize,
     double? letterSpacing,
     TextOverflow? overflow,
+    TextAlign? textAlign,
     String? font,
     int? maxLines}) {
   return LayoutBuilder(
@@ -37,6 +38,7 @@ Widget txt(
       maxLines: maxLines ?? (constraints.maxWidth < 600 ? 2 : 10),
       maxFontSize: fontSize,
       minFontSize: minFontSize ?? fontSize - 5,
+      textAlign: textAlign,
       style: font == null
           ? GoogleFonts.montserrat(
               textStyle: TextStyle(
