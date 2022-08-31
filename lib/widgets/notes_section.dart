@@ -94,27 +94,32 @@ Expanded notesSection(BoxConstraints constraints, BuildContext context,
                                                 MainAxisAlignment.center,
                                             children: [
                                               SizedBox(
-                                                height: 200,
-                                                width: 300,
-                                                child:
-                                                    LiquidCircularProgressIndicator(
-                                                  value: projectController
-                                                          .progress.value /
-                                                      100,
-                                                  valueColor:
-                                                      const AlwaysStoppedAnimation(
-                                                          Color(
-                                                              secondaryColor)),
-                                                  backgroundColor: Colors.white,
-                                                  direction: Axis.vertical,
-                                                  center: Text(
-                                                    "${projectController.progress.value.ceil()}%",
-                                                    style: GoogleFonts.poppins(
-                                                        color: Colors.black,
-                                                        fontSize: 18),
-                                                  ),
-                                                ),
-                                              ),
+                                                  height: 30,
+                                                  width: 350,
+                                                  child:
+                                                      LiquidLinearProgressIndicator(
+                                                          value:
+                                                              projectController
+                                                                      .progress
+                                                                      .value /
+                                                                  100,
+                                                          valueColor:
+                                                              const AlwaysStoppedAnimation(
+                                                                  Color(
+                                                                      secondaryColor)), // Defaults to the current Theme's accentColor.
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                          borderColor:
+                                                              const Color(
+                                                                  mainColor),
+                                                          borderWidth: 5.0,
+                                                          borderRadius: 12.0,
+                                                          direction:
+                                                              Axis.horizontal,
+                                                          center: txt(
+                                                              txt:
+                                                                  "${projectController.progress.value.ceil()}%",
+                                                              fontSize: 18))),
                                               Padding(
                                                 padding:
                                                     const EdgeInsets.all(8.0),

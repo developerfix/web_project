@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -5,10 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart';
 import 'package:projectx/widgets/photo_view.dart';
+import 'package:thumbnailer/thumbnailer.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart';
 import '../constants/style.dart';
+import 'package:http/http.dart' as http;
 
 Padding usersMsg(BuildContext context,
     {DateTime? created,
@@ -165,7 +170,7 @@ Padding usersMsg(BuildContext context,
                       )
                     : SizedBox(
                         width: screenWidth(context) * 0.15,
-                        height: screenHeight(context) * 0.18,
+                        height: screenHeight(context) * 0.08,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,8 +204,8 @@ Padding usersMsg(BuildContext context,
                             ),
                             const Spacer(),
                             Container(
-                              width: screenWidth(context) * 0.15,
-                              height: screenHeight(context) * 0.15,
+                              width: screenWidth(context) * 0.1,
+                              height: screenHeight(context) * 0.05,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8.0),
                                 color: const Color(secondaryColor),
@@ -212,7 +217,12 @@ Padding usersMsg(BuildContext context,
                                   ),
                                 ],
                               ),
-                              child: Center(
+                              child:
+                                  // const Thumbnail(
+                                  //   mimeType: 'text/html',
+                                  //   widgetSize: 150,
+                                  // ),
+                                  Center(
                                 child: txt(
                                     txt: filename!,
                                     fontSize: 14,
@@ -228,11 +238,36 @@ Padding usersMsg(BuildContext context,
 }
 
 downloadFile(url, filename) async {
-  Get.to(() => PhotoView(
-        url: url,
-      ));
+  if (!kIsWeb) {
+    Uri uri = Uri.parse(url);
+    String typeString = uri.path.substring(uri.path.length - 3).toLowerCase();
+    if (typeString == "jpg") {
+      return Get.to(() => PhotoView(
+            url: url,
+            filename: filename,
+          ));
+    } else if (typeString == "jpeg") {
+      return Get.to(() => PhotoView(
+            url: url,
+            filename: filename,
+          ));
+    } else if (typeString == "png") {
+      return Get.to(() => PhotoView(
+            url: url,
+            filename: filename,
+          ));
+    } else {
+      return await canLaunchUrl(Uri.parse(url))
+          ? await launchUrl(Uri.parse(url))
+          : null;
+    }
+  } else {
+    return await canLaunchUrl(Uri.parse(url))
+        ? await launchUrl(Uri.parse(url))
+        : null;
+  }
 
-  // if (!kIsWeb) {
+// if (!kIsWeb) {
   //   String? res = await FilePicker.platform.saveFile(
   //     fileName: filename.split('.').first,
   //   );
