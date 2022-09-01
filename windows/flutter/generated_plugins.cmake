@@ -5,8 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   desktop_webview_auth
   file_saver
-  pdfx
-  syncfusion_pdfviewer_windows
+
   url_launcher_windows
 )
 
