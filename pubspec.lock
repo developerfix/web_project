@@ -175,7 +175,7 @@ packages:
       name: device_info_plus
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.2.4"
+    version: "4.0.0"
   device_info_plus_linux:
     dependency: transitive
     description:
@@ -238,7 +238,7 @@ packages:
       name: extension
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.2.0"
+    version: "0.5.0"
   fake_async:
     dependency: transitive
     description:
@@ -450,13 +450,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  font_awesome_flutter:
-    dependency: transitive
-    description:
-      name: font_awesome_flutter
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "10.1.0"
   gantt_chart:
     dependency: "direct main"
     description:
@@ -676,13 +669,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.7.0"
-  native_pdf_renderer:
-    dependency: transitive
-    description:
-      name: native_pdf_renderer
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "5.0.0+1"
   openid_client:
     dependency: transitive
     description:
@@ -761,12 +747,12 @@ packages:
     source: hosted
     version: "2.0.7"
   pdfx:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: pdfx
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.1+1"
+    version: "2.2.0"
   petitparser:
     dependency: transitive
     description:
@@ -780,7 +766,7 @@ packages:
       name: photo_view
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.0"
+    version: "0.14.0"
   platform:
     dependency: transitive
     description:
@@ -856,13 +842,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.2"
-  spreadsheet_decoder:
-    dependency: transitive
-    description:
-      name: spreadsheet_decoder
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.1.0"
   stack_trace:
     dependency: transitive
     description:
@@ -912,13 +891,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.4.9"
-  thumbnailer:
-    dependency: "direct main"
-    description:
-      name: thumbnailer
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.2"
   typed_data:
     dependency: transitive
     description:

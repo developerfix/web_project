@@ -9,7 +9,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:projectx/widgets/photo_view.dart';
-import 'package:thumbnailer/thumbnailer.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart';
 import '../constants/style.dart';
@@ -217,12 +216,7 @@ Padding usersMsg(BuildContext context,
                                   ),
                                 ],
                               ),
-                              child:
-                                  // const Thumbnail(
-                                  //   mimeType: 'text/html',
-                                  //   widgetSize: 150,
-                                  // ),
-                                  Center(
+                              child: Center(
                                 child: txt(
                                     txt: filename!,
                                     fontSize: 14,

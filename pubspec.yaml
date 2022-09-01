@@ -52,7 +52,7 @@ dependencies:
   expandable: ^5.0.1
   photo_view: any
   context_menus: ^1.0.1
-  thumbnailer: ^2.0.2
+  pdfx: ^2.2.0
   flutter:
     sdk: flutter
   flutter_animation_progress_bar: ^2.2.1
