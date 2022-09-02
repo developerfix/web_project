@@ -248,6 +248,7 @@ class ProjectController extends GetxController {
       String? startDate,
       String? endDate,
       String? status,
+      List? taskDeliverables,
       int? priorityLevel}) async {
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
@@ -258,6 +259,7 @@ class ProjectController extends GetxController {
         startDate: startDate,
         endDate: endDate,
         status: 'inProgress',
+        deliverables: taskDeliverables,
         priorityLevel: priorityLevel);
 
     try {
@@ -324,6 +326,7 @@ class ProjectController extends GetxController {
       String? startDate,
       String? endDate,
       String? status,
+      List? taskDeliverables,
       int? priorityLevel}) async {
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
@@ -334,6 +337,7 @@ class ProjectController extends GetxController {
         startDate: startDate,
         endDate: endDate,
         status: 'todo',
+        deliverables: taskDeliverables,
         priorityLevel: priorityLevel);
     try {
       status == 'inProgress'
@@ -399,6 +403,7 @@ class ProjectController extends GetxController {
       String? startDate,
       String? endDate,
       String? status,
+      List? taskDeliverables,
       int? priorityLevel}) async {
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
@@ -408,6 +413,7 @@ class ProjectController extends GetxController {
         copilot: copilot,
         startDate: startDate,
         endDate: endDate,
+        deliverables: taskDeliverables,
         status: 'completed',
         priorityLevel: priorityLevel);
     try {
@@ -755,6 +761,13 @@ class ProjectController extends GetxController {
           .document(_projectId.value)
           .collection('tasks')
           .get();
+      var projectDeliverables = await firedartFirestore
+          .collection('users')
+          .document(_uid.value)
+          .collection('projects')
+          .document(_projectId.value)
+          .collection('tasks')
+          .get();
 
       for (var task in projectTasks) {
         if (task['status'] == 'todo') {
@@ -995,8 +1008,12 @@ class ProjectController extends GetxController {
       List? deliverables,
       int? priorityLevel}) async {
     isTasksUpdating.value = true;
+    List deliverablesList = [];
+    for (var item in deliverables!) {
+      deliverablesList.add(item);
+    }
 
-    // FutureGroup futureGroup = FutureGroup();
+    FutureGroup futureGroup = FutureGroup();
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
@@ -1006,11 +1023,12 @@ class ProjectController extends GetxController {
         startDate: startDate,
         endDate: endDate,
         status: status,
+        deliverables: deliverablesList,
         priorityLevel: priorityLevel);
     try {
       if (!kIsWeb) {
         for (var i = 0; i < projectMembers.length; i++) {
-          firedartFirestore
+          await firedartFirestore
               .collection('users')
               .document(projectMembers[i]['uid'])
               .collection('projects')
@@ -1018,10 +1036,8 @@ class ProjectController extends GetxController {
               .collection('tasks')
               .add(task.toJson())
               .then((value) async {
-            print(' deliverables: ${deliverables!.length}');
-            for (var item in deliverables) {}
-            // for (var item in deliverables!) {
-            //   firedartFirestore
+            // for (var item in deliverablesList) {
+            //   futureGroup.add(firedartFirestore
             //       .collection('users')
             //       .document(projectMembers[i]['uid'])
             //       .collection('projects')
@@ -1032,13 +1048,13 @@ class ProjectController extends GetxController {
             //       .add({
             //     "urlDownload": item['urlDownload'],
             //     "filename": item['filename']
-            //   });
+            //   }));
             // }
           });
         }
       } else {
         for (var i = 0; i < projectMembers.length; i++) {
-          firestore
+          await firestore
               .collection('users')
               .doc(projectMembers[i]['uid'])
               .collection('projects')
@@ -1046,25 +1062,24 @@ class ProjectController extends GetxController {
               .collection('tasks')
               .add(task.toJson())
               .then((value) async {
-            for (var item in deliverables!) {
-              print(item);
-              // await firestore
-              //     .collection('users')
-              //     .doc(projectMembers[i]['uid'])
-              //     .collection('projects')
-              //     .doc(_projectId.value)
-              //     .collection('tasks')
-              //     .doc(value.id)
-              //     .collection('deliverables')
-              //     .add({
-              //   "urlDownload": item['urlDownload'],
-              //   "filename": item['filename']
-              // });
+            for (var item in deliverablesList) {
+              futureGroup.add(firestore
+                  .collection('users')
+                  .doc(projectMembers[i]['uid'])
+                  .collection('projects')
+                  .doc(_projectId.value)
+                  .collection('tasks')
+                  .doc(value.id)
+                  .collection('deliverables')
+                  .add({
+                "urlDownload": item['urlDownload'],
+                "filename": item['filename']
+              }));
             }
           });
         }
       }
-      // futureGroup.close();
+      futureGroup.close();
       getProjectTasks(); // toDoTasks.add(task);
       isTasksUpdating.value = false;
       getSuccessSnackBar("task added successfully");

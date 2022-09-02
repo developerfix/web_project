@@ -219,6 +219,12 @@ Column completedKanbanList(
                       final String status =
                           projectController.completedTasks[i]['status'];
 
+                      final List taskDeliverables = [];
+
+                      for (var item in projectController.completedTasks[i]
+                          ['deliverables']) {
+                        taskDeliverables.add(item);
+                      }
                       return listOfTasks(
                           context,
                           projectController,
@@ -231,7 +237,8 @@ Column completedKanbanList(
                           priorityLevel,
                           status,
                           startDate,
-                          endDate);
+                          endDate,
+                          taskDeliverables);
                     },
                   ),
       ),
@@ -294,6 +301,13 @@ Column inprogressKanbanList(
                       final String status =
                           projectController.inProgressTasks[i]['status'];
 
+                      final List taskDeliverables = [];
+
+                      for (var item in projectController.inProgressTasks[i]
+                          ['deliverables']) {
+                        taskDeliverables.add(item);
+                      }
+
                       return listOfTasks(
                           context,
                           projectController,
@@ -306,7 +320,8 @@ Column inprogressKanbanList(
                           priorityLevel,
                           status,
                           startDate,
-                          endDate);
+                          endDate,
+                          taskDeliverables);
                     },
                   ),
       ),
@@ -369,6 +384,14 @@ Column todoKanbanList(
                           projectController.toDoTasks[i]['priorityLevel'];
                       final String status =
                           projectController.toDoTasks[i]['status'];
+                      final List taskDeliverables = [];
+
+                      for (var item in projectController.toDoTasks[i]
+                          ['deliverables']) {
+                        taskDeliverables.add(item);
+                      }
+
+                      // projectController.toDoTasks[i]['deliverables'];
 
                       return listOfTasks(
                           context,
@@ -382,7 +405,8 @@ Column todoKanbanList(
                           priorityLevel,
                           status,
                           startDate,
-                          endDate);
+                          endDate,
+                          taskDeliverables);
                     },
                   ),
       ),

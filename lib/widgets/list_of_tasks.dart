@@ -3,23 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:projectx/controllers/project_controller.dart';
+import 'package:projectx/widgets/usersmsg.dart';
 
 import '../constants/style.dart';
 import 'edit_task_popup.dart';
 
 Widget listOfTasks(
-    BuildContext context,
-    ProjectController projectController,
-    String? board,
-    String taskTitle,
-    String phase,
-    String taskDescription,
-    String pilot,
-    String copilot,
-    int priorityLevel,
-    String status,
-    String startDate,
-    String endDate) {
+  BuildContext context,
+  ProjectController projectController,
+  String? board,
+  String taskTitle,
+  String phase,
+  String taskDescription,
+  String pilot,
+  String copilot,
+  int priorityLevel,
+  String status,
+  String startDate,
+  String endDate,
+  List taskDeliverables,
+) {
   return Builder(builder: (context) {
     return ExpandableNotifier(
         child: Padding(
@@ -186,6 +189,7 @@ Widget listOfTasks(
                                       startDate,
                                       taskDescription,
                                       taskTitle,
+                                      taskDeliverables,
                                       context),
                                 ],
                               ),
@@ -196,12 +200,13 @@ Widget listOfTasks(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Expanded(
-                                      flex: 2,
-                                      child: txt(
-                                          txt: taskDescription,
-                                          fontWeight: FontWeight.w500,
-                                          maxLines: 5000,
-                                          fontSize: 18)),
+                                    flex: 2,
+                                    child: txt(
+                                        txt: taskDescription,
+                                        fontWeight: FontWeight.w500,
+                                        maxLines: 5000,
+                                        fontSize: 18),
+                                  ),
                                   Expanded(
                                     child: Column(
                                       children: [
@@ -257,13 +262,81 @@ Widget listOfTasks(
                                   )
                                 ],
                               ),
-                              txt(
-                                  txt: copilot.isEmpty
-                                      ? ''
-                                      : copilot.substring(1),
-                                  maxLines: 2,
-                                  font: 'Comfortaa',
-                                  fontSize: 20),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              taskDeliverables.isEmpty
+                                  ? Container()
+                                  : Row(
+                                      children: [
+                                        txt(
+                                            txt: 'Deliverables:',
+                                            maxLines: 2,
+                                            font: 'Comfortaa',
+                                            // fontWeight: FontWeight.w500,
+                                            fontSize: 24),
+                                      ],
+                                    ),
+                              taskDeliverables.isEmpty
+                                  ? Container()
+                                  : SizedBox(
+                                      // height: 200,
+                                      // width: 300,
+                                      child: Expanded(
+                                        child: GridView.builder(
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            shrinkWrap: true,
+                                            padding: const EdgeInsets.all(8.0),
+                                            gridDelegate:
+                                                const SliverGridDelegateWithMaxCrossAxisExtent(
+                                                    maxCrossAxisExtent: 100,
+                                                    childAspectRatio: 2 / 2,
+                                                    crossAxisSpacing: 30,
+                                                    mainAxisSpacing: 30),
+                                            itemCount: taskDeliverables.length,
+                                            itemBuilder:
+                                                (BuildContext ctx, index) {
+                                              return InkWell(
+                                                onTap: (() {
+                                                  downloadFile(
+                                                      taskDeliverables[index]
+                                                          ['urlDownload'],
+                                                      taskDeliverables[index]
+                                                          ['filename']);
+                                                }),
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                    color: const Color(
+                                                        secondaryColor),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withOpacity(0.16),
+                                                        offset: const Offset(
+                                                            0, 3.0),
+                                                        blurRadius: 6.0,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: Center(
+                                                    child: txt(
+                                                        txt: taskDeliverables[
+                                                            index]['filename'],
+                                                        maxLines: 2,
+                                                        fontColor: Colors.white,
+                                                        fontSize: 16),
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                      ),
+                                    ),
                               const Divider(
                                 color: Color(secondaryColor),
                                 thickness: 2,
@@ -303,6 +376,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
     String startDate,
     String taskDescription,
     String taskTitle,
+    List taskDeliverables,
     BuildContext context) {
   return PopupMenuButton(
     onSelected: (value) async {
@@ -317,6 +391,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                 startDate: startDate,
                 status: status,
                 taskDescription: taskDescription,
+                taskDeliverables: taskDeliverables,
                 taskTitle: taskTitle)
             : status == 'inProgress'
                 ? projectController.addToTodo(
@@ -328,6 +403,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     startDate: startDate,
                     status: status,
                     taskDescription: taskDescription,
+                    taskDeliverables: taskDeliverables,
                     taskTitle: taskTitle)
                 : projectController.addToTodo(
                     copilot: copilot,
@@ -338,6 +414,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     startDate: startDate,
                     status: status,
                     taskDescription: taskDescription,
+                    taskDeliverables: taskDeliverables,
                     taskTitle: taskTitle);
       } else if (value == 2) {
         status == 'todo'
@@ -350,6 +427,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                 startDate: startDate,
                 status: status,
                 taskDescription: taskDescription,
+                taskDeliverables: taskDeliverables,
                 taskTitle: taskTitle)
             : status == 'inProgress'
                 ? projectController.addToCompleted(
@@ -361,6 +439,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     startDate: startDate,
                     status: status,
                     taskDescription: taskDescription,
+                    taskDeliverables: taskDeliverables,
                     taskTitle: taskTitle)
                 : projectController.addToInProgress(
                     copilot: copilot,
@@ -371,6 +450,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     startDate: startDate,
                     status: status,
                     taskDescription: taskDescription,
+                    taskDeliverables: taskDeliverables,
                     taskTitle: taskTitle);
       } else if (value == 3) {
         editTaskPopUp(
