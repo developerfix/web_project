@@ -22,7 +22,7 @@ class ProjectDashboard extends StatefulWidget {
 }
 
 class _ProjectDashboardState extends State<ProjectDashboard> {
-  final ProjectController projectController = Get.put(ProjectController());
+  final ProjectController projectController = Get.find();
   final ProfileController profileController = Get.find();
   final _uid = AuthController.instance.user!.uid;
   final GlobalKey<ScaffoldState> _key = GlobalKey();
@@ -66,27 +66,23 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                         isNeedAppbar: false),
                     drawer: assetsSection(context),
                     endDrawer: const EndDrawerWidget(),
-                    body: SizedBox(
-                      height: screenHeight(context),
-                      width: screenWidth(context),
-                      child: Row(
-                        children: [
-                          constraints.maxWidth > 1800
-                              ? assetsSection(context,
-                                  projectController: projectController)
-                              : Container(),
-                          dashboardMainSection(context, constraints,
-                              profileController: profileController,
-                              projectController: projectController),
-                          constraints.maxWidth < 1500
-                              ? Container()
-                              : notesSection(constraints, context,
-                                  commentController: commentController,
-                                  profileController: profileController,
-                                  projectController: projectController,
-                                  scrollController: _scrollController)
-                        ],
-                      ),
+                    body: Row(
+                      children: [
+                        constraints.maxWidth > 1800
+                            ? assetsSection(context,
+                                projectController: projectController)
+                            : Container(),
+                        dashboardMainSection(context, constraints,
+                            profileController: profileController,
+                            projectController: projectController),
+                        constraints.maxWidth < 1500
+                            ? Container()
+                            : notesSection(constraints, context,
+                                commentController: commentController,
+                                profileController: profileController,
+                                projectController: projectController,
+                                scrollController: _scrollController)
+                      ],
                     ));
               });
             }

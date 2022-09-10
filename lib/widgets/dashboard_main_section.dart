@@ -93,70 +93,68 @@ Expanded dashboardMainSection(BuildContext context, BoxConstraints constraints,
               height: screenHeight(context) * 0.05,
             ),
             // BoardSection(),
-            Obx(() {
-              return Expanded(
-                  child: projectController.toDoTasks.isEmpty &&
-                          projectController.inProgressTasks.isEmpty &&
-                          projectController.completedTasks.isEmpty
-                      ? Center(
-                          child: txt(
-                              txt: 'Added tasks will be listed here',
-                              fontSize: 14),
-                        )
-                      : constraints.maxWidth < 1200
-                          ? ListView(
-                              scrollDirection: Axis.horizontal,
-                              children: [
-                                SizedBox(
-                                  width: 400,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 10, right: 10),
-                                    child: todoKanbanList(
-                                        context, projectController),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 400,
-                                  child: inprogressKanbanList(
+            Expanded(
+                child: projectController.toDoTasks.isEmpty &&
+                        projectController.inProgressTasks.isEmpty &&
+                        projectController.completedTasks.isEmpty
+                    ? Center(
+                        child: txt(
+                            txt: 'Added tasks will be listed here',
+                            fontSize: 14),
+                      )
+                    : constraints.maxWidth < 1200
+                        ? ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              SizedBox(
+                                width: 400,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 10, right: 10),
+                                  child: todoKanbanList(
                                       context, projectController),
                                 ),
-                                SizedBox(
-                                  width: 400,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 10, right: 10),
-                                    child: completedKanbanList(
-                                        context, projectController),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Row(
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 10, right: 10),
-                                    child: todoKanbanList(
-                                        context, projectController),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: inprogressKanbanList(
+                              ),
+                              SizedBox(
+                                width: 400,
+                                child: inprogressKanbanList(
+                                    context, projectController),
+                              ),
+                              SizedBox(
+                                width: 400,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 10, right: 10),
+                                  child: completedKanbanList(
                                       context, projectController),
                                 ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 10, right: 10),
-                                    child: completedKanbanList(
-                                        context, projectController),
-                                  ),
+                              ),
+                            ],
+                          )
+                        : Row(
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 10, right: 10),
+                                  child: todoKanbanList(
+                                      context, projectController),
                                 ),
-                              ],
-                            ));
-            }),
+                              ),
+                              Expanded(
+                                child: inprogressKanbanList(
+                                    context, projectController),
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 10, right: 10),
+                                  child: completedKanbanList(
+                                      context, projectController),
+                                ),
+                              ),
+                            ],
+                          )),
           ],
         ),
       ),
@@ -174,9 +172,11 @@ Column completedKanbanList(
       ),
       Container(
         height: screenHeight(context) * 0.73,
-        decoration: const BoxDecoration(
-          color: Color(0xfff0f2f5),
-          borderRadius: BorderRadius.only(
+        decoration: BoxDecoration(
+          color: projectController.isDarkTheme.value
+              ? Colors.black26
+              : const Color(0xfff0f2f5),
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(10),
             topRight: Radius.circular(10),
           ),
@@ -256,9 +256,11 @@ Column inprogressKanbanList(
       ),
       Container(
         height: screenHeight(context) * 0.73,
-        decoration: const BoxDecoration(
-          color: Color(0xfff0f2f5),
-          borderRadius: BorderRadius.only(
+        decoration: BoxDecoration(
+          color: projectController.isDarkTheme.value
+              ? Colors.black26
+              : const Color(0xfff0f2f5),
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(10),
             topRight: Radius.circular(10),
           ),
@@ -339,15 +341,17 @@ Column todoKanbanList(
       ),
       Container(
         height: screenHeight(context) * 0.73,
-        decoration: const BoxDecoration(
-          color: Color(0xfff0f2f5),
-          borderRadius: BorderRadius.only(
+        decoration: BoxDecoration(
+          // color: Color(0xfff0f2f5),
+          color: projectController.isDarkTheme.value
+              ? Colors.black26
+              : const Color(0xfff0f2f5),
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(10),
             topRight: Radius.circular(10),
           ),
         ),
-        child: projectController.isTasksUpdating.isTrue ||
-                projectController.isNewTasksUpdating.isTrue
+        child: projectController.isTasksUpdating.isTrue
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

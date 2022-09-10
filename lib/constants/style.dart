@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firedart/firedart.dart' as firedart;
+import 'package:projectx/controllers/project_controller.dart';
 
 const int mainColor = 0xff736879;
 const int secondaryColor = 0xff958890;
@@ -18,6 +19,7 @@ var firebaseAuth = FirebaseAuth.instance;
 var firebaseStorage = FirebaseStorage.instance;
 var firestore = FirebaseFirestore.instance;
 var firedartFirestore = firedart.Firestore.instance;
+final ProjectController projecttController = Get.find();
 
 //for all the text in the app
 Widget txt(
@@ -44,7 +46,10 @@ Widget txt(
               textStyle: TextStyle(
                 overflow: overflow ?? TextOverflow.ellipsis,
                 letterSpacing: letterSpacing ?? 0,
-                color: fontColor ?? const Color(brownishColor),
+                color: fontColor ??
+                    (projecttController.isDarkTheme.value
+                        ? Colors.white60
+                        : const Color(brownishColor)),
                 fontWeight: fontWeight ?? FontWeight.w600,
               ),
             )
@@ -52,12 +57,32 @@ Widget txt(
               textStyle: TextStyle(
                 overflow: overflow ?? TextOverflow.visible,
                 letterSpacing: letterSpacing ?? 0,
-                color: fontColor ?? const Color(brownishColor),
+                color: fontColor ??
+                    (projecttController.isDarkTheme.value
+                        ? Colors.white60
+                        : const Color(brownishColor)),
                 fontWeight: fontWeight ?? FontWeight.w600,
               ),
             ),
     );
   });
+}
+
+Text popText(String status) {
+  return Text(
+    status,
+    maxLines: 1,
+    style: GoogleFonts.montserrat(
+      textStyle: TextStyle(
+        fontSize: 14,
+        overflow: TextOverflow.visible,
+        color: projecttController.isDarkTheme.value
+            ? Colors.white54
+            : const Color(brownishColor),
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+  );
 }
 
 getErrorSnackBar(String message) {

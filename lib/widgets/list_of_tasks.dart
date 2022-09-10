@@ -35,327 +35,31 @@ Widget listOfTasks(
               var controller =
                   ExpandableController.of(context, required: true)!;
               return Expandable(
-                collapsed: GestureDetector(
-                  onTap: () {
-                    controller.toggle();
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(.2),
-                            blurRadius: 10,
-                          )
-                        ]),
-                    child: Column(
-                      children: [
-                        Container(
-                            height: screenHeight(context) * 0.008,
-                            decoration: BoxDecoration(
-                              color: board == 'todo'
-                                  ? Colors.grey.shade500
-                                  : board == 'inProgress'
-                                      ? Colors.yellow.shade600
-                                      : Colors.greenAccent,
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(8),
-                                  topRight: Radius.circular(8)),
-                            )),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              txt(
-                                  txt: taskTitle,
-                                  maxLines: 2,
-                                  font: 'Comfortaa',
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 24),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                      flex: 2,
-                                      child: txt(
-                                          txt: taskDescription,
-                                          fontWeight: FontWeight.w500,
-                                          maxLines: 5,
-                                          fontSize: 18)),
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        txt(
-                                            txt: endDate,
-                                            maxLines: 1,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20),
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        txt(
-                                            txt: pilot.isEmpty
-                                                ? pilot
-                                                : pilot.substring(1),
-                                            maxLines: 2,
-                                            font: 'Comfortaa',
-                                            fontSize: 20),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                              const Divider(
-                                color: Color(secondaryColor),
-                                thickness: 2,
-                              ),
-                              Center(
-                                child: txt(
-                                    txt: phase,
-                                    maxLines: 2,
-                                    font: 'Comfortaa',
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 24),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                expanded: GestureDetector(
-                  onTap: () {
-                    controller.toggle();
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(.2),
-                            blurRadius: 10,
-                          )
-                        ]),
-                    child: Column(
-                      children: [
-                        Container(
-                            height: screenHeight(context) * 0.008,
-                            decoration: BoxDecoration(
-                              color: board == 'todo'
-                                  ? Colors.grey.shade500
-                                  : board == 'inProgress'
-                                      ? Colors.yellow.shade600
-                                      : Colors.greenAccent,
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(8),
-                                  topRight: Radius.circular(8)),
-                            )),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    // flex: 3,
-                                    child: Center(
-                                      child: txt(
-                                          txt: taskTitle,
-                                          maxLines: 5000,
-                                          font: 'Comfortaa',
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 24),
-                                    ),
-                                  ),
-                                  popupMenuButtonWidget(
-                                      status,
-                                      projectController,
-                                      copilot,
-                                      endDate,
-                                      phase,
-                                      pilot,
-                                      priorityLevel,
-                                      startDate,
-                                      taskDescription,
-                                      taskTitle,
-                                      taskDeliverables,
-                                      context),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: txt(
-                                        txt: taskDescription,
-                                        fontWeight: FontWeight.w500,
-                                        maxLines: 5000,
-                                        fontSize: 18),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        txt(
-                                            txt: startDate,
-                                            maxLines: 1,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20),
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        txt(
-                                            txt: endDate,
-                                            maxLines: 1,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20),
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        txt(
-                                            txt: pilot.isEmpty
-                                                ? ''
-                                                : pilot.substring(1),
-                                            maxLines: 2,
-                                            font: 'Comfortaa',
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20),
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        txt(
-                                            txt: copilot.isEmpty
-                                                ? ''
-                                                : copilot.substring(1),
-                                            maxLines: 2,
-                                            font: 'Comfortaa',
-                                            fontSize: 20),
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        txt(
-                                            txt: priorityLevel == 1
-                                                ? 'High Priority'
-                                                : priorityLevel == 2
-                                                    ? 'Regular Priority'
-                                                    : 'Future Priority',
-                                            maxLines: 2,
-                                            font: 'Comfortaa',
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              taskDeliverables.isEmpty
-                                  ? Container()
-                                  : Row(
-                                      children: [
-                                        txt(
-                                            txt: 'Deliverables:',
-                                            maxLines: 2,
-                                            font: 'Comfortaa',
-                                            // fontWeight: FontWeight.w500,
-                                            fontSize: 24),
-                                      ],
-                                    ),
-                              taskDeliverables.isEmpty
-                                  ? Container()
-                                  : SizedBox(
-                                      // height: 200,
-                                      // width: 300,
-                                      child: Expanded(
-                                        child: GridView.builder(
-                                            physics:
-                                                const NeverScrollableScrollPhysics(),
-                                            shrinkWrap: true,
-                                            padding: const EdgeInsets.all(8.0),
-                                            gridDelegate:
-                                                const SliverGridDelegateWithMaxCrossAxisExtent(
-                                                    maxCrossAxisExtent: 100,
-                                                    childAspectRatio: 2 / 2,
-                                                    crossAxisSpacing: 30,
-                                                    mainAxisSpacing: 30),
-                                            itemCount: taskDeliverables.length,
-                                            itemBuilder:
-                                                (BuildContext ctx, index) {
-                                              return InkWell(
-                                                onTap: (() {
-                                                  downloadFile(
-                                                      taskDeliverables[index]
-                                                          ['urlDownload'],
-                                                      taskDeliverables[index]
-                                                          ['filename']);
-                                                }),
-                                                child: Container(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.0),
-                                                    color: const Color(
-                                                        secondaryColor),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.black
-                                                            .withOpacity(0.16),
-                                                        offset: const Offset(
-                                                            0, 3.0),
-                                                        blurRadius: 6.0,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: Center(
-                                                    child: txt(
-                                                        txt: taskDeliverables[
-                                                            index]['filename'],
-                                                        maxLines: 2,
-                                                        fontColor: Colors.white,
-                                                        fontSize: 16),
-                                                  ),
-                                                ),
-                                              );
-                                            }),
-                                      ),
-                                    ),
-                              const Divider(
-                                color: Color(secondaryColor),
-                                thickness: 2,
-                              ),
-                              Center(
-                                child: txt(
-                                    txt: phase,
-                                    maxLines: 2,
-                                    font: 'Comfortaa',
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 24),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                collapsed: collapsedWidgetKanbanTask(
+                    controller,
+                    projectController,
+                    context,
+                    board,
+                    taskTitle,
+                    taskDescription,
+                    endDate,
+                    pilot,
+                    phase),
+                expanded: expandedWidgetKanbanTask(
+                    controller,
+                    projectController,
+                    context,
+                    board,
+                    taskTitle,
+                    status,
+                    copilot,
+                    endDate,
+                    phase,
+                    pilot,
+                    priorityLevel,
+                    startDate,
+                    taskDescription,
+                    taskDeliverables),
               );
             }),
           ],
@@ -363,6 +67,349 @@ Widget listOfTasks(
       ),
     ));
   });
+}
+
+GestureDetector collapsedWidgetKanbanTask(
+    ExpandableController controller,
+    ProjectController projectController,
+    BuildContext context,
+    String? board,
+    String taskTitle,
+    String taskDescription,
+    String endDate,
+    String pilot,
+    String phase) {
+  return GestureDetector(
+    onTap: () {
+      controller.toggle();
+    },
+    child: Container(
+      margin: const EdgeInsets.all(16),
+      decoration: projectController.isDarkTheme.value
+          ? BoxDecoration(
+              color: Colors.black26,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26.withOpacity(.2),
+                    blurRadius: 10,
+                  )
+                ])
+          : BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(.2),
+                    blurRadius: 10,
+                  )
+                ]),
+      child: Column(
+        children: [
+          Container(
+              height: screenHeight(context) * 0.008,
+              decoration: BoxDecoration(
+                color: board == 'todo'
+                    ? Colors.grey.shade500
+                    : board == 'inProgress'
+                        ? Colors.yellow.shade600
+                        : Colors.greenAccent,
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+              )),
+          Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                txt(
+                    txt: taskTitle,
+                    maxLines: 2,
+                    font: 'Comfortaa',
+                    fontWeight: FontWeight.w500,
+                    fontSize: 24),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                        flex: 2,
+                        child: txt(
+                            txt: taskDescription,
+                            fontWeight: FontWeight.w500,
+                            maxLines: 5,
+                            fontSize: 18)),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          txt(
+                              txt: endDate,
+                              maxLines: 1,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          txt(
+                              txt: pilot.isEmpty ? pilot : pilot.substring(1),
+                              maxLines: 2,
+                              font: 'Comfortaa',
+                              fontSize: 20),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                const Divider(
+                  color: Color(secondaryColor),
+                  thickness: 2,
+                ),
+                Center(
+                  child: txt(
+                      txt: phase,
+                      maxLines: 2,
+                      font: 'Comfortaa',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 24),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+GestureDetector expandedWidgetKanbanTask(
+    ExpandableController controller,
+    ProjectController projectController,
+    BuildContext context,
+    String? board,
+    String taskTitle,
+    String status,
+    String copilot,
+    String endDate,
+    String phase,
+    String pilot,
+    int priorityLevel,
+    String startDate,
+    String taskDescription,
+    List<dynamic> taskDeliverables) {
+  return GestureDetector(
+    onTap: () {
+      controller.toggle();
+    },
+    child: Container(
+      margin: const EdgeInsets.all(16),
+      decoration: projectController.isDarkTheme.value
+          ? BoxDecoration(
+              color: Colors.black26,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26.withOpacity(.2),
+                    blurRadius: 10,
+                  )
+                ])
+          : BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(.2),
+                    blurRadius: 10,
+                  )
+                ]),
+      child: Column(
+        children: [
+          Container(
+              height: screenHeight(context) * 0.008,
+              decoration: BoxDecoration(
+                color: board == 'todo'
+                    ? Colors.grey.shade500
+                    : board == 'inProgress'
+                        ? Colors.yellow.shade600
+                        : Colors.greenAccent,
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+              )),
+          Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      // flex: 3,
+                      child: Center(
+                        child: txt(
+                            txt: taskTitle,
+                            maxLines: 5000,
+                            font: 'Comfortaa',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 24),
+                      ),
+                    ),
+                    popupMenuButtonWidget(
+                        status,
+                        projectController,
+                        copilot,
+                        endDate,
+                        phase,
+                        pilot,
+                        priorityLevel,
+                        startDate,
+                        taskDescription,
+                        taskTitle,
+                        taskDeliverables,
+                        context),
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: txt(
+                          txt: taskDescription,
+                          fontWeight: FontWeight.w500,
+                          maxLines: 5000,
+                          fontSize: 18),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          txt(
+                              txt: startDate,
+                              maxLines: 1,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          txt(
+                              txt: endDate,
+                              maxLines: 1,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          txt(
+                              txt: pilot.isEmpty ? '' : pilot.substring(1),
+                              maxLines: 2,
+                              font: 'Comfortaa',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          txt(
+                              txt: copilot.isEmpty ? '' : copilot.substring(1),
+                              maxLines: 2,
+                              font: 'Comfortaa',
+                              fontSize: 20),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          txt(
+                              txt: priorityLevel == 1
+                                  ? 'High Priority'
+                                  : priorityLevel == 2
+                                      ? 'Regular Priority'
+                                      : 'Future Priority',
+                              maxLines: 2,
+                              font: 'Comfortaa',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                taskDeliverables.isEmpty
+                    ? Container()
+                    : Row(
+                        children: [
+                          txt(
+                              txt: 'Deliverables:',
+                              maxLines: 2,
+                              font: 'Comfortaa',
+                              fontSize: 24),
+                        ],
+                      ),
+                taskDeliverables.isEmpty
+                    ? Container()
+                    : GridView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.all(8.0),
+                        gridDelegate:
+                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 100,
+                                childAspectRatio: 2 / 2,
+                                crossAxisSpacing: 30,
+                                mainAxisSpacing: 30),
+                        itemCount: taskDeliverables.length,
+                        itemBuilder: (BuildContext ctx, index) {
+                          return InkWell(
+                            onTap: (() {
+                              downloadFile(
+                                  taskDeliverables[index]['urlDownload'],
+                                  taskDeliverables[index]['filename']);
+                            }),
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.0),
+                                color: const Color(secondaryColor),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.16),
+                                    offset: const Offset(0, 3.0),
+                                    blurRadius: 6.0,
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: txt(
+                                    txt: taskDeliverables[index]['filename'],
+                                    maxLines: 2,
+                                    fontColor: Colors.white,
+                                    fontSize: 16),
+                              ),
+                            ),
+                          );
+                        }),
+                const Divider(
+                  color: Color(secondaryColor),
+                  thickness: 2,
+                ),
+                Center(
+                  child: txt(
+                      txt: phase,
+                      maxLines: 2,
+                      font: 'Comfortaa',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 24),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 PopupMenuButton<int> popupMenuButtonWidget(
@@ -453,6 +500,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     taskDeliverables: taskDeliverables,
                     taskTitle: taskTitle);
       } else if (value == 3) {
+        projectController.selectedDeliverables.value = taskDeliverables;
         editTaskPopUp(
           context,
           copilot: copilot,
@@ -479,72 +527,26 @@ PopupMenuButton<int> popupMenuButtonWidget(
     itemBuilder: (context) => [
       PopupMenuItem(
         value: 1,
-        child: Text(
+        child: popText(
           status == 'todo'
               ? 'Add to Inprogress'
               : status == 'inProgress'
                   ? 'Add to Todo'
                   : 'Add to Todo',
-          maxLines: 1,
-          style: GoogleFonts.montserrat(
-            textStyle: const TextStyle(
-              fontSize: 14,
-              overflow: TextOverflow.visible,
-              color: Color(brownishColor),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
         ),
       ),
       PopupMenuItem(
         value: 2,
-        child: Text(
+        child: popText(
           status == 'todo'
               ? 'Add to Completed'
               : status == 'inProgress'
                   ? 'Add to Completed'
                   : 'Add to Inprogress',
-          maxLines: 1,
-          style: GoogleFonts.montserrat(
-            textStyle: const TextStyle(
-              fontSize: 14,
-              overflow: TextOverflow.visible,
-              color: Color(brownishColor),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
         ),
       ),
-      PopupMenuItem(
-        value: 3,
-        child: Text(
-          'Edit',
-          maxLines: 1,
-          style: GoogleFonts.montserrat(
-            textStyle: const TextStyle(
-              fontSize: 14,
-              overflow: TextOverflow.visible,
-              color: Color(brownishColor),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-      PopupMenuItem(
-        value: 4,
-        child: Text(
-          'Delete',
-          maxLines: 1,
-          style: GoogleFonts.montserrat(
-            textStyle: const TextStyle(
-              fontSize: 14,
-              overflow: TextOverflow.visible,
-              color: Color(brownishColor),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
+      PopupMenuItem(value: 3, child: popText('Edit')),
+      PopupMenuItem(value: 4, child: popText('Delete')),
     ],
     child: const Icon(Icons.edit,
         color: Color(

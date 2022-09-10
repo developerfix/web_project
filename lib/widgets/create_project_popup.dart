@@ -7,6 +7,7 @@ import 'package:projectx/widgets/popup_textfield.dart';
 import '../constants/style.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/profile_controller.dart';
+import 'add_new_task_popup.dart';
 import 'loading_indicator.dart';
 
 String categoryValue = '3D Design';
@@ -19,6 +20,8 @@ Future<dynamic> createProjectPopUp(
   final projectController = Get.put(ProjectController());
 
   final uid = AuthController.instance.user!.uid;
+  String taskPilot = 'asdwed';
+  String taskCoPilot = 'aas';
 
   final formKey = GlobalKey<FormState>();
 
@@ -58,7 +61,7 @@ Future<dynamic> createProjectPopUp(
                               children: [
                                 SizedBox(
                                   width: screenWidth(context) * 0.07,
-                                  height: screenHeight(context) * 0.25,
+                                  height: screenHeight(context) * 0.4,
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -74,6 +77,14 @@ Future<dynamic> createProjectPopUp(
                                         fontSize: 30,
                                       ),
                                       txt(
+                                        txt: 'Pilot:',
+                                        fontSize: 30,
+                                      ),
+                                      txt(
+                                        txt: 'CoPilot:',
+                                        fontSize: 30,
+                                      ),
+                                      txt(
                                         txt: 'Category:',
                                         fontSize: 30,
                                       ),
@@ -82,7 +93,7 @@ Future<dynamic> createProjectPopUp(
                                 ),
                                 SizedBox(
                                   width: screenWidth(context) * 0.2,
-                                  height: screenHeight(context) * 0.25,
+                                  height: screenHeight(context) * 0.4,
                                   child: Column(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceEvenly,
@@ -97,6 +108,14 @@ Future<dynamic> createProjectPopUp(
                                         hint: '...',
                                         controller: subTitleController,
                                       ),
+                                      selectMember(context,
+                                          pilotOrCopilot: 'Pilot',
+                                          pilotOrCopilotValue: projectController
+                                              .projectPilot.value),
+                                      selectMember(context,
+                                          pilotOrCopilot: 'CoPilot',
+                                          pilotOrCopilotValue: projectController
+                                              .projectCoPilot.value),
                                       categoryWidget(context)
                                     ],
                                   ),
@@ -139,13 +158,22 @@ Future<dynamic> createProjectPopUp(
                                 ),
                                 InkWell(
                                   onTap: () {
+                                    print(projectController.projectPilot.value);
+                                    print(
+                                        projectController.projectCoPilot.value);
                                     if (formKey.currentState!.validate()) {
-                                      projectController.newProject(
-                                        username: controller.user['name'],
-                                        uid: uid,
-                                        title: titleController.text,
-                                        subtitle: subTitleController.text,
-                                      );
+                                      if (projectController
+                                              .projectPilot.value.isNotEmpty &&
+                                          projectController.projectCoPilot.value
+                                              .isNotEmpty) {
+                                        projectController.newProject(
+                                            username: controller.user['name'],
+                                            uid: uid,
+                                            title: titleController.text,
+                                            subtitle: subTitleController.text,
+                                            pilot: taskPilot,
+                                            copilot: taskCoPilot);
+                                      }
                                     }
                                   },
                                   child: Container(
@@ -164,7 +192,7 @@ Future<dynamic> createProjectPopUp(
                                     ),
                                     child: Center(
                                         child: txt(
-                                            txt: 'Confirm',
+                                            txt: 'create',
                                             fontSize: 15,
                                             fontColor: Colors.white)),
                                   ),
@@ -209,6 +237,14 @@ StatefulBuilder categoryWidget(BuildContext context) {
               );
             }).toList(),
 
+            style: GoogleFonts.montserrat(
+              textStyle: const TextStyle(
+                overflow: TextOverflow.ellipsis,
+                letterSpacing: 0,
+                color: Color(brownishColor),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             onChanged: (value) {
               setState(() {
                 categoryValue = value.toString();

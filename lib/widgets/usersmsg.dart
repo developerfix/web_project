@@ -1,18 +1,11 @@
-import 'dart:io';
-
-import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart';
 import 'package:projectx/widgets/photo_view.dart';
-import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart';
 import '../constants/style.dart';
-import 'package:http/http.dart' as http;
 
 Padding usersMsg(BuildContext context,
     {DateTime? created,
@@ -51,34 +44,15 @@ Padding usersMsg(BuildContext context,
                 child: Text.rich(
                 TextSpan(
                   children: [
-                    TextSpan(
-                        text: username!,
-                        style: GoogleFonts.montserrat(
-                          textStyle: const TextStyle(
-                              overflow: TextOverflow.visible,
-                              color: Color(brownishColor),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14),
-                        )),
-                    TextSpan(
-                        text:
-                            ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
-                        style: GoogleFonts.montserrat(
-                          textStyle: const TextStyle(
-                              overflow: TextOverflow.visible,
-                              color: Color(brownishColor),
-                              fontWeight: FontWeight.normal,
-                              fontSize: 14),
-                        )),
-                    TextSpan(
+                    textSpanForUserMsg(text: username),
+                    textSpanForUserMsg(
+                      text:
+                          ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
+                    ),
+                    textSpanForUserMsg(
                         text: comment,
-                        style: GoogleFonts.montserrat(
-                          textStyle: const TextStyle(
-                              overflow: TextOverflow.visible,
-                              color: Color(brownishColor),
-                              fontWeight: FontWeight.normal,
-                              fontSize: 18),
-                        )),
+                        fontSize: 18,
+                        fontWeight: FontWeight.normal),
                   ],
                 ),
               ))
@@ -86,149 +60,87 @@ Padding usersMsg(BuildContext context,
                 onTap: () {
                   downloadFile(comment, filename);
                 },
-                child: screenWidth(context) < 1800
-                    ? SizedBox(
-                        width: screenWidth(context) * 0.15,
-                        height: screenHeight(context) * 0.075,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Flexible(
-                              child: Text.rich(
-                                TextSpan(
-                                  children: [
-                                    TextSpan(
-                                        text: username!,
-                                        style: GoogleFonts.montserrat(
-                                          textStyle: const TextStyle(
-                                              overflow: TextOverflow.visible,
-                                              color: Color(brownishColor),
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 14),
-                                        )),
-                                    TextSpan(
-                                        text:
-                                            ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
-                                        style: GoogleFonts.montserrat(
-                                          textStyle: const TextStyle(
-                                              overflow: TextOverflow.visible,
-                                              color: Color(brownishColor),
-                                              fontWeight: FontWeight.normal,
-                                              fontSize: 14),
-                                        )),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              width: screenWidth(context) * 0.1,
-                              height: screenHeight(context) * 0.045,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.0),
-                                color: const Color(secondaryColor),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.16),
-                                    offset: const Offset(0, 3.0),
-                                    blurRadius: 6.0,
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                children: [
-                                  Flexible(
-                                      child: Text.rich(
-                                    TextSpan(
-                                      children: [
-                                        TextSpan(
-                                            text: '@$username:\n',
-                                            style: GoogleFonts.montserrat(
-                                              textStyle: const TextStyle(
-                                                  overflow:
-                                                      TextOverflow.visible,
-                                                  color: Color(brownishColor),
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 14),
-                                            )),
-                                      ],
-                                    ),
-                                  )),
-                                  Center(
-                                    child: txt(
-                                        txt: 'Download file',
-                                        fontSize: 14,
-                                        fontColor: Colors.white),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : SizedBox(
-                        width: screenWidth(context) * 0.15,
-                        height: screenHeight(context) * 0.08,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Flexible(
-                              child: Text.rich(
-                                TextSpan(
-                                  children: [
-                                    TextSpan(
-                                        text: username!,
-                                        style: GoogleFonts.montserrat(
-                                          textStyle: const TextStyle(
-                                              overflow: TextOverflow.visible,
-                                              color: Color(brownishColor),
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 14),
-                                        )),
-                                    TextSpan(
-                                        text:
-                                            ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
-                                        style: GoogleFonts.montserrat(
-                                          textStyle: const TextStyle(
-                                              overflow: TextOverflow.visible,
-                                              color: Color(brownishColor),
-                                              fontWeight: FontWeight.normal,
-                                              fontSize: 14),
-                                        )),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              width: screenWidth(context) * 0.1,
-                              height: screenHeight(context) * 0.05,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.0),
-                                color: const Color(secondaryColor),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.16),
-                                    offset: const Offset(0, 3.0),
-                                    blurRadius: 6.0,
-                                  ),
-                                ],
-                              ),
-                              child: Center(
-                                child: txt(
-                                    txt: filename!,
-                                    fontSize: 14,
-                                    fontColor: Colors.white),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
+                child: fileContinerSizedBox(
+                    context,
+                    username,
+                    formattedTime,
+                    formattedDateDay,
+                    formattedDateToday,
+                    formattedCommentDate,
+                    filename)),
       ],
     ),
   );
+}
+
+SizedBox fileContinerSizedBox(
+    BuildContext context,
+    String? username,
+    String formattedTime,
+    String formattedDateDay,
+    String formattedDateToday,
+    String formattedCommentDate,
+    String? filename) {
+  return SizedBox(
+    width: screenWidth(context) * 0.15,
+    height: screenHeight(context) * 0.08,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Flexible(
+            child: Text.rich(
+          TextSpan(
+            children: [
+              textSpanForUserMsg(text: username),
+              textSpanForUserMsg(
+                text:
+                    ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
+              ),
+            ],
+          ),
+        )),
+        const Spacer(),
+        fileContainerForUserMsg(context, filename),
+      ],
+    ),
+  );
+}
+
+Container fileContainerForUserMsg(BuildContext context, String? filename) {
+  return Container(
+    width: screenWidth(context) * 0.1,
+    height: screenHeight(context) * 0.05,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(8.0),
+      color: const Color(secondaryColor),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.16),
+          offset: const Offset(0, 3.0),
+          blurRadius: 6.0,
+        ),
+      ],
+    ),
+    child: Center(
+      child: txt(txt: filename!, fontSize: 14, fontColor: Colors.white),
+    ),
+  );
+}
+
+TextSpan textSpanForUserMsg(
+    {String? text, double? fontSize, FontWeight? fontWeight}) {
+  return TextSpan(
+      text: text!,
+      style: GoogleFonts.montserrat(
+        textStyle: TextStyle(
+            overflow: TextOverflow.visible,
+            color: projecttController.isDarkTheme.value
+                ? Colors.white60
+                : const Color(brownishColor),
+            fontWeight: fontWeight ?? FontWeight.w600,
+            fontSize: fontSize ?? 14),
+      ));
 }
 
 downloadFile(url, filename) async {

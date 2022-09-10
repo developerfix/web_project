@@ -20,11 +20,11 @@ class ProjectController extends GetxController {
   RxBool isCommentFileUpdatingBefore = false.obs;
   RxBool isSelectedDeliverablesUpdatingBefore = false.obs;
   RxBool isSelectedDeliverablesUpdatingAfter = false.obs;
-
   RxBool isCommentFileUpdatingAfter = false.obs;
+  RxBool isSearching = false.obs;
   RxBool isTasksUpdating = false.obs;
-  RxBool isNewTasksUpdating = false.obs;
   RxBool isMembersUpdating = false.obs;
+  RxBool isDarkTheme = false.obs;
   RxList<dynamic> comments = <dynamic>[].obs;
   RxList<dynamic> assets = <dynamic>[].obs;
   RxList<dynamic> users = <dynamic>[].obs;
@@ -34,8 +34,13 @@ class ProjectController extends GetxController {
   RxList<dynamic> completedTasks = <dynamic>[].obs;
   RxList<dynamic> selectedDeliverables = <dynamic>[].obs;
   Rx<double> progress = 0.0.obs;
+  Rx<int> commentsFilter = 1.obs;
   Rx<double> deliverableUplaodingProgress = 0.0.obs;
-
+  Rx<String> searchedNote = "".obs;
+  Rx<String> taskPilot = "".obs;
+  Rx<String> taskCoPilot = "".obs;
+  Rx<String> projectPilot = "".obs;
+  Rx<String> projectCoPilot = "".obs;
   Rx<String> _uid = "".obs;
   Rx<String> _projectId = "".obs;
   // ignore: prefer_typing_uninitialized_variables
@@ -525,12 +530,19 @@ class ProjectController extends GetxController {
     }
   }
 
-  void newProject(
-      {String? title, String? subtitle, String? uid, String? username}) async {
+  void newProject({
+    String? title,
+    String? subtitle,
+    String? uid,
+    String? username,
+    String? pilot,
+    String? copilot,
+    String? catergory,
+  }) async {
     String projectId = '';
     Project project = Project(
-        copilot: 'assign co-pilot',
-        lead: 'assign lead',
+        copilot: copilot,
+        lead: pilot,
         projectId: projectId,
         subtitle: subtitle,
         title: title);
@@ -755,13 +767,6 @@ class ProjectController extends GetxController {
     completedTasks.clear();
     if (!kIsWeb) {
       var projectTasks = await firedartFirestore
-          .collection('users')
-          .document(_uid.value)
-          .collection('projects')
-          .document(_projectId.value)
-          .collection('tasks')
-          .get();
-      var projectDeliverables = await firedartFirestore
           .collection('users')
           .document(_uid.value)
           .collection('projects')
@@ -1003,6 +1008,7 @@ class ProjectController extends GetxController {
       String? pilot,
       String? copilot,
       String? startDate,
+      int? isDeliverableNeededForCompletion,
       String? endDate,
       String? status,
       List? deliverables,
@@ -1013,10 +1019,10 @@ class ProjectController extends GetxController {
       deliverablesList.add(item);
     }
 
-    FutureGroup futureGroup = FutureGroup();
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
+        isDeliverableNeededForCompletion: isDeliverableNeededForCompletion,
         taskDescription: taskDescription,
         pilot: pilot,
         copilot: copilot,
@@ -1035,22 +1041,7 @@ class ProjectController extends GetxController {
               .document(_projectId.value)
               .collection('tasks')
               .add(task.toJson())
-              .then((value) async {
-            // for (var item in deliverablesList) {
-            //   futureGroup.add(firedartFirestore
-            //       .collection('users')
-            //       .document(projectMembers[i]['uid'])
-            //       .collection('projects')
-            //       .document(_projectId.value)
-            //       .collection('tasks')
-            //       .document(value.id)
-            //       .collection('deliverables')
-            //       .add({
-            //     "urlDownload": item['urlDownload'],
-            //     "filename": item['filename']
-            //   }));
-            // }
-          });
+              .then((value) async {});
         }
       } else {
         for (var i = 0; i < projectMembers.length; i++) {
@@ -1060,36 +1051,18 @@ class ProjectController extends GetxController {
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
-              .add(task.toJson())
-              .then((value) async {
-            for (var item in deliverablesList) {
-              futureGroup.add(firestore
-                  .collection('users')
-                  .doc(projectMembers[i]['uid'])
-                  .collection('projects')
-                  .doc(_projectId.value)
-                  .collection('tasks')
-                  .doc(value.id)
-                  .collection('deliverables')
-                  .add({
-                "urlDownload": item['urlDownload'],
-                "filename": item['filename']
-              }));
-            }
-          });
+              .add(task.toJson());
         }
       }
-      futureGroup.close();
-      getProjectTasks(); // toDoTasks.add(task);
+      getProjectTasks();
       isTasksUpdating.value = false;
       getSuccessSnackBar("task added successfully");
     } catch (e) {
       isTasksUpdating.value = false;
       //define error
-      print(e);
       getErrorSnackBar(
-          // "Something went wrong, Please try again",
-          '$e');
+        "Something went wrong, Please try again",
+      );
     }
   }
 
@@ -1104,8 +1077,10 @@ class ProjectController extends GetxController {
       String? startDate,
       String? endDate,
       String? status,
+      List? taskDeliverables,
       int? priorityLevel}) async {
     isTasksUpdating.value = true;
+    FutureGroup futureGroup = FutureGroup();
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
@@ -1115,6 +1090,7 @@ class ProjectController extends GetxController {
         startDate: startDate,
         endDate: endDate,
         status: status,
+        deliverables: taskDeliverables,
         priorityLevel: priorityLevel);
     try {
       if (!kIsWeb) {
@@ -1130,7 +1106,7 @@ class ProjectController extends GetxController {
               .get()
               .then((value) {
             for (var doc in value) {
-              doc.reference.update(task.toJson());
+              futureGroup.add(doc.reference.update(task.toJson()));
             }
           });
         }
@@ -1147,11 +1123,13 @@ class ProjectController extends GetxController {
               .get()
               .then((QuerySnapshot querySnapshot) {
             for (var doc in querySnapshot.docs) {
-              doc.reference.update(task.toJson());
+              futureGroup.add(doc.reference.update(task.toJson()));
             }
           });
         }
       }
+
+      futureGroup.close();
       getProjectTasks();
 
       isTasksUpdating.value = false;

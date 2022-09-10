@@ -6,13 +6,11 @@ import 'package:projectx/constants/style.dart';
 import 'package:projectx/controllers/profile_controller.dart';
 import 'package:projectx/controllers/project_controller.dart';
 
-import '../controllers/auth_controller.dart';
 import 'add_new_task_popup.dart';
 import 'select_task_members_popup.dart';
 
 final ProjectController projectController = Get.find();
 final ProfileController profileController = Get.find();
-final _uid = AuthController.instance.user!.uid;
 
 final titleController = TextEditingController();
 final descriptionController = TextEditingController();
@@ -33,7 +31,6 @@ Future<dynamic> editTaskPopUp(
   final String? startDate,
   final String? endDate,
   final String? status,
-  final List? deliverables,
   final int? priorityLevel,
 }) {
   final ProjectController projectController = Get.find();
@@ -491,6 +488,9 @@ Future<dynamic> editTaskPopUp(
                           ),
                           deliverablesWidget(context),
                           SizedBox(
+                            height: screenWidth(context) * 0.03,
+                          ),
+                          SizedBox(
                             width: screenWidth(context) * 0.5,
                             child: Row(
                               mainAxisAlignment: constraints.maxWidth < 800
@@ -508,6 +508,8 @@ Future<dynamic> editTaskPopUp(
                                     startDateController.text = '';
                                     phaseValue = '3D Design';
                                     value = 2;
+                                    // projectController.selectedDeliverables
+                                    //     .clear();
                                   },
                                   child: Container(
                                     width: constraints.maxWidth < 800
@@ -541,6 +543,8 @@ Future<dynamic> editTaskPopUp(
                                     projectController.updateTask(
                                         oldTaskDescription: taskDescription,
                                         oldTaskTitle: taskTitle,
+                                        taskDeliverables: projectController
+                                            .selectedDeliverables,
                                         taskTitle: titleController.text.isEmpty
                                             ? taskTitle
                                             : titleController.text,
@@ -574,6 +578,8 @@ Future<dynamic> editTaskPopUp(
                                     startDateController.text = '';
                                     phaseValue = '3D Design';
                                     value = 2;
+                                    // projectController.selectedDeliverables
+                                    //     .clear();
                                   },
                                   child: Container(
                                     width: constraints.maxWidth < 800

@@ -13,15 +13,14 @@ import 'loading_indicator.dart';
 String phaseValue = '3D Design';
 DateTime startdate = DateTime.now();
 DateTime endDate = DateTime.now();
-String taskPilot = '';
-String taskCoPilot = '';
 
 final titleController = TextEditingController();
 final descriptionController = TextEditingController();
 final endDateController = TextEditingController();
 final startDateController = TextEditingController();
 
-int selectedValue = 0;
+int selectedValue = 1;
+int prioritySelectedValue = 1;
 
 Future<dynamic> addNewTaskPopUp(BuildContext context) {
   final ProjectController projectController = Get.find();
@@ -392,41 +391,100 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                             height: screenHeight(context) * 0.01,
                           ),
                           SizedBox(
-                            height: screenHeight(context) * 0.2,
-                            width: constraints.maxWidth < 800
-                                ? screenWidth(context) * 0.5
-                                : screenWidth(context) * 0.3,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                StatefulBuilder(builder: (context, setState) {
-                                  return priorityWidget(
-                                      constraints, context, 'High Priority', 1,
+                              height: screenHeight(context) * 0.2,
+                              width: constraints.maxWidth < 800
+                                  ? screenWidth(context) * 0.5
+                                  : screenWidth(context) * 0.3,
+                              child:
+                                  StatefulBuilder(builder: (context, setState) {
+                                return Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    priorityWidget(
+                                      constraints,
+                                      context,
+                                      prioritySelectedValue,
+                                      'High Priority',
+                                      1,
                                       (int? val) {
-                                    setState(() {
-                                      selectedValue = val!;
-                                    });
-                                  });
-                                }),
-                                StatefulBuilder(builder: (context, setState) {
-                                  return priorityWidget(constraints, context,
-                                      'Medium Priority', 2, (int? val) {
-                                    setState(() {
-                                      selectedValue = val!;
-                                    });
-                                  });
-                                }),
-                                StatefulBuilder(builder: (context, setState) {
-                                  return priorityWidget(constraints, context,
-                                      'Future Priority', 3, (int? val) {
-                                    setState(() {
-                                      selectedValue = val!;
-                                    });
-                                  });
-                                }),
-                              ],
-                            ),
-                          ),
+                                        setState(() {
+                                          prioritySelectedValue = val!;
+                                        });
+                                      },
+                                    ),
+                                    priorityWidget(
+                                      constraints,
+                                      context,
+                                      prioritySelectedValue,
+                                      'Medium Priority',
+                                      2,
+                                      (int? val) {
+                                        setState(() {
+                                          prioritySelectedValue = val!;
+                                        });
+                                      },
+                                    ),
+                                    priorityWidget(
+                                      constraints,
+                                      context,
+                                      prioritySelectedValue,
+                                      'Future Priority',
+                                      3,
+                                      (int? val) {
+                                        setState(() {
+                                          prioritySelectedValue = val!;
+                                        });
+                                      },
+                                    )
+                                  ],
+                                );
+                              })),
+                          txt(
+                              txt:
+                                  'Deliverable needed before completion of this task?',
+                              fontSize: 30,
+                              font: 'comfortaa',
+                              fontWeight: FontWeight.w700,
+                              fontColor: const Color(secondaryColor)),
+                          SizedBox(
+                              height: screenHeight(context) * 0.1,
+                              width: constraints.maxWidth < 800
+                                  ? screenWidth(context) * 0.5
+                                  : screenWidth(context) * 0.3,
+                              child:
+                                  StatefulBuilder(builder: (context, setState) {
+                                return Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    priorityWidget(
+                                      constraints,
+                                      context,
+                                      selectedValue,
+                                      'Yes',
+                                      1,
+                                      (int? val) {
+                                        setState(() {
+                                          selectedValue = val!;
+                                        });
+                                      },
+                                    ),
+                                    priorityWidget(
+                                      constraints,
+                                      context,
+                                      selectedValue,
+                                      'No',
+                                      2,
+                                      (int? val) {
+                                        setState(() {
+                                          selectedValue = val!;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                );
+                              })),
                           deliverablesWidget(context),
                           SizedBox(
                             height: screenWidth(context) * 0.03,
@@ -445,14 +503,17 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                     descriptionController.text = '';
                                     startDateController.text = '';
                                     endDateController.text = '';
-                                    taskPilot = '';
-                                    taskCoPilot = '';
+                                    projectController.taskPilot.value = '';
+                                    projectController.taskCoPilot.value = '';
+
                                     startdate = DateTime.now();
                                     endDate = DateTime.now();
                                     phaseValue = '3D Design';
-                                    selectedValue = 2;
+                                    selectedValue = 1;
+                                    prioritySelectedValue = 1;
                                     projectController.selectedDeliverables
                                         .clear();
+                                    projectController.update();
                                   },
                                   child: Container(
                                     width: constraints.maxWidth < 800
@@ -485,6 +546,8 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                     if (titleController.text.isNotEmpty) {
                                       Get.back();
                                       projectController.addNewTask(
+                                          isDeliverableNeededForCompletion:
+                                              selectedValue,
                                           taskTitle: titleController.text,
                                           phase: phaseValue,
                                           taskDescription:
@@ -502,19 +565,21 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                               ? '${endDate.year}/${endDate.month}/${endDate.day}'
                                               : endDateController.text,
                                           status: 'todo',
-                                          priorityLevel: selectedValue);
+                                          priorityLevel: prioritySelectedValue);
                                       titleController.text = '';
                                       descriptionController.text = '';
                                       startDateController.text = '';
                                       endDateController.text = '';
-                                      taskPilot = '';
-                                      taskCoPilot = '';
+                                      projectController.taskPilot.value = '';
+                                      projectController.taskCoPilot.value = '';
                                       startdate = DateTime.now();
                                       endDate = DateTime.now();
                                       phaseValue = '3D Design';
-                                      selectedValue = 2;
+                                      selectedValue = 1;
+                                      prioritySelectedValue = 1;
                                       projectController.selectedDeliverables
                                           .clear();
+                                      projectController.update();
                                     } else {
                                       getErrorSnackBar(
                                           "Please fillout the taskname");
@@ -558,13 +623,20 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
       });
 }
 
-StatefulBuilder priorityWidget(BoxConstraints constraints, BuildContext context,
-    String? priorityLabel, int? value, Function(int?)? onChanged) {
+StatefulBuilder priorityWidget(
+  BoxConstraints constraints,
+  BuildContext context,
+  int groupValue,
+  String? priorityLabel,
+  int? value,
+  Function(int?)? onChanged,
+) {
   return StatefulBuilder(builder: (context, setState) {
     return Row(
       children: [
         SizedBox(
-          width: constraints.maxWidth < 800 ? null : screenWidth(context) * 0.1,
+          width:
+              constraints.maxWidth < 800 ? null : screenWidth(context) * 0.08,
           child: txt(
             minFontSize: 18,
             maxLines: constraints.maxWidth < 800 ? null : 1,
@@ -577,7 +649,7 @@ StatefulBuilder priorityWidget(BoxConstraints constraints, BuildContext context,
         ),
         Radio(
           value: value!,
-          groupValue: selectedValue,
+          groupValue: groupValue,
           onChanged: onChanged,
         )
       ],
@@ -585,131 +657,50 @@ StatefulBuilder priorityWidget(BoxConstraints constraints, BuildContext context,
   });
 }
 
-StatefulBuilder copilotWidget(BuildContext context) {
-  return StatefulBuilder(builder: (context, setState) {
-    return Container(
-        child: screenWidth(context) < 800
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  txt(
-                    minFontSize: 18,
-                    txt: 'Co-Pilot:',
-                    fontSize: 30,
-                  ),
-                  SizedBox(
-                    width: screenWidth(context) * 0.04,
-                  ),
-                  Container(
-                    width: screenWidth(context) * 0.4,
-                    height: screenHeight(context) * 0.05,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.16),
-                          offset: const Offset(0, 3.0),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 15, right: 15, top: 5),
-                      child: InkWell(
-                        onTap: () {
-                          selectTaskMembersPopup(context,
-                                  title: 'Select Co-Pilot for this task')
-                              .then((value) {
-                            if (value != null) {
-                              setState(() {
-                                taskCoPilot = '@$value';
-                              });
-                            }
-                          });
-                        },
-                        child: TextFormField(
-                          enabled: false,
-                          maxLines: null,
-                          decoration: InputDecoration(
-                              suffixIcon: const Icon(Icons.person_add),
-                              suffixIconColor: const Color(secondaryColor),
-                              border: InputBorder.none,
-                              hintText: taskCoPilot,
-                              hintStyle: const TextStyle(
-                                  color: Color(brownishColor),
-                                  fontWeight: FontWeight.w600)),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            : Row(
-                children: [
-                  SizedBox(
-                    width: screenWidth(context) * 0.1,
-                    child: txt(
-                      minFontSize: 18,
-                      maxLines: 1,
-                      txt: 'Co-Pilot:',
-                      fontSize: 30,
-                    ),
-                  ),
-                  SizedBox(
-                    width: screenWidth(context) * 0.04,
-                  ),
-                  Container(
-                    width: screenWidth(context) * 0.2,
-                    height: screenHeight(context) * 0.05,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.16),
-                          offset: const Offset(0, 3.0),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 15, right: 15, top: 5),
-                      child: InkWell(
-                        onTap: () {
-                          selectTaskMembersPopup(context,
-                                  title: 'Select Co-Pilot for this task')
-                              .then((value) {
-                            if (value != null) {
-                              setState(() {
-                                taskCoPilot = '@$value';
-                              });
-                            }
-                          });
-                        },
-                        child: TextFormField(
-                          enabled: false,
-                          maxLines: null,
-                          decoration: InputDecoration(
-                              suffixIcon: const Icon(Icons.person_add),
-                              suffixIconColor: const Color(secondaryColor),
-                              border: InputBorder.none,
-                              hintText: taskCoPilot,
-                              hintStyle: const TextStyle(
-                                  color: Color(brownishColor),
-                                  fontWeight: FontWeight.w600)),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ));
-  });
+Container copilotWidget(BuildContext context) {
+  return Container(
+    child: screenWidth(context) < 800
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              txt(
+                minFontSize: 18,
+                txt: 'Co-Pilot:',
+                fontSize: 30,
+              ),
+              SizedBox(
+                width: screenWidth(context) * 0.04,
+              ),
+              selectMember(context,
+                  pilotOrCopilotValue: projectController.taskCoPilot.value,
+                  pilotOrCopilot: 'copilot')
+            ],
+          )
+        : Row(
+            children: [
+              SizedBox(
+                width: screenWidth(context) * 0.1,
+                child: txt(
+                  minFontSize: 18,
+                  maxLines: 1,
+                  txt: 'Co-Pilot:',
+                  fontSize: 30,
+                ),
+              ),
+              SizedBox(
+                width: screenWidth(context) * 0.04,
+              ),
+              selectMember(context,
+                  pilotOrCopilotValue: projectController.taskCoPilot.value,
+                  pilotOrCopilot: 'copilot')
+            ],
+          ),
+  );
 }
 
-StatefulBuilder deliverablesWidget(BuildContext context) {
+StatefulBuilder deliverablesWidget(
+  BuildContext context,
+) {
   return StatefulBuilder(builder: (context, setState) {
     return Obx(() {
       return Container(
@@ -869,130 +860,91 @@ StatefulBuilder deliverablesWidget(BuildContext context) {
   });
 }
 
-StatefulBuilder pilotWidget(BuildContext context) {
-  return StatefulBuilder(builder: (context, setState) {
-    return Container(
-        child: screenWidth(context) < 800
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  txt(
-                    minFontSize: 18,
-                    txt: 'Pilot:',
-                    fontSize: 30,
-                  ),
-                  SizedBox(
-                    width: screenWidth(context) * 0.04,
-                  ),
-                  Container(
-                    width: screenWidth(context) * 0.4,
-                    height: screenHeight(context) * 0.05,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.16),
-                          offset: const Offset(0, 3.0),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 15, right: 15, top: 5),
-                      child: InkWell(
-                        onTap: () {
-                          selectTaskMembersPopup(context,
-                                  title: 'Select Pilot for this task')
-                              .then((value) {
-                            if (value != null) {
-                              setState(() {
-                                taskPilot = '@$value';
-                              });
-                            }
-                          });
-                        },
-                        child: TextFormField(
-                          enabled: false,
-                          maxLines: null,
-                          decoration: InputDecoration(
-                              suffixIcon: const Icon(Icons.person_add),
-                              suffixIconColor: const Color(secondaryColor),
-                              border: InputBorder.none,
-                              hintText: taskPilot,
-                              hintStyle: const TextStyle(
-                                  color: Color(brownishColor),
-                                  fontWeight: FontWeight.w600)),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            : Row(
-                children: [
-                  SizedBox(
-                    width: screenWidth(context) * 0.1,
-                    child: txt(
-                      minFontSize: 18,
-                      maxLines: 1,
-                      txt: 'Pilot:',
-                      fontSize: 30,
-                    ),
-                  ),
-                  SizedBox(
-                    width: screenWidth(context) * 0.04,
-                  ),
-                  Container(
-                    width: screenWidth(context) * 0.2,
-                    height: screenHeight(context) * 0.05,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.16),
-                          offset: const Offset(0, 3.0),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 15, right: 15, top: 5),
-                      child: InkWell(
-                        onTap: () {
-                          selectTaskMembersPopup(context,
-                                  title: 'Select Pilot for this task')
-                              .then((value) {
-                            if (value != null) {
-                              setState(() {
-                                taskPilot = '@$value';
-                              });
-                            }
-                          });
-                        },
-                        child: TextFormField(
-                          enabled: false,
+Container pilotWidget(BuildContext context) {
+  return Container(
+    child: screenWidth(context) < 800
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              txt(
+                minFontSize: 18,
+                txt: 'Pilot:',
+                fontSize: 30,
+              ),
+              SizedBox(
+                width: screenWidth(context) * 0.04,
+              ),
+              selectMember(context,
+                  pilotOrCopilotValue: projectController.taskPilot.value,
+                  pilotOrCopilot: 'pilot')
+            ],
+          )
+        : Row(
+            children: [
+              SizedBox(
+                width: screenWidth(context) * 0.1,
+                child: txt(
+                  minFontSize: 18,
+                  maxLines: 1,
+                  txt: 'Pilot:',
+                  fontSize: 30,
+                ),
+              ),
+              SizedBox(
+                width: screenWidth(context) * 0.04,
+              ),
+              selectMember(context,
+                  pilotOrCopilotValue: projectController.taskPilot.value,
+                  pilotOrCopilot: 'pilot')
+            ],
+          ),
+  );
+}
 
-                          maxLines: null,
-                          // controller: commentController,
-                          decoration: InputDecoration(
-                              suffixIcon: const Icon(Icons.person_add),
-                              suffixIconColor: const Color(secondaryColor),
-                              border: InputBorder.none,
-                              hintText: taskPilot,
-                              hintStyle: const TextStyle(
-                                  color: Color(brownishColor),
-                                  fontWeight: FontWeight.w600)),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ));
-  });
+Container selectMember(BuildContext context,
+    {String? pilotOrCopilot, String? pilotOrCopilotValue}) {
+  return Container(
+    width: screenWidth(context) * 0.2,
+    height: screenHeight(context) * 0.05,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.16),
+          offset: const Offset(0, 3.0),
+          blurRadius: 6.0,
+        ),
+      ],
+      borderRadius: BorderRadius.circular(10.0),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
+      child: InkWell(
+        onTap: () {
+          selectTaskMembersPopup(context,
+                  title:
+                      'Select ${pilotOrCopilot == 'CoPilot' ? 'CoPilot' : 'Pilot'}  for this task')
+              .then((value) {
+            if (value != null) {
+              pilotOrCopilotValue = '@$value';
+              projectController.update();
+            }
+          });
+        },
+        child: TextFormField(
+          enabled: false,
+          maxLines: null,
+          decoration: InputDecoration(
+              suffixIcon: const Icon(Icons.person_add),
+              suffixIconColor: const Color(secondaryColor),
+              border: InputBorder.none,
+              hintText: pilotOrCopilotValue,
+              hintStyle: const TextStyle(
+                  color: Color(brownishColor), fontWeight: FontWeight.w600)),
+        ),
+      ),
+    ),
+  );
 }
 
 Container descriptionWidget(BuildContext context) {

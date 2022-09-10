@@ -31,7 +31,6 @@ StatefulBuilder assetsSection(
                     txt: "ASSETS",
                     font: 'comfortaa',
                     fontSize: 30.0,
-                    fontColor: const Color(brownishColor),
                     letterSpacing: 5,
                     fontWeight: FontWeight.w700,
                   ),
@@ -64,10 +63,10 @@ StatefulBuilder assetsSection(
                                 child: txt(
                                     txt: pathName,
                                     fontSize: 14,
-                                    fontColor: const Color(secondaryColor),
+                                    // fontColor: const Color(secondaryColor),
                                     overflow: TextOverflow.ellipsis),
                               ),
-                              trailing: Icon(Icons.more_horiz,
+                              trailing: const Icon(Icons.more_horiz,
                                   color: Colors.white, size: 18)),
                           secondChild: ListTile(
                             onTap: () async {
@@ -108,7 +107,6 @@ StatefulBuilder assetsSection(
                                             textStyle: const TextStyle(
                                               fontSize: 14,
                                               overflow: TextOverflow.visible,
-                                              color: Color(brownishColor),
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -123,7 +121,6 @@ StatefulBuilder assetsSection(
                                             textStyle: const TextStyle(
                                               fontSize: 14,
                                               overflow: TextOverflow.visible,
-                                              color: Color(brownishColor),
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -180,7 +177,6 @@ StatefulBuilder assetsSection(
                           //                         fontSize: 14,
                           //                         overflow:
                           //                             TextOverflow.visible,
-                          //                         color: Color(brownishColor),
                           //                         fontWeight: FontWeight.w600,
                           //                       ),
                           //                     ),
@@ -196,7 +192,6 @@ StatefulBuilder assetsSection(
                           //                         fontSize: 14,
                           //                         overflow:
                           //                             TextOverflow.visible,
-                          //                         color: Color(brownishColor),
                           //                         fontWeight: FontWeight.w600,
                           //                       ),
                           //                     ),
@@ -221,7 +216,6 @@ StatefulBuilder assetsSection(
                   child: const Center(
                     child: Icon(
                       Icons.add,
-                      color: Color(brownishColor),
                       size: 50,
                     ),
                   ),

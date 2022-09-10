@@ -11,6 +11,7 @@ import 'package:projectx/widgets/loading_indicator.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/select_from_users_popup.dart';
 import '../widgets/select_task_members_popup.dart';
+import '../widgets/textFieldThemeDec.dart';
 
 class SelectProjectMembers extends StatefulWidget {
   final String? projectId;
@@ -124,17 +125,10 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                       ? screenWidth(context) * 0.4
                                       : screenWidth(context) * 0.2,
                                   height: screenHeight(context) * 0.05,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.16),
-                                        offset: const Offset(0, 3.0),
-                                        blurRadius: 6.0,
-                                      ),
-                                    ],
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
+                                  decoration:
+                                      projectController.isDarkTheme.value
+                                          ? darkThemeDecoration()
+                                          : lightThemeDecoration(),
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 15, right: 15, top: 5),
@@ -190,17 +184,10 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                       ? screenWidth(context) * 0.4
                                       : screenWidth(context) * 0.2,
                                   height: screenHeight(context) * 0.05,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.16),
-                                        offset: const Offset(0, 3.0),
-                                        blurRadius: 6.0,
-                                      ),
-                                    ],
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
+                                  decoration:
+                                      projectController.isDarkTheme.value
+                                          ? darkThemeDecoration()
+                                          : lightThemeDecoration(),
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 15, right: 15, top: 5),
@@ -261,17 +248,10 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                       ? screenWidth(context) * 0.4
                                       : screenWidth(context) * 0.2,
                                   height: screenHeight(context) * 0.05,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.16),
-                                        offset: const Offset(0, 3.0),
-                                        blurRadius: 6.0,
-                                      ),
-                                    ],
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
+                                  decoration:
+                                      projectController.isDarkTheme.value
+                                          ? darkThemeDecoration()
+                                          : lightThemeDecoration(),
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 15, right: 15, top: 5),
@@ -325,17 +305,10 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                       ? screenWidth(context) * 0.4
                                       : screenWidth(context) * 0.2,
                                   height: screenHeight(context) * 0.05,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.16),
-                                        offset: const Offset(0, 3.0),
-                                        blurRadius: 6.0,
-                                      ),
-                                    ],
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
+                                  decoration:
+                                      projectController.isDarkTheme.value
+                                          ? darkThemeDecoration()
+                                          : lightThemeDecoration(),
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 15, right: 15, top: 5),
