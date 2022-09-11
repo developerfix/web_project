@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "projectx",
+            "name": "Ava",
             "request": "launch",
             "type": "dart",
             "args": [
@@ -16,13 +16,13 @@
             ]
         },
         {
-            "name": "projectx (profile mode)",
+            "name": "Ava (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "projectx (release mode)",
+            "name": "Ava (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

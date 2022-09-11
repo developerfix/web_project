@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:projectx/pages/recent_project.dart';
+import 'package:Ava/pages/recent_project.dart';
 
 import '../constants/style.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gantt_chart/gantt_chart.dart';
 import 'package:get/get.dart';
 
-import 'package:projectx/constants/style.dart';
-import 'package:projectx/controllers/profile_controller.dart';
-import 'package:projectx/controllers/project_controller.dart';
+import 'package:Ava/constants/style.dart';
+import 'package:Ava/controllers/profile_controller.dart';
+import 'package:Ava/controllers/project_controller.dart';
 
 import '../widgets/custom_appbar.dart';
 import '../widgets/custom_drawer.dart';

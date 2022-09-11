@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hovering/hovering.dart';
-import 'package:projectx/controllers/project_controller.dart';
-import 'package:projectx/widgets/edit_asset_popup.dart';
+import 'package:Ava/controllers/project_controller.dart';
+import 'package:Ava/widgets/edit_asset_popup.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../constants/style.dart';

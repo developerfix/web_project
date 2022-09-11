@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:projectx/widgets/photo_view.dart';
+import 'package:Ava/widgets/photo_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants/style.dart';
 
@@ -46,6 +46,7 @@ Padding usersMsg(BuildContext context,
                   children: [
                     textSpanForUserMsg(text: username),
                     textSpanForUserMsg(
+                      fontWeight: FontWeight.normal,
                       text:
                           ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
                     ),
@@ -94,6 +95,7 @@ SizedBox fileContinerSizedBox(
             children: [
               textSpanForUserMsg(text: username),
               textSpanForUserMsg(
+                fontWeight: FontWeight.normal,
                 text:
                     ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
               ),

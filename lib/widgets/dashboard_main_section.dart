@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:projectx/controllers/profile_controller.dart';
-import 'package:projectx/controllers/project_controller.dart';
+import 'package:Ava/controllers/profile_controller.dart';
+import 'package:Ava/controllers/project_controller.dart';
 
 import '../constants/style.dart';
 import 'list_of_tasks.dart';

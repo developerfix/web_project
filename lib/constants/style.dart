@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firedart/firedart.dart' as firedart;
-import 'package:projectx/controllers/project_controller.dart';
+import 'package:Ava/controllers/project_controller.dart';
 
 const int mainColor = 0xff736879;
 const int secondaryColor = 0xff958890;

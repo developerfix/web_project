@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
-import 'package:projectx/constants/style.dart';
-import 'package:projectx/controllers/project_controller.dart';
-import 'package:projectx/widgets/edit_task_popup.dart';
+import 'package:Ava/constants/style.dart';
+import 'package:Ava/controllers/project_controller.dart';
+import 'package:Ava/widgets/edit_task_popup.dart';
 
 import '../widgets/select_task_members_popup.dart';
 import 'loading_indicator.dart';

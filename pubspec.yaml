@@ -1,4 +1,4 @@
-name: projectx
+name: Ava
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -54,6 +54,7 @@ dependencies:
   context_menus: ^1.0.1
   pdfx: ^2.2.0
   flutter_switch: ^0.3.2
+  rename: ^2.0.1
   flutter:
     sdk: flutter
   flutter_animation_progress_bar: ^2.2.1

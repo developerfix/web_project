@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hovering/hovering.dart';
-import 'package:projectx/constants/style.dart';
-import 'package:projectx/pages/project_dashboard.dart' as dashboard;
-import 'package:projectx/pages/see_all_projs.dart';
-import 'package:projectx/widgets/loading_indicator.dart';
+import 'package:Ava/constants/style.dart';
+import 'package:Ava/pages/project_dashboard.dart' as dashboard;
+import 'package:Ava/pages/see_all_projs.dart';
+import 'package:Ava/widgets/loading_indicator.dart';
 
 import '../controllers/auth_controller.dart';
 import '../controllers/profile_controller.dart';

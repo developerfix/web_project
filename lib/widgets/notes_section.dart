@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
-import 'package:projectx/controllers/project_controller.dart';
-import 'package:projectx/widgets/textFieldThemeDec.dart';
-import 'package:projectx/widgets/usersmsg.dart';
+import 'package:Ava/controllers/project_controller.dart';
+import 'package:Ava/widgets/textFieldThemeDec.dart';
+import 'package:Ava/widgets/usersmsg.dart';
 
 import '../constants/style.dart';
 import '../controllers/profile_controller.dart';

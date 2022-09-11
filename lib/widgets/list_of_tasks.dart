@@ -2,8 +2,8 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:projectx/controllers/project_controller.dart';
-import 'package:projectx/widgets/usersmsg.dart';
+import 'package:Ava/controllers/project_controller.dart';
+import 'package:Ava/widgets/usersmsg.dart';
 
 import '../constants/style.dart';
 import 'edit_task_popup.dart';

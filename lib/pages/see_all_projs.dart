@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:projectx/constants/style.dart';
-import 'package:projectx/pages/project_dashboard.dart';
-import 'package:projectx/widgets/custom_appbar.dart';
+import 'package:Ava/constants/style.dart';
+import 'package:Ava/pages/project_dashboard.dart';
+import 'package:Ava/widgets/custom_appbar.dart';
 
 import '../controllers/profile_controller.dart';
 import '../widgets/custom_drawer.dart';

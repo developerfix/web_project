@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:projectx/constants/style.dart';
-import 'package:projectx/controllers/auth_controller.dart';
-import 'package:projectx/widgets/popup_textfield.dart';
+import 'package:Ava/constants/style.dart';
+import 'package:Ava/controllers/auth_controller.dart';
+import 'package:Ava/widgets/popup_textfield.dart';
 
 import '../../controllers/input_validators.dart';
 
