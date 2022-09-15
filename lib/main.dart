@@ -1,6 +1,10 @@
+import 'dart:async';
+
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:Ava/constants/style.dart';
 import 'package:Ava/controllers/project_controller.dart';
@@ -32,9 +36,8 @@ void main() async {
         'AIzaSyC9Jzj22llAEY9Zj1LjVMOxI8kVIFjP2VY', firedart.VolatileStore());
     firedart.Firestore('ava-project-ab57c', auth: firebaseAuth);
     firedart.Firestore.initialize("ava-project-ab57c");
+    pure_dart_implementation.FirebaseDart.setup();
   }
-  pure_dart_implementation.FirebaseDart.setup();
-
   await Firebase.initializeApp(
     options: const FirebaseOptions(
         apiKey: "AIzaSyC9Jzj22llAEY9Zj1LjVMOxI8kVIFjP2VY",
@@ -48,6 +51,19 @@ void main() async {
   Get.put(AuthController());
 
   runApp(const MyApp());
+
+  doWhenWindowReady(() {
+    const initialSize = Size(1200, 1000);
+    appWindow.minSize = initialSize;
+    appWindow.size = initialSize;
+    appWindow.alignment = Alignment.center;
+
+    appWindow.show();
+
+    Timer(const Duration(seconds: 2), () {
+      appWindow.maximize();
+    });
+  });
 }
 
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
@@ -69,13 +85,16 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  final ProjectController projectController = Get.put(ProjectController());
+  ProjectController projectController = Get.put(ProjectController());
 
   _getThemeStatus() async {
-    Rx<Future<bool?>> isDark = _prefs.then((SharedPreferences prefs) {
-      return prefs.getBool('theme');
-    }).obs;
-    projectController.isDarkTheme.value = (await isDark.value)!;
+    // Rx<Future<bool?>>? isDark = _prefs.then((SharedPreferences? prefs) {
+    //   return prefs!.getBool('theme');
+    // }).obs;
+    // print(isDark.value);
+    projectController.isDarkTheme.value = false;
+    // ignore: unnecessary_null_comparison
+    // isDark.value == null ? false : (await isDark.value)!;
 
     Get.changeThemeMode(
         projectController.isDarkTheme.value ? ThemeMode.dark : ThemeMode.light);

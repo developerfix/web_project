@@ -1,3 +1,4 @@
+import 'package:Ava/widgets/edit_task_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:Ava/constants/style.dart';
@@ -432,7 +433,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       height: screenHeight(context) * 0.06,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(2.0),
-                        color: Colors.white,
+                        color: projecttController.isDarkTheme.value
+                            ? Colors.black45
+                            : Colors.white,
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.24),

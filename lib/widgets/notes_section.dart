@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:Ava/controllers/project_controller.dart';
-import 'package:Ava/widgets/textFieldThemeDec.dart';
 import 'package:Ava/widgets/usersmsg.dart';
 
 import '../constants/style.dart';
@@ -45,6 +44,7 @@ Expanded notesSection(BoxConstraints constraints, BuildContext context,
                                 padding: const EdgeInsets.only(
                                     left: 15, right: 15, top: 5),
                                 child: TextFormField(
+                                  autofocus: true,
                                   onChanged: ((value) {
                                     projectController.searchedNote.value =
                                         value;
@@ -207,9 +207,7 @@ Expanded notesSection(BoxConstraints constraints, BuildContext context,
                   Container(
                     width: screenWidth(context) * 0.2,
                     height: screenHeight(context) * 0.2,
-                    decoration: projectController.isDarkTheme.value
-                        ? darkThemeDecoration()
-                        : lightThemeDecoration(),
+                    decoration: boxDecoration,
                     child: Padding(
                       padding:
                           const EdgeInsets.only(left: 15, right: 15, top: 5),

@@ -6,6 +6,7 @@ import 'package:Ava/widgets/custom_appbar.dart';
 
 import '../controllers/profile_controller.dart';
 import '../widgets/custom_drawer.dart';
+import '../widgets/project_box.dart';
 
 class SeeAllProjects extends StatefulWidget {
   const SeeAllProjects({Key? key}) : super(key: key);
@@ -29,7 +30,7 @@ class _SeeAllProjectsState extends State<SeeAllProjects> {
           title: txt(
               txt: 'List of projects', fontSize: 18, fontColor: Colors.white),
         ),
-        backgroundColor: const Color(secondaryColor),
+        backgroundColor: const Color(mainColor),
         body: SizedBox(
           height: screenHeight(context),
           width: screenWidth(context),
@@ -48,46 +49,17 @@ class _SeeAllProjectsState extends State<SeeAllProjects> {
                   String projectId =
                       profileController.projects[index]['projectId'];
                   return InkWell(
-                      onTap: (() {
-                        Get.to(() => ProjectDashboard(
-                              projectId: projectId,
-                            ));
-                      }),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: recentProjectBox(text: projectTitle),
-                      ));
+                    onTap: (() {
+                      Get.to(() => ProjectDashboard(
+                            projectId: projectId,
+                          ));
+                    }),
+                    child: projectBox(text: projectTitle),
+                  );
                 }),
           ),
         ),
       );
     });
-  }
-
-  Container recentProjectBox({String? text}) {
-    return Container(
-      width: screenWidth(context) * 0.1,
-      height: screenHeight(context) * 0.18,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        color: const Color(secondaryColor),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.23),
-            offset: const Offset(0, 3.0),
-            blurRadius: 9.0,
-          ),
-        ],
-      ),
-      child: Center(
-          child: txt(
-              txt: text!,
-              fontSize: 30.0,
-              maxLines: 1,
-              minFontSize: 24,
-              letterSpacing: 2,
-              overflow: TextOverflow.ellipsis,
-              fontColor: Colors.white)),
-    );
   }
 }

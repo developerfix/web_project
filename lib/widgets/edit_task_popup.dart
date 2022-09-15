@@ -1,3 +1,5 @@
+import 'package:Ava/widgets/popup_button.dart';
+import 'package:Ava/widgets/select_members.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -8,9 +10,6 @@ import 'package:Ava/controllers/project_controller.dart';
 
 import 'add_new_task_popup.dart';
 import 'select_task_members_popup.dart';
-
-final ProjectController projectController = Get.find();
-final ProfileController profileController = Get.find();
 
 final titleController = TextEditingController();
 final descriptionController = TextEditingController();
@@ -109,19 +108,7 @@ Future<dynamic> editTaskPopUp(
                                     Container(
                                       width: screenWidth(context) * 0.4,
                                       height: screenHeight(context) * 0.05,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.16),
-                                            offset: const Offset(0, 3.0),
-                                            blurRadius: 6.0,
-                                          ),
-                                        ],
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
+                                      decoration: boxDecoration,
                                       child: Padding(
                                         padding: const EdgeInsets.only(
                                             left: 15, right: 15, top: 5),
@@ -182,19 +169,7 @@ Future<dynamic> editTaskPopUp(
                                     Container(
                                       width: screenWidth(context) * 0.2,
                                       height: screenHeight(context) * 0.05,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.16),
-                                            offset: const Offset(0, 3.0),
-                                            blurRadius: 6.0,
-                                          ),
-                                        ],
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
+                                      decoration: boxDecoration,
                                       child: Padding(
                                         padding: const EdgeInsets.only(
                                             left: 15, right: 15, top: 5),
@@ -256,19 +231,7 @@ Future<dynamic> editTaskPopUp(
                                     Container(
                                       width: screenWidth(context) * 0.4,
                                       height: screenHeight(context) * 0.05,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.16),
-                                            offset: const Offset(0, 3.0),
-                                            blurRadius: 6.0,
-                                          ),
-                                        ],
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
+                                      decoration: boxDecoration,
                                       child: Padding(
                                         padding: const EdgeInsets.only(
                                             left: 15, right: 15, top: 5),
@@ -329,19 +292,7 @@ Future<dynamic> editTaskPopUp(
                                     Container(
                                       width: screenWidth(context) * 0.2,
                                       height: screenHeight(context) * 0.05,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.16),
-                                            offset: const Offset(0, 3.0),
-                                            blurRadius: 6.0,
-                                          ),
-                                        ],
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
+                                      decoration: boxDecoration,
                                       child: Padding(
                                         padding: const EdgeInsets.only(
                                             left: 15, right: 15, top: 5),
@@ -497,113 +448,64 @@ Future<dynamic> editTaskPopUp(
                                   ? MainAxisAlignment.start
                                   : MainAxisAlignment.center,
                               children: [
-                                InkWell(
-                                  onTap: () {
-                                    Get.back();
-                                    titleController.text = '';
-                                    descriptionController.text = '';
-                                    taskPilot = '';
-                                    taskCoPilot = '';
-                                    endDateController.text = '';
-                                    startDateController.text = '';
-                                    phaseValue = '3D Design';
-                                    value = 2;
-                                    // projectController.selectedDeliverables
-                                    //     .clear();
-                                  },
-                                  child: Container(
-                                    width: constraints.maxWidth < 800
-                                        ? screenWidth(context) * 0.3
-                                        : screenWidth(context) * 0.1,
-                                    height: screenHeight(context) * 0.05,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12.0),
-                                      color: const Color(0xFF958890),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.23),
-                                          offset: const Offset(0, 3.0),
-                                          blurRadius: 9.0,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Center(
-                                        child: txt(
-                                            txt: 'Cancel',
-                                            fontSize: 15,
-                                            fontColor: Colors.white)),
-                                  ),
-                                ),
+                                popupButton(context, ontap: () {
+                                  Get.back();
+                                  titleController.text = '';
+                                  descriptionController.text = '';
+                                  taskPilot = '';
+                                  taskCoPilot = '';
+                                  endDateController.text = '';
+                                  startDateController.text = '';
+                                  phaseValue = '3D Design';
+                                  value = 2;
+                                  // projectController.selectedDeliverables
+                                  //     .clear();
+                                }, text: 'Cancel'),
                                 SizedBox(
                                   width: screenWidth(context) * 0.005,
                                 ),
-                                InkWell(
-                                  onTap: () {
-                                    Get.back();
-                                    projectController.updateTask(
-                                        oldTaskDescription: taskDescription,
-                                        oldTaskTitle: taskTitle,
-                                        taskDeliverables: projectController
-                                            .selectedDeliverables,
-                                        taskTitle: titleController.text.isEmpty
-                                            ? taskTitle
-                                            : titleController.text,
-                                        phase: phaseValue == ''
-                                            ? phase
-                                            : phaseValue,
-                                        taskDescription:
-                                            descriptionController.text.isEmpty
-                                                ? taskDescription
-                                                : descriptionController.text,
-                                        pilot:
-                                            taskPilot == '' ? pilot : taskPilot,
-                                        copilot: taskCoPilot == ''
-                                            ? copilot
-                                            : taskCoPilot,
-                                        startDate:
-                                            startDateController.text.isEmpty
-                                                ? startDate
-                                                : startDateController.text,
-                                        endDate: endDateController.text.isEmpty
-                                            ? endDate
-                                            : endDateController.text,
-                                        status: status,
-                                        priorityLevel: value);
+                                popupButton(context, ontap: () {
+                                  Get.back();
+                                  projectController.updateTask(
+                                      oldTaskDescription: taskDescription,
+                                      oldTaskTitle: taskTitle,
+                                      taskDeliverables: projectController
+                                          .selectedDeliverables,
+                                      taskTitle: titleController.text.isEmpty
+                                          ? taskTitle
+                                          : titleController.text,
+                                      phase:
+                                          phaseValue == '' ? phase : phaseValue,
+                                      taskDescription:
+                                          descriptionController.text.isEmpty
+                                              ? taskDescription
+                                              : descriptionController.text,
+                                      pilot:
+                                          taskPilot == '' ? pilot : taskPilot,
+                                      copilot: taskCoPilot == ''
+                                          ? copilot
+                                          : taskCoPilot,
+                                      startDate:
+                                          startDateController.text.isEmpty
+                                              ? startDate
+                                              : startDateController.text,
+                                      endDate: endDateController.text.isEmpty
+                                          ? endDate
+                                          : endDateController.text,
+                                      status: status,
+                                      priorityLevel: value);
 
-                                    titleController.text = '';
-                                    descriptionController.text = '';
-                                    taskPilot = '';
-                                    taskCoPilot = '';
-                                    endDateController.text = '';
-                                    startDateController.text = '';
-                                    phaseValue = '3D Design';
-                                    value = 2;
-                                    // projectController.selectedDeliverables
-                                    //     .clear();
-                                  },
-                                  child: Container(
-                                    width: constraints.maxWidth < 800
-                                        ? screenWidth(context) * 0.3
-                                        : screenWidth(context) * 0.1,
-                                    height: screenHeight(context) * 0.05,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12.0),
-                                      color: const Color(0xFF958890),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.23),
-                                          offset: const Offset(0, 3.0),
-                                          blurRadius: 9.0,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Center(
-                                        child: txt(
-                                            txt: 'Edit Task',
-                                            fontSize: 15,
-                                            fontColor: Colors.white)),
-                                  ),
-                                ),
+                                  titleController.text = '';
+                                  descriptionController.text = '';
+                                  taskPilot = '';
+                                  taskCoPilot = '';
+                                  endDateController.text = '';
+                                  startDateController.text = '';
+                                  phaseValue = '3D Design';
+                                  value = 2;
+                                  // projectController.selectedDeliverables
+                                  //     .clear();
+                                }, text: 'Edit Task'),
                               ],
                             ),
                           ),
@@ -634,50 +536,9 @@ StatefulBuilder copilotWidget(BuildContext context, String? copilot) {
                   SizedBox(
                     width: screenWidth(context) * 0.04,
                   ),
-                  Container(
-                    width: screenWidth(context) * 0.4,
-                    height: screenHeight(context) * 0.05,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.16),
-                          offset: const Offset(0, 3.0),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 15, right: 15, top: 5),
-                      child: InkWell(
-                        onTap: () {
-                          selectTaskMembersPopup(context,
-                                  title: 'Select Co-Pilot for this task')
-                              .then((value) {
-                            if (value != null) {
-                              setState(() {
-                                taskCoPilot = '@$value';
-                              });
-                            }
-                          });
-                        },
-                        child: TextFormField(
-                          enabled: false,
-                          maxLines: null,
-                          decoration: InputDecoration(
-                              suffixIcon: const Icon(Icons.person_add),
-                              suffixIconColor: const Color(secondaryColor),
-                              border: InputBorder.none,
-                              hintText: copilot,
-                              hintStyle: const TextStyle(
-                                  color: Color(brownishColor),
-                                  fontWeight: FontWeight.w600)),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // selectMember(context,
+                  // pilotOrCopilot:,
+                  // pilotOrCopilotValue:  )
                 ],
               )
             : Row(
@@ -694,50 +555,9 @@ StatefulBuilder copilotWidget(BuildContext context, String? copilot) {
                   SizedBox(
                     width: screenWidth(context) * 0.04,
                   ),
-                  Container(
-                    width: screenWidth(context) * 0.2,
-                    height: screenHeight(context) * 0.05,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.16),
-                          offset: const Offset(0, 3.0),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 15, right: 15, top: 5),
-                      child: InkWell(
-                        onTap: () {
-                          selectTaskMembersPopup(context,
-                                  title: 'Select Co-Pilot for this task')
-                              .then((value) {
-                            if (value != null) {
-                              setState(() {
-                                taskCoPilot = '@$value';
-                              });
-                            }
-                          });
-                        },
-                        child: TextFormField(
-                          enabled: false,
-                          maxLines: null,
-                          decoration: InputDecoration(
-                              suffixIcon: const Icon(Icons.person_add),
-                              suffixIconColor: const Color(secondaryColor),
-                              border: InputBorder.none,
-                              hintText: copilot,
-                              hintStyle: const TextStyle(
-                                  color: Color(brownishColor),
-                                  fontWeight: FontWeight.w600)),
-                        ),
-                      ),
-                    ),
-                  ),
+                  //  selectMember(context,
+                  // pilotOrCopilot:,
+                  // pilotOrCopilotValue:  )
                 ],
               ));
   });
@@ -758,52 +578,9 @@ StatefulBuilder pilotWidget(BuildContext context, String? pilot) {
                   SizedBox(
                     width: screenWidth(context) * 0.04,
                   ),
-                  Container(
-                    width: screenWidth(context) * 0.4,
-                    height: screenHeight(context) * 0.05,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.16),
-                          offset: const Offset(0, 3.0),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 15, right: 15, top: 5),
-                      child: InkWell(
-                        onTap: () {
-                          selectTaskMembersPopup(context,
-                                  title: 'Select Pilot for this task')
-                              .then((value) {
-                            if (value != null) {
-                              setState(() {
-                                taskPilot = '@$value';
-                              });
-                            }
-                          });
-                        },
-                        child: TextFormField(
-                          enabled: false,
-
-                          maxLines: null,
-                          // controller: commentController,
-                          decoration: InputDecoration(
-                              suffixIcon: const Icon(Icons.person_add),
-                              suffixIconColor: const Color(secondaryColor),
-                              border: InputBorder.none,
-                              hintText: pilot,
-                              hintStyle: const TextStyle(
-                                  color: Color(brownishColor),
-                                  fontWeight: FontWeight.w600)),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // selectMember(context,
+                  // pilotOrCopilot:,
+                  // pilotOrCopilotValue:  )
                 ],
               )
             : Row(
@@ -820,52 +597,9 @@ StatefulBuilder pilotWidget(BuildContext context, String? pilot) {
                   SizedBox(
                     width: screenWidth(context) * 0.04,
                   ),
-                  Container(
-                    width: screenWidth(context) * 0.2,
-                    height: screenHeight(context) * 0.05,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.16),
-                          offset: const Offset(0, 3.0),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 15, right: 15, top: 5),
-                      child: InkWell(
-                        onTap: () {
-                          selectTaskMembersPopup(context,
-                                  title: 'Select Pilot for this task')
-                              .then((value) {
-                            if (value != null) {
-                              setState(() {
-                                taskPilot = '@$value';
-                              });
-                            }
-                          });
-                        },
-                        child: TextFormField(
-                          enabled: false,
-
-                          maxLines: null,
-                          // controller: commentController,
-                          decoration: InputDecoration(
-                              suffixIcon: const Icon(Icons.person_add),
-                              suffixIconColor: const Color(secondaryColor),
-                              border: InputBorder.none,
-                              hintText: pilot,
-                              hintStyle: const TextStyle(
-                                  color: Color(brownishColor),
-                                  fontWeight: FontWeight.w600)),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // selectMember(context,
+                  // pilotOrCopilot:,
+                  // pilotOrCopilotValue:  )
                 ],
               ));
   });
@@ -888,17 +622,7 @@ Container descriptionWidget(BuildContext context, String? taskDescription) {
                 Container(
                   width: screenWidth(context) * 0.4,
                   height: screenHeight(context) * 0.1,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.16),
-                        offset: const Offset(0, 3.0),
-                        blurRadius: 6.0,
-                      ),
-                    ],
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
+                  decoration: boxDecoration,
                   child: Padding(
                     padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
                     child: TextFormField(
@@ -932,17 +656,7 @@ Container descriptionWidget(BuildContext context, String? taskDescription) {
                 Container(
                   width: screenWidth(context) * 0.2,
                   height: screenHeight(context) * 0.1,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.16),
-                        offset: const Offset(0, 3.0),
-                        blurRadius: 6.0,
-                      ),
-                    ],
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
+                  decoration: boxDecoration,
                   child: Padding(
                     padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
                     child: TextFormField(
@@ -979,17 +693,7 @@ Container titleWidget(
                 Container(
                   width: screenWidth(context) * 0.4,
                   height: screenHeight(context) * 0.05,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.16),
-                        offset: const Offset(0, 3.0),
-                        blurRadius: 6.0,
-                      ),
-                    ],
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
+                  decoration: boxDecoration,
                   child: Padding(
                     padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
                     child: TextFormField(
@@ -1023,17 +727,7 @@ Container titleWidget(
                 Container(
                   width: screenWidth(context) * 0.2,
                   height: screenHeight(context) * 0.05,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.16),
-                        offset: const Offset(0, 3.0),
-                        blurRadius: 6.0,
-                      ),
-                    ],
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
+                  decoration: boxDecoration,
                   child: Padding(
                     padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
                     child: TextFormField(
@@ -1070,17 +764,7 @@ StatefulBuilder phaseWidget(BuildContext context, String? phase) {
                   Container(
                     width: screenWidth(context) * 0.4,
                     height: screenHeight(context) * 0.05,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.16),
-                          offset: const Offset(0, 3.0),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
+                    decoration: boxDecoration,
                     child: Center(
                       child: DropdownButtonFormField(
                         hint: txt(txt: phase!, fontSize: 14),
@@ -1136,17 +820,7 @@ StatefulBuilder phaseWidget(BuildContext context, String? phase) {
                   Container(
                     width: screenWidth(context) * 0.2,
                     height: screenHeight(context) * 0.05,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.16),
-                          offset: const Offset(0, 3.0),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
+                    decoration: boxDecoration,
                     child: Center(
                       child: DropdownButtonFormField(
                         // itemHeight: 15,
@@ -1191,16 +865,6 @@ Container dropdownContainer(BuildContext context) {
   return Container(
     width: screenWidth(context) * 0.2,
     height: screenHeight(context) * 0.05,
-    decoration: BoxDecoration(
-      color: Colors.white,
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.16),
-          offset: const Offset(0, 3.0),
-          blurRadius: 6.0,
-        ),
-      ],
-      borderRadius: BorderRadius.circular(10.0),
-    ),
+    decoration: boxDecoration,
   );
 }

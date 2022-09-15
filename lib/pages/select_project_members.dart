@@ -11,7 +11,7 @@ import 'package:Ava/widgets/loading_indicator.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/select_from_users_popup.dart';
 import '../widgets/select_task_members_popup.dart';
-import '../widgets/textFieldThemeDec.dart';
+import '../widgets/users_selection_textfield.dart';
 
 class SelectProjectMembers extends StatefulWidget {
   final String? projectId;
@@ -120,53 +120,12 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                 SizedBox(
                                   width: screenWidth(context) * 0.04,
                                 ),
-                                Container(
-                                  width: constraints.maxWidth < 800
-                                      ? screenWidth(context) * 0.4
-                                      : screenWidth(context) * 0.2,
-                                  height: screenHeight(context) * 0.05,
-                                  decoration:
-                                      projectController.isDarkTheme.value
-                                          ? darkThemeDecoration()
-                                          : lightThemeDecoration(),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 15, right: 15, top: 5),
-                                    child: InkWell(
-                                      onTap: () {
-                                        selectTaskMembersPopup(context,
-                                                title:
-                                                    'Select Pilot for this task')
-                                            .then((value) {
-                                          if (value != null) {
-                                            setState(() {
-                                              taskPilot = value;
-                                            });
-                                          }
-                                        });
-                                      },
-                                      child: TextFormField(
-                                        enabled: false,
-
-                                        maxLines: null,
-                                        // controller: commentController,
-                                        decoration: InputDecoration(
-                                            suffixIcon:
-                                                const Icon(Icons.person_add),
-                                            suffixIconColor:
-                                                const Color(secondaryColor),
-                                            border: InputBorder.none,
-                                            hintText: taskPilot != ''
-                                                ? '@$taskPilot'
-                                                : taskPilot,
-                                            hintStyle: const TextStyle(
-                                                fontSize: 14,
-                                                color: Color(brownishColor),
-                                                fontWeight: FontWeight.w600)),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                usersSelectionTextField(context,
+                                    taskPilotorCopit: taskPilot,
+                                    projectController: projectController,
+                                    title: 'Select Pilot for this Project',
+                                    valuee:
+                                        projectController.projectPilot.value),
                               ],
                             )
                           : Row(
@@ -179,53 +138,12 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                 SizedBox(
                                   width: screenWidth(context) * 0.04,
                                 ),
-                                Container(
-                                  width: constraints.maxWidth < 800
-                                      ? screenWidth(context) * 0.4
-                                      : screenWidth(context) * 0.2,
-                                  height: screenHeight(context) * 0.05,
-                                  decoration:
-                                      projectController.isDarkTheme.value
-                                          ? darkThemeDecoration()
-                                          : lightThemeDecoration(),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 15, right: 15, top: 5),
-                                    child: InkWell(
-                                      onTap: () {
-                                        selectFromUsersPopup(context,
-                                                title:
-                                                    'Select Pilot for this task')
-                                            .then((value) {
-                                          if (value != null) {
-                                            setState(() {
-                                              taskPilot = value;
-                                            });
-                                          }
-                                        });
-                                      },
-                                      child: TextFormField(
-                                        enabled: false,
-
-                                        maxLines: null,
-                                        // controller: commentController,
-                                        decoration: InputDecoration(
-                                            suffixIcon:
-                                                const Icon(Icons.person_add),
-                                            suffixIconColor:
-                                                const Color(secondaryColor),
-                                            border: InputBorder.none,
-                                            hintText: taskPilot != ''
-                                                ? '@$taskPilot'
-                                                : taskPilot,
-                                            hintStyle: const TextStyle(
-                                                fontSize: 14,
-                                                color: Color(brownishColor),
-                                                fontWeight: FontWeight.w600)),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                usersSelectionTextField(context,
+                                    taskPilotorCopit: taskPilot,
+                                    projectController: projectController,
+                                    title: 'Select Pilot for this Project',
+                                    valuee:
+                                        projectController.projectPilot.value),
                               ],
                             ),
                       SizedBox(
@@ -243,51 +161,12 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                 SizedBox(
                                   width: screenWidth(context) * 0.04,
                                 ),
-                                Container(
-                                  width: constraints.maxWidth < 800
-                                      ? screenWidth(context) * 0.4
-                                      : screenWidth(context) * 0.2,
-                                  height: screenHeight(context) * 0.05,
-                                  decoration:
-                                      projectController.isDarkTheme.value
-                                          ? darkThemeDecoration()
-                                          : lightThemeDecoration(),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 15, right: 15, top: 5),
-                                    child: InkWell(
-                                      onTap: () {
-                                        selectFromUsersPopup(context,
-                                                title:
-                                                    'Select Co-Pilot for this task')
-                                            .then((value) {
-                                          if (value != null) {
-                                            setState(() {
-                                              taskCoPilot = value;
-                                            });
-                                          }
-                                        });
-                                      },
-                                      child: TextFormField(
-                                        enabled: false,
-                                        maxLines: null,
-                                        decoration: InputDecoration(
-                                            suffixIcon:
-                                                const Icon(Icons.person_add),
-                                            suffixIconColor:
-                                                const Color(secondaryColor),
-                                            border: InputBorder.none,
-                                            hintText: taskCoPilot != ''
-                                                ? '@$taskCoPilot'
-                                                : taskCoPilot,
-                                            hintStyle: const TextStyle(
-                                                fontSize: 14,
-                                                color: Color(brownishColor),
-                                                fontWeight: FontWeight.w600)),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                usersSelectionTextField(context,
+                                    taskPilotorCopit: taskCoPilot,
+                                    projectController: projectController,
+                                    title: 'Select CoPilot for this Project',
+                                    valuee:
+                                        projectController.projectCoPilot.value),
                               ],
                             )
                           : Row(
@@ -300,51 +179,12 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                 SizedBox(
                                   width: screenWidth(context) * 0.04,
                                 ),
-                                Container(
-                                  width: constraints.maxWidth < 800
-                                      ? screenWidth(context) * 0.4
-                                      : screenWidth(context) * 0.2,
-                                  height: screenHeight(context) * 0.05,
-                                  decoration:
-                                      projectController.isDarkTheme.value
-                                          ? darkThemeDecoration()
-                                          : lightThemeDecoration(),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 15, right: 15, top: 5),
-                                    child: InkWell(
-                                      onTap: () {
-                                        selectFromUsersPopup(context,
-                                                title:
-                                                    'Select Co-Pilot for this task')
-                                            .then((value) {
-                                          if (value != null) {
-                                            setState(() {
-                                              taskCoPilot = value;
-                                            });
-                                          }
-                                        });
-                                      },
-                                      child: TextFormField(
-                                        enabled: false,
-                                        maxLines: null,
-                                        decoration: InputDecoration(
-                                            suffixIcon:
-                                                const Icon(Icons.person_add),
-                                            suffixIconColor:
-                                                const Color(secondaryColor),
-                                            border: InputBorder.none,
-                                            hintText: taskCoPilot != ''
-                                                ? '@$taskCoPilot'
-                                                : taskCoPilot,
-                                            hintStyle: const TextStyle(
-                                                fontSize: 14,
-                                                color: Color(brownishColor),
-                                                fontWeight: FontWeight.w600)),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                usersSelectionTextField(context,
+                                    taskPilotorCopit: taskCoPilot,
+                                    projectController: projectController,
+                                    title: 'Select CoPilot for this Project',
+                                    valuee:
+                                        projectController.projectCoPilot.value),
                               ],
                             ),
                       SizedBox(
@@ -452,17 +292,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                     ? screenWidth(context) * 0.3
                                     : screenWidth(context) * 0.1,
                                 height: screenHeight(context) * 0.05,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  color: const Color(0xFF958890),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.23),
-                                      offset: const Offset(0, 3.0),
-                                      blurRadius: 9.0,
-                                    ),
-                                  ],
-                                ),
+                                decoration: brownishBoxDecoration,
                                 child: Center(
                                     child: txt(
                                         txt: 'Done',

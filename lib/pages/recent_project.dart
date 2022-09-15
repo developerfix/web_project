@@ -11,6 +11,8 @@ import '../controllers/profile_controller.dart';
 import '../widgets/create_project_popup.dart';
 import '../widgets/custom_appbar.dart';
 import '../widgets/custom_drawer.dart';
+import '../widgets/project_box.dart';
+import '../widgets/users_selection_textfield.dart';
 
 class RecentProjects extends StatefulWidget {
   const RecentProjects({Key? key}) : super(key: key);
@@ -166,7 +168,7 @@ class _RecentProjectsState extends State<RecentProjects> {
                                                         projectId: projectId,
                                                       ));
                                                 }),
-                                                child: recentProjectBox(
+                                                child: projectBox(
                                                     text: projectTitle),
                                               );
                                             }),
@@ -250,30 +252,5 @@ class _RecentProjectsState extends State<RecentProjects> {
             );
           }));
     });
-  }
-
-  HoverContainer recentProjectBox({String? text}) {
-    return HoverContainer(
-      width: 250,
-      hoverWidth: 250,
-      decoration: BoxDecoration(
-        color: const Color(secondaryColor).withOpacity(0.5),
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      hoverDecoration: BoxDecoration(
-          color: const Color(secondaryColor),
-          borderRadius: BorderRadius.circular(12.0),
-          boxShadow: null),
-      child: Center(
-          child: txt(
-              txt: text!,
-              textAlign: TextAlign.center,
-              fontSize: 30.0,
-              maxLines: 3,
-              minFontSize: 24,
-              letterSpacing: 2,
-              overflow: TextOverflow.ellipsis,
-              fontColor: Colors.white)),
-    );
   }
 }

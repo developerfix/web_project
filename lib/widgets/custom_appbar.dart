@@ -1,3 +1,4 @@
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:Ava/pages/recent_project.dart';
@@ -22,8 +23,7 @@ AppBar customAppBar(
 
   return AppBar(
     backgroundColor: const Color(mainColor),
-    leadingWidth:
-        screenWidth(context) > 1000 ? screenWidth(context) * 0.05 : null,
+    leadingWidth: screenWidth(context) * 0.3,
     leading: Padding(
       padding: const EdgeInsets.only(left: 30),
       child: !kIsWeb
@@ -39,20 +39,15 @@ AppBar customAppBar(
                           child: Icon(Icons.arrow_back_sharp),
                         ),
                       )
-                    : const Padding(
-                        padding: EdgeInsets.all(0.0),
-                        child: Icon(Icons.arrow_back_sharp,
-                            color: Color(mainColor)),
-                      ),
-                Expanded(
-                  child: InkWell(
-                      onTap: () {
-                        Get.to(() => const RecentProjects());
-                      },
-                      child: Image.asset(
-                        'assets/images/logoMini.png',
-                      )),
-                ),
+                    : Container(),
+                InkWell(
+                    onTap: () {
+                      Get.to(() => const RecentProjects());
+                    },
+                    child: Image.asset(
+                      'assets/images/logoMini.png',
+                      height: 25,
+                    )),
               ],
             )
           : InkWell(
@@ -66,6 +61,7 @@ AppBar customAppBar(
     centerTitle: true,
     title: title ?? Container(),
     actions: [
+      Expanded(child: MoveWindow()),
       Padding(
         padding: const EdgeInsets.only(right: 50),
         child: Builder(
@@ -75,7 +71,7 @@ AppBar customAppBar(
             },
             child: CircleAvatar(
               backgroundColor: const Color(secondaryColor),
-              maxRadius: 25,
+              maxRadius: 20,
               child: Center(
                 child: txt(
                     txt: firstChar[0].capitalize.toString(),
@@ -86,6 +82,13 @@ AppBar customAppBar(
           ),
         ),
       ),
+      MinimizeWindowButton(colors: titleBarButtonColors),
+      MaximizeWindowButton(
+        colors: titleBarButtonColors,
+      ),
+      CloseWindowButton(
+        colors: titleBarClosingButtonColors,
+      )
     ],
   );
 }

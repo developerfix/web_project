@@ -1,3 +1,4 @@
+import 'package:Ava/widgets/popup_button.dart';
 import 'package:get/get.dart';
 import 'package:Ava/widgets/popup_textfield.dart';
 import '../constants/style.dart';
@@ -129,38 +130,20 @@ Future<dynamic> editAssetPopUp(BuildContext context,
                         ? MainAxisAlignment.start
                         : MainAxisAlignment.end,
                     children: [
-                      InkWell(
-                        onTap: () {
+                      popupButton(
+                        context,
+                        text: 'Cancel',
+                        ontap: () {
                           Get.back();
                         },
-                        child: Container(
-                          width: screenWidth(context) < 1200
-                              ? screenHeight(context) * 0.08
-                              : screenWidth(context) * 0.05,
-                          height: screenHeight(context) * 0.05,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.0),
-                            color: const Color(0xFF958890),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.23),
-                                offset: const Offset(0, 3.0),
-                                blurRadius: 9.0,
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                              child: txt(
-                                  txt: 'Cancel',
-                                  fontSize: 15,
-                                  fontColor: Colors.white)),
-                        ),
                       ),
                       SizedBox(
                         width: screenWidth(context) * 0.01,
                       ),
-                      InkWell(
-                        onTap: () async {
+                      popupButton(
+                        context,
+                        text: 'Edit',
+                        ontap: () {
                           if (pathNameController.text.isEmpty &&
                               pathController.text.isEmpty) {
                             getErrorSnackBar("Please make some changes first");
@@ -210,28 +193,6 @@ Future<dynamic> editAssetPopUp(BuildContext context,
                             }
                           }
                         },
-                        child: Container(
-                          width: screenWidth(context) < 1200
-                              ? screenHeight(context) * 0.08
-                              : screenWidth(context) * 0.05,
-                          height: screenHeight(context) * 0.05,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.0),
-                            color: const Color(0xFF958890),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.23),
-                                offset: const Offset(0, 3.0),
-                                blurRadius: 9.0,
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                              child: txt(
-                                  txt: 'EDIT',
-                                  fontSize: 15,
-                                  fontColor: Colors.white)),
-                        ),
                       ),
                     ],
                   ),

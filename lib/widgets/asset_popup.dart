@@ -1,3 +1,4 @@
+import 'package:Ava/widgets/popup_button.dart';
 import 'package:get/get.dart';
 import 'package:Ava/widgets/popup_textfield.dart';
 import '../constants/style.dart';
@@ -126,95 +127,45 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                         ? MainAxisAlignment.start
                         : MainAxisAlignment.end,
                     children: [
-                      InkWell(
-                        onTap: () {
-                          Get.back();
-                        },
-                        child: Container(
-                          width: screenWidth(context) < 1200
-                              ? screenHeight(context) * 0.08
-                              : screenWidth(context) * 0.05,
-                          height: screenHeight(context) * 0.05,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.0),
-                            color: const Color(0xFF958890),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.23),
-                                offset: const Offset(0, 3.0),
-                                blurRadius: 9.0,
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                              child: txt(
-                                  txt: 'Cancel',
-                                  fontSize: 15,
-                                  fontColor: Colors.white)),
-                        ),
-                      ),
+                      popupButton(context, ontap: () {
+                        Get.back();
+                      }, text: 'Cancel'),
                       SizedBox(
                         width: screenWidth(context) * 0.01,
                       ),
-                      InkWell(
-                        onTap: () {
-                          if (formKey.currentState!.validate()) {
+                      popupButton(context, ontap: () {
+                        if (formKey.currentState!.validate()) {
+                          bool validURL =
+                              Uri.parse(pathController.text).isAbsolute;
+                          if (pathController.text.contains('https://')) {
+                            if (validURL) {
+                              Get.back();
+                              projectController.addNewAsset(
+                                path: pathController.text.trim(),
+                                pathName: pathNameController.text.trim(),
+                              );
+                            } else {
+                              getErrorSnackBar('Please enter a valid url path');
+                            }
+                          } else {
+                            pathController.text =
+                                'https://${pathController.text}';
+
                             bool validURL =
                                 Uri.parse(pathController.text).isAbsolute;
-                            if (pathController.text.contains('https://')) {
-                              if (validURL) {
-                                Get.back();
-                                projectController.addNewAsset(
-                                  path: pathController.text.trim(),
-                                  pathName: pathNameController.text.trim(),
-                                );
-                              } else {
-                                getErrorSnackBar(
-                                    'Please enter a valid url path');
-                              }
+
+                            if (validURL) {
+                              Get.back();
+                              projectController.addNewAsset(
+                                path: pathController.text.trim(),
+                                pathName: pathNameController.text.trim(),
+                              );
                             } else {
-                              pathController.text =
-                                  'https://${pathController.text}';
-
-                              bool validURL =
-                                  Uri.parse(pathController.text).isAbsolute;
-
-                              if (validURL) {
-                                Get.back();
-                                projectController.addNewAsset(
-                                  path: pathController.text.trim(),
-                                  pathName: pathNameController.text.trim(),
-                                );
-                              } else {
-                                getErrorSnackBar(
-                                    'Please enter a valid url path');
-                              }
+                              getErrorSnackBar('Please enter a valid url path');
                             }
                           }
-                        },
-                        child: Container(
-                          width: screenWidth(context) < 1200
-                              ? screenHeight(context) * 0.08
-                              : screenWidth(context) * 0.05,
-                          height: screenHeight(context) * 0.05,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.0),
-                            color: const Color(0xFF958890),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.23),
-                                offset: const Offset(0, 3.0),
-                                blurRadius: 9.0,
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                              child: txt(
-                                  txt: 'Add',
-                                  fontSize: 15,
-                                  fontColor: Colors.white)),
-                        ),
-                      ),
+                        }
+                      }, text: 'Add'),
                     ],
                   ),
                   SizedBox(

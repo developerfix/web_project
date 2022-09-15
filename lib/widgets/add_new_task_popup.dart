@@ -1,12 +1,12 @@
+import 'package:Ava/widgets/popup_button.dart';
+import 'package:Ava/widgets/select_members.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:Ava/constants/style.dart';
-import 'package:Ava/controllers/project_controller.dart';
 import 'package:Ava/widgets/edit_task_popup.dart';
-
 import '../widgets/select_task_members_popup.dart';
 import 'loading_indicator.dart';
 
@@ -23,8 +23,6 @@ int selectedValue = 1;
 int prioritySelectedValue = 1;
 
 Future<dynamic> addNewTaskPopUp(BuildContext context) {
-  final ProjectController projectController = Get.find();
-
   final GlobalKey<ScaffoldState> key = GlobalKey();
 
   final formKey = GlobalKey<FormState>();
@@ -98,19 +96,7 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                     Container(
                                       width: screenWidth(context) * 0.4,
                                       height: screenHeight(context) * 0.05,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.16),
-                                            offset: const Offset(0, 3.0),
-                                            blurRadius: 6.0,
-                                          ),
-                                        ],
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
+                                      decoration: boxDecoration,
                                       child: Padding(
                                         padding: const EdgeInsets.only(
                                             left: 15, right: 15, top: 5),
@@ -496,118 +482,69 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                   ? MainAxisAlignment.start
                                   : MainAxisAlignment.center,
                               children: [
-                                InkWell(
-                                  onTap: () {
+                                popupButton(context, ontap: () {
+                                  Get.back();
+                                  titleController.text = '';
+                                  descriptionController.text = '';
+                                  startDateController.text = '';
+                                  endDateController.text = '';
+                                  projecttController.taskPilot.value = '';
+                                  projecttController.taskCoPilot.value = '';
+
+                                  startdate = DateTime.now();
+                                  endDate = DateTime.now();
+                                  phaseValue = '3D Design';
+                                  selectedValue = 1;
+                                  prioritySelectedValue = 1;
+                                  projecttController.selectedDeliverables
+                                      .clear();
+                                  projecttController.update();
+                                }, text: 'Cancel'),
+                                SizedBox(
+                                  width: screenWidth(context) * 0.005,
+                                ),
+                                popupButton(context, ontap: () {
+                                  if (titleController.text.isNotEmpty) {
                                     Get.back();
+                                    projecttController.addNewTask(
+                                        isDeliverableNeededForCompletion:
+                                            selectedValue,
+                                        taskTitle: titleController.text,
+                                        phase: phaseValue,
+                                        taskDescription:
+                                            descriptionController.text,
+                                        pilot: taskPilot,
+                                        copilot: taskCoPilot,
+                                        deliverables: projecttController
+                                            .selectedDeliverables,
+                                        startDate: startDateController
+                                                .text.isEmpty
+                                            ? '${startdate.year}/${startdate.month}/${startdate.day}'
+                                            : startDateController.text,
+                                        endDate: endDateController.text.isEmpty
+                                            ? '${endDate.year}/${endDate.month}/${endDate.day}'
+                                            : endDateController.text,
+                                        status: 'todo',
+                                        priorityLevel: prioritySelectedValue);
                                     titleController.text = '';
                                     descriptionController.text = '';
                                     startDateController.text = '';
                                     endDateController.text = '';
-                                    projectController.taskPilot.value = '';
-                                    projectController.taskCoPilot.value = '';
-
+                                    projecttController.taskPilot.value = '';
+                                    projecttController.taskCoPilot.value = '';
                                     startdate = DateTime.now();
                                     endDate = DateTime.now();
                                     phaseValue = '3D Design';
                                     selectedValue = 1;
                                     prioritySelectedValue = 1;
-                                    projectController.selectedDeliverables
+                                    projecttController.selectedDeliverables
                                         .clear();
-                                    projectController.update();
-                                  },
-                                  child: Container(
-                                    width: constraints.maxWidth < 800
-                                        ? screenWidth(context) * 0.3
-                                        : screenWidth(context) * 0.1,
-                                    height: screenHeight(context) * 0.05,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12.0),
-                                      color: const Color(0xFF958890),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.23),
-                                          offset: const Offset(0, 3.0),
-                                          blurRadius: 9.0,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Center(
-                                        child: txt(
-                                            txt: 'Cancel',
-                                            fontSize: 15,
-                                            fontColor: Colors.white)),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: screenWidth(context) * 0.005,
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    if (titleController.text.isNotEmpty) {
-                                      Get.back();
-                                      projectController.addNewTask(
-                                          isDeliverableNeededForCompletion:
-                                              selectedValue,
-                                          taskTitle: titleController.text,
-                                          phase: phaseValue,
-                                          taskDescription:
-                                              descriptionController.text,
-                                          pilot: taskPilot,
-                                          copilot: taskCoPilot,
-                                          deliverables: projectController
-                                              .selectedDeliverables,
-                                          startDate: startDateController
-                                                  .text.isEmpty
-                                              ? '${startdate.year}/${startdate.month}/${startdate.day}'
-                                              : startDateController.text,
-                                          endDate: endDateController
-                                                  .text.isEmpty
-                                              ? '${endDate.year}/${endDate.month}/${endDate.day}'
-                                              : endDateController.text,
-                                          status: 'todo',
-                                          priorityLevel: prioritySelectedValue);
-                                      titleController.text = '';
-                                      descriptionController.text = '';
-                                      startDateController.text = '';
-                                      endDateController.text = '';
-                                      projectController.taskPilot.value = '';
-                                      projectController.taskCoPilot.value = '';
-                                      startdate = DateTime.now();
-                                      endDate = DateTime.now();
-                                      phaseValue = '3D Design';
-                                      selectedValue = 1;
-                                      prioritySelectedValue = 1;
-                                      projectController.selectedDeliverables
-                                          .clear();
-                                      projectController.update();
-                                    } else {
-                                      getErrorSnackBar(
-                                          "Please fillout the taskname");
-                                    }
-                                  },
-                                  child: Container(
-                                    width: constraints.maxWidth < 800
-                                        ? screenWidth(context) * 0.3
-                                        : screenWidth(context) * 0.1,
-                                    height: screenHeight(context) * 0.05,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12.0),
-                                      color: const Color(0xFF958890),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.23),
-                                          offset: const Offset(0, 3.0),
-                                          blurRadius: 9.0,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Center(
-                                        child: txt(
-                                            txt: 'Add Task',
-                                            fontSize: 15,
-                                            fontColor: Colors.white)),
-                                  ),
-                                ),
+                                    projecttController.update();
+                                  } else {
+                                    getErrorSnackBar(
+                                        "Please fillout the taskname");
+                                  }
+                                }, text: 'Add Task'),
                               ],
                             ),
                           ),
@@ -672,7 +609,7 @@ Container copilotWidget(BuildContext context) {
                 width: screenWidth(context) * 0.04,
               ),
               selectMember(context,
-                  pilotOrCopilotValue: projectController.taskCoPilot.value,
+                  pilotOrCopilotValue: projecttController.taskCoPilot.value,
                   pilotOrCopilot: 'copilot')
             ],
           )
@@ -691,7 +628,7 @@ Container copilotWidget(BuildContext context) {
                 width: screenWidth(context) * 0.04,
               ),
               selectMember(context,
-                  pilotOrCopilotValue: projectController.taskCoPilot.value,
+                  pilotOrCopilotValue: projecttController.taskCoPilot.value,
                   pilotOrCopilot: 'copilot')
             ],
           ),
@@ -721,7 +658,7 @@ StatefulBuilder deliverablesWidget(
                     SizedBox(
                       width: screenWidth(context) * 0.04,
                     ),
-                    projectController
+                    projecttController
                             .isSelectedDeliverablesUpdatingBefore.isTrue
                         ? Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -732,16 +669,17 @@ StatefulBuilder deliverablesWidget(
                                   fontSize: 14)
                             ],
                           )
-                        : projectController.deliverableUplaodingProgress.value !=
+                        : projecttController
+                                        .deliverableUplaodingProgress.value !=
                                     100 &&
-                                projectController
+                                projecttController
                                         .deliverableUplaodingProgress.value !=
                                     0.0
                             ? SizedBox(
                                 height: 40,
                                 width: 350,
                                 child: LiquidLinearProgressIndicator(
-                                    value: projectController
+                                    value: projecttController
                                             .deliverableUplaodingProgress
                                             .value /
                                         100,
@@ -754,9 +692,9 @@ StatefulBuilder deliverablesWidget(
                                     direction: Axis.horizontal,
                                     center: txt(
                                         txt:
-                                            "${projectController.deliverableUplaodingProgress.value.ceil()}%",
+                                            "${projecttController.deliverableUplaodingProgress.value.ceil()}%",
                                         fontSize: 18)))
-                            : projectController
+                            : projecttController
                                     .isSelectedDeliverablesUpdatingAfter.isTrue
                                 ? Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -767,7 +705,8 @@ StatefulBuilder deliverablesWidget(
                                           fontSize: 14)
                                     ],
                                   )
-                                : projectController.selectedDeliverables.isEmpty
+                                : projecttController
+                                        .selectedDeliverables.isEmpty
                                     ? ElevatedButton(
                                         style: ButtonStyle(
                                           backgroundColor:
@@ -776,7 +715,7 @@ StatefulBuilder deliverablesWidget(
                                         ),
                                         onPressed: () {
                                           // addTaskDeliverables()
-                                          projectController
+                                          projecttController
                                               .addTaskDeliverables();
                                         },
                                         child: Center(
@@ -794,7 +733,7 @@ StatefulBuilder deliverablesWidget(
                                           children: [
                                             Expanded(
                                               child: GridView.builder(
-                                                  itemCount: projectController
+                                                  itemCount: projecttController
                                                       .selectedDeliverables
                                                       .length,
                                                   gridDelegate:
@@ -820,7 +759,7 @@ StatefulBuilder deliverablesWidget(
                                                           children: [
                                                             Expanded(
                                                               child: txt(
-                                                                  txt: projectController
+                                                                  txt: projecttController
                                                                               .selectedDeliverables[
                                                                           index]
                                                                       [
@@ -830,7 +769,7 @@ StatefulBuilder deliverablesWidget(
                                                             ),
                                                             InkWell(
                                                                 onTap: () {
-                                                                  projectController
+                                                                  projecttController
                                                                       .selectedDeliverables
                                                                       .removeAt(
                                                                           index);
@@ -844,7 +783,7 @@ StatefulBuilder deliverablesWidget(
                                             ),
                                             GestureDetector(
                                               onTap: () {
-                                                projectController
+                                                projecttController
                                                     .addTaskDeliverables();
                                               },
                                               child: const Icon(
@@ -875,7 +814,7 @@ Container pilotWidget(BuildContext context) {
                 width: screenWidth(context) * 0.04,
               ),
               selectMember(context,
-                  pilotOrCopilotValue: projectController.taskPilot.value,
+                  pilotOrCopilotValue: projecttController.taskPilot.value,
                   pilotOrCopilot: 'pilot')
             ],
           )
@@ -894,56 +833,10 @@ Container pilotWidget(BuildContext context) {
                 width: screenWidth(context) * 0.04,
               ),
               selectMember(context,
-                  pilotOrCopilotValue: projectController.taskPilot.value,
+                  pilotOrCopilotValue: projecttController.taskPilot.value,
                   pilotOrCopilot: 'pilot')
             ],
           ),
-  );
-}
-
-Container selectMember(BuildContext context,
-    {String? pilotOrCopilot, String? pilotOrCopilotValue}) {
-  return Container(
-    width: screenWidth(context) * 0.2,
-    height: screenHeight(context) * 0.05,
-    decoration: BoxDecoration(
-      color: Colors.white,
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.16),
-          offset: const Offset(0, 3.0),
-          blurRadius: 6.0,
-        ),
-      ],
-      borderRadius: BorderRadius.circular(10.0),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
-      child: InkWell(
-        onTap: () {
-          selectTaskMembersPopup(context,
-                  title:
-                      'Select ${pilotOrCopilot == 'CoPilot' ? 'CoPilot' : 'Pilot'}  for this task')
-              .then((value) {
-            if (value != null) {
-              pilotOrCopilotValue = '@$value';
-              projectController.update();
-            }
-          });
-        },
-        child: TextFormField(
-          enabled: false,
-          maxLines: null,
-          decoration: InputDecoration(
-              suffixIcon: const Icon(Icons.person_add),
-              suffixIconColor: const Color(secondaryColor),
-              border: InputBorder.none,
-              hintText: pilotOrCopilotValue,
-              hintStyle: const TextStyle(
-                  color: Color(brownishColor), fontWeight: FontWeight.w600)),
-        ),
-      ),
-    ),
   );
 }
 

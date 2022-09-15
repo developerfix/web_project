@@ -1,4 +1,6 @@
+import 'package:Ava/controllers/profile_controller.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -14,12 +16,53 @@ const int secondaryColor = 0xff958890;
 const int brownishColor = 0xff707070;
 const int darkgreyishColor = 0xff304869;
 
+var titleBarButtonColors = WindowButtonColors(
+    mouseOver: const Color(secondaryColor), iconNormal: Colors.white);
+var titleBarClosingButtonColors =
+    WindowButtonColors(mouseOver: Colors.red, iconNormal: Colors.white);
 // FIREBASE
 var firebaseAuth = FirebaseAuth.instance;
 var firebaseStorage = FirebaseStorage.instance;
 var firestore = FirebaseFirestore.instance;
 var firedartFirestore = firedart.Firestore.instance;
+
 final ProjectController projecttController = Get.find();
+final ProfileController profileController = Get.find();
+
+BoxDecoration boxDecoration = projecttController.isDarkTheme.value
+    ? BoxDecoration(
+        color: Colors.black45,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.16),
+            offset: const Offset(0, 3.0),
+            blurRadius: 6.0,
+          ),
+        ],
+        borderRadius: BorderRadius.circular(10.0),
+      )
+    : BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.16),
+            offset: const Offset(0, 3.0),
+            blurRadius: 6.0,
+          ),
+        ],
+        borderRadius: BorderRadius.circular(10.0),
+      );
+BoxDecoration brownishBoxDecoration = BoxDecoration(
+  borderRadius: BorderRadius.circular(12.0),
+  color: const Color(0xFF958890),
+  boxShadow: [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.23),
+      offset: const Offset(0, 3.0),
+      blurRadius: 9.0,
+    ),
+  ],
+);
 
 //for all the text in the app
 Widget txt(
