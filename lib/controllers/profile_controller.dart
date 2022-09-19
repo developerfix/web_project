@@ -10,9 +10,9 @@ class ProfileController extends GetxController {
   RxList<dynamic> projects = <dynamic>[].obs;
   RxBool isFetchingProjects = false.obs;
 
-  Rx<String> _uid = "".obs;
+  final Rx<String> _uid = "".obs;
 
-  updateUserId(String uid) {
+  updateUserData(String uid) {
     _uid.value = uid;
     getUserData();
     getProjects();

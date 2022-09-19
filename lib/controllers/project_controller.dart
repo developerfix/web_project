@@ -25,6 +25,7 @@ class ProjectController extends GetxController {
   RxBool isTasksUpdating = false.obs;
   RxBool isMembersUpdating = false.obs;
   RxBool isDarkTheme = false.obs;
+  RxBool isRecentProjectsListAtTop = true.obs;
   RxList<dynamic> comments = <dynamic>[].obs;
   RxList<dynamic> assets = <dynamic>[].obs;
   RxList<dynamic> users = <dynamic>[].obs;
@@ -35,23 +36,32 @@ class ProjectController extends GetxController {
   RxList<dynamic> selectedDeliverables = <dynamic>[].obs;
   Rx<double> progress = 0.0.obs;
   Rx<int> commentsFilter = 1.obs;
+  Rx<int> taskPrioritySelectedValue = 1.obs;
+  Rx<int> taskSelectedValue = 1.obs;
   Rx<double> deliverableUplaodingProgress = 0.0.obs;
+  Rx<String> phaseValue = "".obs;
   Rx<String> searchedNote = "".obs;
   Rx<String> taskPilot = "".obs;
   Rx<String> taskCoPilot = "".obs;
   Rx<String> projectPilot = "".obs;
   Rx<String> projectCoPilot = "".obs;
-  Rx<String> _uid = "".obs;
-  Rx<String> _projectId = "".obs;
+  final Rx<String> _uid = "".obs;
+  final Rx<String> _projectId = "".obs;
   // ignore: prefer_typing_uninitialized_variables
   var app;
 
-  updateProjectAndUserId({String? uid, String? projectId}) {
+  updateUsers({
+    String? uid,
+  }) {
+    _uid.value = uid!;
+    getUsers();
+    initialize();
+  }
+
+  updateProject({String? uid, String? projectId}) {
     _uid.value = uid!;
     _projectId.value = projectId!;
     getProjectData();
-    getUsers();
-    initialize();
   }
 
   initialize() async {
@@ -254,7 +264,8 @@ class ProjectController extends GetxController {
       String? endDate,
       String? status,
       List? taskDeliverables,
-      int? priorityLevel}) async {
+      int? priorityLevel,
+      int? deliverablesRequiredOrNot}) async {
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
@@ -264,6 +275,7 @@ class ProjectController extends GetxController {
         startDate: startDate,
         endDate: endDate,
         status: 'inProgress',
+        isDeliverableNeededForCompletion: deliverablesRequiredOrNot,
         deliverables: taskDeliverables,
         priorityLevel: priorityLevel);
 
@@ -332,7 +344,8 @@ class ProjectController extends GetxController {
       String? endDate,
       String? status,
       List? taskDeliverables,
-      int? priorityLevel}) async {
+      int? priorityLevel,
+      int? deliverablesRequiredOrNot}) async {
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
@@ -342,6 +355,7 @@ class ProjectController extends GetxController {
         startDate: startDate,
         endDate: endDate,
         status: 'todo',
+        isDeliverableNeededForCompletion: deliverablesRequiredOrNot,
         deliverables: taskDeliverables,
         priorityLevel: priorityLevel);
     try {
@@ -409,7 +423,8 @@ class ProjectController extends GetxController {
       String? endDate,
       String? status,
       List? taskDeliverables,
-      int? priorityLevel}) async {
+      int? priorityLevel,
+      int? deliverablesRequiredOrNot}) async {
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
@@ -420,6 +435,7 @@ class ProjectController extends GetxController {
         endDate: endDate,
         deliverables: taskDeliverables,
         status: 'completed',
+        isDeliverableNeededForCompletion: deliverablesRequiredOrNot,
         priorityLevel: priorityLevel);
     try {
       status == 'todo'
@@ -538,13 +554,16 @@ class ProjectController extends GetxController {
     String? pilot,
     String? copilot,
     String? catergory,
+    List<ProjectMember>? initialProjectMembers,
   }) async {
+    FutureGroup futureGroup = FutureGroup();
     String projectId = '';
     Project project = Project(
         copilot: copilot,
         lead: pilot,
         projectId: projectId,
         subtitle: subtitle,
+        category: catergory,
         title: title);
 
     if (!kIsWeb) {
@@ -562,16 +581,22 @@ class ProjectController extends GetxController {
               .collection('projects')
               .document(value.id)
               .update({'projectId': value.id}).then((value) async {
-            await firedartFirestore
-                .collection('users')
-                .document('$uid')
-                .collection('projects')
-                .document(projectId)
-                .collection('members')
-                .document('$uid')
-                .set({"uid": uid, 'username': username}).then((value) {
-              Get.to(() => ProjectDashboard(projectId: projectId));
-            });
+            for (var projectMember in initialProjectMembers!) {
+              futureGroup.add(firedartFirestore
+                  .collection('users')
+                  .document('$uid')
+                  .collection('projects')
+                  .document(projectId)
+                  .collection('members')
+                  .document('${projectMember.uid}')
+                  .set({
+                "uid": projectMember.uid,
+                'username': projectMember.username
+              }));
+            }
+            futureGroup.close();
+
+            Get.to(() => ProjectDashboard(projectId: projectId));
           });
         });
 
@@ -597,16 +622,21 @@ class ProjectController extends GetxController {
               .collection('projects')
               .doc(value.id)
               .update({'projectId': value.id}).then((value) async {
-            await firestore
-                .collection('users')
-                .doc(uid)
-                .collection('projects')
-                .doc(projectId)
-                .collection('members')
-                .doc(uid)
-                .set({"uid": uid, 'username': username}).then((value) {
-              Get.to(() => ProjectDashboard(projectId: projectId));
-            });
+            for (var projectMember in initialProjectMembers!) {
+              futureGroup.add(firedartFirestore
+                  .collection('users')
+                  .document('$uid')
+                  .collection('projects')
+                  .document(projectId)
+                  .collection('members')
+                  .document('${projectMember.uid}')
+                  .set({
+                "uid": projectMember.uid,
+                'username': projectMember.username
+              }));
+            }
+            futureGroup.close();
+            Get.to(() => ProjectDashboard(projectId: projectId));
           });
         });
 
@@ -1066,25 +1096,28 @@ class ProjectController extends GetxController {
     }
   }
 
-  updateTask(
-      {String? taskTitle,
-      String? oldTaskTitle,
-      String? phase,
-      String? taskDescription,
-      String? oldTaskDescription,
-      String? pilot,
-      String? copilot,
-      String? startDate,
-      String? endDate,
-      String? status,
-      List? taskDeliverables,
-      int? priorityLevel}) async {
+  updateTask({
+    String? taskTitle,
+    String? oldTaskTitle,
+    String? phase,
+    String? taskDescription,
+    String? oldTaskDescription,
+    String? pilot,
+    String? copilot,
+    String? startDate,
+    String? endDate,
+    String? status,
+    List? taskDeliverables,
+    int? priorityLevel,
+    int? isDeliverableNeededForCompletion,
+  }) async {
     isTasksUpdating.value = true;
     FutureGroup futureGroup = FutureGroup();
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
         taskDescription: taskDescription,
+        isDeliverableNeededForCompletion: isDeliverableNeededForCompletion,
         pilot: pilot,
         copilot: copilot,
         startDate: startDate,

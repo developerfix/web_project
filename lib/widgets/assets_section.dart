@@ -226,6 +226,8 @@ StatefulBuilder assetsSection(
           const Spacer(),
           ListTile(
               onTap: () {
+                projectController!.selectedDeliverables.clear();
+                projectController.phaseValue.value = '3D Design';
                 addNewTaskPopUp(context);
               },
               leading: const Icon(

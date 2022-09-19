@@ -6,21 +6,23 @@ class Project {
   String? subtitle;
   String? lead;
   String? copilot;
+  String? category;
 
-  Project({
-    this.projectId,
-    this.title,
-    this.subtitle,
-    this.lead,
-    this.copilot,
-  });
+  Project(
+      {this.projectId,
+      this.title,
+      this.subtitle,
+      this.lead,
+      this.copilot,
+      this.category});
 
   Map<String, dynamic> toJson() => {
         "projectId": projectId,
         "title": title,
         "subtitle": subtitle,
         "lead": lead,
-        "copilot": copilot
+        "copilot": copilot,
+        "category": category
       };
 
   static Project fromSnap(DocumentSnapshot snap) {
@@ -30,6 +32,7 @@ class Project {
         title: snapshot['title'],
         subtitle: snapshot['subtitle'],
         copilot: snapshot['copilot'],
+        category: snapshot['category'],
         lead: snapshot['lead']);
   }
 }

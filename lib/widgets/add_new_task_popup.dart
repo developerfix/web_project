@@ -1,29 +1,21 @@
 import 'package:Ava/widgets/popup_button.dart';
-import 'package:Ava/widgets/select_members.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:Ava/constants/style.dart';
-import 'package:Ava/widgets/edit_task_popup.dart';
-import '../widgets/select_task_members_popup.dart';
-import 'loading_indicator.dart';
-
-String phaseValue = '3D Design';
-DateTime startdate = DateTime.now();
-DateTime endDate = DateTime.now();
-
-final titleController = TextEditingController();
-final descriptionController = TextEditingController();
-final endDateController = TextEditingController();
-final startDateController = TextEditingController();
-
-int selectedValue = 1;
-int prioritySelectedValue = 1;
+import 'add_edit_task_widgets.dart';
 
 Future<dynamic> addNewTaskPopUp(BuildContext context) {
   final GlobalKey<ScaffoldState> key = GlobalKey();
+
+  DateTime startdate = DateTime.now();
+  DateTime endDate = DateTime.now();
+
+  final titleController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final endDateController = TextEditingController();
+  final startDateController = TextEditingController();
+  final taskPilotController = TextEditingController();
+  final taskCoPilotController = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
 
@@ -61,23 +53,29 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                           SizedBox(
                             height: screenHeight(context) * 0.03,
                           ),
-                          titleWidget(constraints, context),
+                          titleWidget(constraints, context,
+                              titleController: titleController),
                           SizedBox(
                             height: screenHeight(context) * 0.03,
                           ),
-                          phaseWidget(context),
+                          phaseWidget(
+                            context,
+                          ),
                           SizedBox(
                             height: screenHeight(context) * 0.03,
                           ),
-                          descriptionWidget(context),
+                          descriptionWidget(context,
+                              descriptionController: descriptionController),
                           SizedBox(
                             height: screenHeight(context) * 0.03,
                           ),
-                          pilotWidget(context),
+                          pilotWidget(context,
+                              taskPilotController: taskPilotController),
                           SizedBox(
                             height: screenHeight(context) * 0.03,
                           ),
-                          copilotWidget(context),
+                          copilotWidget(context,
+                              taskCoPilotController: taskCoPilotController),
                           SizedBox(
                             height: screenHeight(context) * 0.03,
                           ),
@@ -93,51 +91,10 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                     SizedBox(
                                       width: screenWidth(context) * 0.04,
                                     ),
-                                    Container(
-                                      width: screenWidth(context) * 0.4,
-                                      height: screenHeight(context) * 0.05,
-                                      decoration: boxDecoration,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 15, right: 15, top: 5),
-                                        child: InkWell(
-                                          onTap: () async {
-                                            DateTime? newStartDate =
-                                                await showDatePicker(
-                                              initialDate: DateTime.now(),
-                                              context: context,
-                                              firstDate: DateTime.now()
-                                                  .subtract(
-                                                      const Duration(days: 0)),
-                                              lastDate: DateTime(2100),
-                                            );
-
-                                            if (newStartDate == null) {
-                                              return;
-                                            } else {
-                                              startDateController.text =
-                                                  '${newStartDate.year}/${newStartDate.month}/${newStartDate.day}';
-                                            }
-                                          },
-                                          child: TextFormField(
-                                            enabled: false,
-                                            maxLines: null,
-                                            controller: startDateController,
-                                            decoration: InputDecoration(
-                                                suffixIcon: const Icon(
-                                                    Icons.date_range),
-                                                suffixIconColor:
-                                                    const Color(secondaryColor),
-                                                border: InputBorder.none,
-                                                hintText:
-                                                    '${startdate.year}/${startdate.month}/${startdate.day}',
-                                                hintStyle: const TextStyle(
-                                                    color: Color(brownishColor),
-                                                    fontWeight:
-                                                        FontWeight.w600)),
-                                          ),
-                                        ),
-                                      ),
+                                    dateSelectorBox(
+                                      context,
+                                      controller: startDateController,
+                                      date: startdate,
                                     ),
                                   ],
                                 )
@@ -155,64 +112,9 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                     SizedBox(
                                       width: screenWidth(context) * 0.04,
                                     ),
-                                    Container(
-                                      width: screenWidth(context) * 0.2,
-                                      height: screenHeight(context) * 0.05,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.16),
-                                            offset: const Offset(0, 3.0),
-                                            blurRadius: 6.0,
-                                          ),
-                                        ],
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 15, right: 15, top: 5),
-                                        child: InkWell(
-                                          onTap: () async {
-                                            DateTime? newStartDate =
-                                                await showDatePicker(
-                                              initialDate: DateTime.now(),
-                                              context: context,
-                                              firstDate: DateTime.now()
-                                                  .subtract(
-                                                      const Duration(days: 0)),
-                                              lastDate: DateTime(2100),
-                                            );
-
-                                            if (newStartDate == null) {
-                                              return;
-                                            } else {
-                                              startDateController.text =
-                                                  '${newStartDate.year}/${newStartDate.month}/${newStartDate.day}';
-                                            }
-                                          },
-                                          child: TextFormField(
-                                            enabled: false,
-                                            maxLines: null,
-                                            controller: startDateController,
-                                            decoration: InputDecoration(
-                                                suffixIcon: const Icon(
-                                                    Icons.date_range),
-                                                suffixIconColor:
-                                                    const Color(secondaryColor),
-                                                border: InputBorder.none,
-                                                hintText:
-                                                    '${startdate.year}/${startdate.month}/${startdate.day}',
-                                                hintStyle: const TextStyle(
-                                                    color: Color(brownishColor),
-                                                    fontWeight:
-                                                        FontWeight.w600)),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                    dateSelectorBox(context,
+                                        controller: startDateController,
+                                        date: startdate),
                                   ],
                                 ),
                           SizedBox(
@@ -230,64 +132,9 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                     SizedBox(
                                       width: screenWidth(context) * 0.04,
                                     ),
-                                    Container(
-                                      width: screenWidth(context) * 0.4,
-                                      height: screenHeight(context) * 0.05,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.16),
-                                            offset: const Offset(0, 3.0),
-                                            blurRadius: 6.0,
-                                          ),
-                                        ],
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 15, right: 15, top: 5),
-                                        child: InkWell(
-                                          onTap: () async {
-                                            DateTime? newEndDate =
-                                                await showDatePicker(
-                                              initialDate: DateTime.now(),
-                                              context: context,
-                                              firstDate: DateTime.now()
-                                                  .subtract(
-                                                      const Duration(days: 0)),
-                                              lastDate: DateTime(2100),
-                                            );
-
-                                            if (newEndDate == null) {
-                                              return;
-                                            } else {
-                                              endDateController.text =
-                                                  '${newEndDate.year}/${newEndDate.month}/${newEndDate.day}';
-                                            }
-                                          },
-                                          child: TextFormField(
-                                            enabled: false,
-                                            maxLines: null,
-                                            controller: endDateController,
-                                            decoration: InputDecoration(
-                                                suffixIcon: const Icon(
-                                                    Icons.date_range),
-                                                suffixIconColor:
-                                                    const Color(secondaryColor),
-                                                border: InputBorder.none,
-                                                hintText:
-                                                    '${endDate.year}/${endDate.month}/${endDate.day}',
-                                                hintStyle: const TextStyle(
-                                                    color: Color(brownishColor),
-                                                    fontWeight:
-                                                        FontWeight.w600)),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                    dateSelectorBox(context,
+                                        controller: endDateController,
+                                        date: endDate),
                                   ],
                                 )
                               : Row(
@@ -304,64 +151,9 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                     SizedBox(
                                       width: screenWidth(context) * 0.04,
                                     ),
-                                    Container(
-                                      width: screenWidth(context) * 0.2,
-                                      height: screenHeight(context) * 0.05,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.16),
-                                            offset: const Offset(0, 3.0),
-                                            blurRadius: 6.0,
-                                          ),
-                                        ],
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 15, right: 15, top: 5),
-                                        child: InkWell(
-                                          onTap: () async {
-                                            DateTime? newEndDate =
-                                                await showDatePicker(
-                                              initialDate: DateTime.now(),
-                                              context: context,
-                                              firstDate: DateTime.now()
-                                                  .subtract(
-                                                      const Duration(days: 0)),
-                                              lastDate: DateTime(2100),
-                                            );
-
-                                            if (newEndDate == null) {
-                                              return;
-                                            } else {
-                                              endDateController.text =
-                                                  '${newEndDate.year}/${newEndDate.month}/${newEndDate.day}';
-                                            }
-                                          },
-                                          child: TextFormField(
-                                            enabled: false,
-                                            maxLines: null,
-                                            controller: endDateController,
-                                            decoration: InputDecoration(
-                                                suffixIcon: const Icon(
-                                                    Icons.date_range),
-                                                suffixIconColor:
-                                                    const Color(secondaryColor),
-                                                border: InputBorder.none,
-                                                hintText:
-                                                    '${endDate.year}/${endDate.month}/${endDate.day}',
-                                                hintStyle: const TextStyle(
-                                                    color: Color(brownishColor),
-                                                    fontWeight:
-                                                        FontWeight.w600)),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                    dateSelectorBox(context,
+                                        controller: endDateController,
+                                        date: endDate),
                                   ],
                                 ),
                           SizedBox(
@@ -376,56 +168,10 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                           SizedBox(
                             height: screenHeight(context) * 0.01,
                           ),
-                          SizedBox(
-                              height: screenHeight(context) * 0.2,
-                              width: constraints.maxWidth < 800
-                                  ? screenWidth(context) * 0.5
-                                  : screenWidth(context) * 0.3,
-                              child:
-                                  StatefulBuilder(builder: (context, setState) {
-                                return Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    priorityWidget(
-                                      constraints,
-                                      context,
-                                      prioritySelectedValue,
-                                      'High Priority',
-                                      1,
-                                      (int? val) {
-                                        setState(() {
-                                          prioritySelectedValue = val!;
-                                        });
-                                      },
-                                    ),
-                                    priorityWidget(
-                                      constraints,
-                                      context,
-                                      prioritySelectedValue,
-                                      'Medium Priority',
-                                      2,
-                                      (int? val) {
-                                        setState(() {
-                                          prioritySelectedValue = val!;
-                                        });
-                                      },
-                                    ),
-                                    priorityWidget(
-                                      constraints,
-                                      context,
-                                      prioritySelectedValue,
-                                      'Future Priority',
-                                      3,
-                                      (int? val) {
-                                        setState(() {
-                                          prioritySelectedValue = val!;
-                                        });
-                                      },
-                                    )
-                                  ],
-                                );
-                              })),
+                          priorityBox(
+                            context,
+                            constraints,
+                          ),
                           txt(
                               txt:
                                   'Deliverable needed before completion of this task?',
@@ -433,44 +179,10 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                               font: 'comfortaa',
                               fontWeight: FontWeight.w700,
                               fontColor: const Color(secondaryColor)),
-                          SizedBox(
-                              height: screenHeight(context) * 0.1,
-                              width: constraints.maxWidth < 800
-                                  ? screenWidth(context) * 0.5
-                                  : screenWidth(context) * 0.3,
-                              child:
-                                  StatefulBuilder(builder: (context, setState) {
-                                return Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    priorityWidget(
-                                      constraints,
-                                      context,
-                                      selectedValue,
-                                      'Yes',
-                                      1,
-                                      (int? val) {
-                                        setState(() {
-                                          selectedValue = val!;
-                                        });
-                                      },
-                                    ),
-                                    priorityWidget(
-                                      constraints,
-                                      context,
-                                      selectedValue,
-                                      'No',
-                                      2,
-                                      (int? val) {
-                                        setState(() {
-                                          selectedValue = val!;
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                );
-                              })),
+                          deliverableQuestionBox(
+                            context,
+                            constraints,
+                          ),
                           deliverablesWidget(context),
                           SizedBox(
                             height: screenWidth(context) * 0.03,
@@ -493,9 +205,7 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
 
                                   startdate = DateTime.now();
                                   endDate = DateTime.now();
-                                  phaseValue = '3D Design';
-                                  selectedValue = 1;
-                                  prioritySelectedValue = 1;
+
                                   projecttController.selectedDeliverables
                                       .clear();
                                   projecttController.update();
@@ -507,14 +217,13 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                   if (titleController.text.isNotEmpty) {
                                     Get.back();
                                     projecttController.addNewTask(
-                                        isDeliverableNeededForCompletion:
-                                            selectedValue,
                                         taskTitle: titleController.text,
-                                        phase: phaseValue,
+                                        phase:
+                                            projecttController.phaseValue.value,
                                         taskDescription:
                                             descriptionController.text,
-                                        pilot: taskPilot,
-                                        copilot: taskCoPilot,
+                                        pilot: taskPilotController.text,
+                                        copilot: taskCoPilotController.text,
                                         deliverables: projecttController
                                             .selectedDeliverables,
                                         startDate: startDateController
@@ -525,7 +234,11 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                             ? '${endDate.year}/${endDate.month}/${endDate.day}'
                                             : endDateController.text,
                                         status: 'todo',
-                                        priorityLevel: prioritySelectedValue);
+                                        isDeliverableNeededForCompletion:
+                                            projecttController
+                                                .taskSelectedValue.value,
+                                        priorityLevel: projecttController
+                                            .taskPrioritySelectedValue.value);
                                     titleController.text = '';
                                     descriptionController.text = '';
                                     startDateController.text = '';
@@ -534,9 +247,7 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                     projecttController.taskCoPilot.value = '';
                                     startdate = DateTime.now();
                                     endDate = DateTime.now();
-                                    phaseValue = '3D Design';
-                                    selectedValue = 1;
-                                    prioritySelectedValue = 1;
+
                                     projecttController.selectedDeliverables
                                         .clear();
                                     projecttController.update();
@@ -558,616 +269,4 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
           ),
         );
       });
-}
-
-StatefulBuilder priorityWidget(
-  BoxConstraints constraints,
-  BuildContext context,
-  int groupValue,
-  String? priorityLabel,
-  int? value,
-  Function(int?)? onChanged,
-) {
-  return StatefulBuilder(builder: (context, setState) {
-    return Row(
-      children: [
-        SizedBox(
-          width:
-              constraints.maxWidth < 800 ? null : screenWidth(context) * 0.08,
-          child: txt(
-            minFontSize: 18,
-            maxLines: constraints.maxWidth < 800 ? null : 1,
-            txt: priorityLabel!,
-            fontSize: 30,
-          ),
-        ),
-        SizedBox(
-          height: screenHeight(context) * 0.04,
-        ),
-        Radio(
-          value: value!,
-          groupValue: groupValue,
-          onChanged: onChanged,
-        )
-      ],
-    );
-  });
-}
-
-Container copilotWidget(BuildContext context) {
-  return Container(
-    child: screenWidth(context) < 800
-        ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              txt(
-                minFontSize: 18,
-                txt: 'Co-Pilot:',
-                fontSize: 30,
-              ),
-              SizedBox(
-                width: screenWidth(context) * 0.04,
-              ),
-              selectMember(context,
-                  pilotOrCopilotValue: projecttController.taskCoPilot.value,
-                  pilotOrCopilot: 'copilot')
-            ],
-          )
-        : Row(
-            children: [
-              SizedBox(
-                width: screenWidth(context) * 0.1,
-                child: txt(
-                  minFontSize: 18,
-                  maxLines: 1,
-                  txt: 'Co-Pilot:',
-                  fontSize: 30,
-                ),
-              ),
-              SizedBox(
-                width: screenWidth(context) * 0.04,
-              ),
-              selectMember(context,
-                  pilotOrCopilotValue: projecttController.taskCoPilot.value,
-                  pilotOrCopilot: 'copilot')
-            ],
-          ),
-  );
-}
-
-StatefulBuilder deliverablesWidget(
-  BuildContext context,
-) {
-  return StatefulBuilder(builder: (context, setState) {
-    return Obx(() {
-      return Container(
-          child: screenWidth(context) < 800
-              ? Container()
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: screenWidth(context) * 0.1,
-                      child: txt(
-                        minFontSize: 18,
-                        maxLines: 1,
-                        txt: 'Deliverables:',
-                        fontSize: 30,
-                      ),
-                    ),
-                    SizedBox(
-                      width: screenWidth(context) * 0.04,
-                    ),
-                    projecttController
-                            .isSelectedDeliverablesUpdatingBefore.isTrue
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const LoadingIndicator(),
-                              txt(
-                                  txt: 'Please wait\n File is being uploaded',
-                                  fontSize: 14)
-                            ],
-                          )
-                        : projecttController
-                                        .deliverableUplaodingProgress.value !=
-                                    100 &&
-                                projecttController
-                                        .deliverableUplaodingProgress.value !=
-                                    0.0
-                            ? SizedBox(
-                                height: 40,
-                                width: 350,
-                                child: LiquidLinearProgressIndicator(
-                                    value: projecttController
-                                            .deliverableUplaodingProgress
-                                            .value /
-                                        100,
-                                    valueColor: const AlwaysStoppedAnimation(Color(
-                                        secondaryColor)), // Defaults to the current Theme's accentColor.
-                                    backgroundColor: Colors.white,
-                                    borderColor: const Color(mainColor),
-                                    borderWidth: 5.0,
-                                    borderRadius: 12.0,
-                                    direction: Axis.horizontal,
-                                    center: txt(
-                                        txt:
-                                            "${projecttController.deliverableUplaodingProgress.value.ceil()}%",
-                                        fontSize: 18)))
-                            : projecttController
-                                    .isSelectedDeliverablesUpdatingAfter.isTrue
-                                ? Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const LoadingIndicator(),
-                                      txt(
-                                          txt: 'Uploading, Almost finished',
-                                          fontSize: 14)
-                                    ],
-                                  )
-                                : projecttController
-                                        .selectedDeliverables.isEmpty
-                                    ? ElevatedButton(
-                                        style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all(
-                                                  const Color(secondaryColor)),
-                                        ),
-                                        onPressed: () {
-                                          // addTaskDeliverables()
-                                          projecttController
-                                              .addTaskDeliverables();
-                                        },
-                                        child: Center(
-                                          child: txt(
-                                              txt: 'upload',
-                                              fontColor: Colors.white,
-                                              fontSize: 14),
-                                        ))
-                                    : SizedBox(
-                                        width: screenWidth(context) * 0.2,
-                                        height: screenHeight(context) * 0.2,
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              child: GridView.builder(
-                                                  itemCount: projecttController
-                                                      .selectedDeliverables
-                                                      .length,
-                                                  gridDelegate:
-                                                      const SliverGridDelegateWithMaxCrossAxisExtent(
-                                                          maxCrossAxisExtent:
-                                                              200,
-                                                          childAspectRatio: 2,
-                                                          crossAxisSpacing: 20,
-                                                          mainAxisSpacing: 20),
-                                                  itemBuilder:
-                                                      ((context, index) {
-                                                    return Container(
-                                                        margin: const EdgeInsets
-                                                            .all(8.0),
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(8.0),
-                                                        decoration: BoxDecoration(
-                                                            border: Border.all(
-                                                                color: const Color(
-                                                                    secondaryColor))),
-                                                        child: Row(
-                                                          children: [
-                                                            Expanded(
-                                                              child: txt(
-                                                                  txt: projecttController
-                                                                              .selectedDeliverables[
-                                                                          index]
-                                                                      [
-                                                                      'filename'],
-                                                                  maxLines: 2,
-                                                                  fontSize: 16),
-                                                            ),
-                                                            InkWell(
-                                                                onTap: () {
-                                                                  projecttController
-                                                                      .selectedDeliverables
-                                                                      .removeAt(
-                                                                          index);
-                                                                },
-                                                                child: const Icon(
-                                                                    Icons
-                                                                        .close))
-                                                          ],
-                                                        ));
-                                                  })),
-                                            ),
-                                            GestureDetector(
-                                              onTap: () {
-                                                projecttController
-                                                    .addTaskDeliverables();
-                                              },
-                                              child: const Icon(
-                                                Icons.attach_file,
-                                                color: Color(secondaryColor),
-                                              ),
-                                            ),
-                                          ],
-                                        )),
-                  ],
-                ));
-    });
-  });
-}
-
-Container pilotWidget(BuildContext context) {
-  return Container(
-    child: screenWidth(context) < 800
-        ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              txt(
-                minFontSize: 18,
-                txt: 'Pilot:',
-                fontSize: 30,
-              ),
-              SizedBox(
-                width: screenWidth(context) * 0.04,
-              ),
-              selectMember(context,
-                  pilotOrCopilotValue: projecttController.taskPilot.value,
-                  pilotOrCopilot: 'pilot')
-            ],
-          )
-        : Row(
-            children: [
-              SizedBox(
-                width: screenWidth(context) * 0.1,
-                child: txt(
-                  minFontSize: 18,
-                  maxLines: 1,
-                  txt: 'Pilot:',
-                  fontSize: 30,
-                ),
-              ),
-              SizedBox(
-                width: screenWidth(context) * 0.04,
-              ),
-              selectMember(context,
-                  pilotOrCopilotValue: projecttController.taskPilot.value,
-                  pilotOrCopilot: 'pilot')
-            ],
-          ),
-  );
-}
-
-Container descriptionWidget(BuildContext context) {
-  return Container(
-      child: screenWidth(context) < 800
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                txt(
-                  minFontSize: 18,
-                  txt: 'Task Description:',
-                  fontSize: 30,
-                ),
-                SizedBox(
-                  width: screenWidth(context) * 0.04,
-                ),
-                Container(
-                  width: screenWidth(context) * 0.4,
-                  height: screenHeight(context) * 0.1,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.16),
-                        offset: const Offset(0, 3.0),
-                        blurRadius: 6.0,
-                      ),
-                    ],
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
-                    child: TextFormField(
-                      maxLines: null,
-                      controller: descriptionController,
-                      decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          hintText: '...',
-                          hintStyle: TextStyle(
-                              color: Color(brownishColor),
-                              fontWeight: FontWeight.w600)),
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : Row(
-              children: [
-                SizedBox(
-                  width: screenWidth(context) * 0.1,
-                  child: txt(
-                    minFontSize: 18,
-                    maxLines: 1,
-                    txt: 'Task Description:',
-                    fontSize: 30,
-                  ),
-                ),
-                SizedBox(
-                  width: screenWidth(context) * 0.04,
-                ),
-                Container(
-                  width: screenWidth(context) * 0.2,
-                  height: screenHeight(context) * 0.1,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.16),
-                        offset: const Offset(0, 3.0),
-                        blurRadius: 6.0,
-                      ),
-                    ],
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
-                    child: TextFormField(
-                      maxLines: null,
-                      controller: descriptionController,
-                      decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          hintText: '...',
-                          hintStyle: TextStyle(
-                              color: Color(brownishColor),
-                              fontWeight: FontWeight.w600)),
-                    ),
-                  ),
-                ),
-              ],
-            ));
-}
-
-Container titleWidget(BoxConstraints constraints, BuildContext context) {
-  return Container(
-      child: screenWidth(context) < 800
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                txt(
-                  minFontSize: 18,
-                  txt: 'Task Name:',
-                  fontSize: 30,
-                ),
-                SizedBox(
-                  width: screenWidth(context) * 0.04,
-                ),
-                Container(
-                  width: screenWidth(context) * 0.4,
-                  height: screenHeight(context) * 0.05,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.16),
-                        offset: const Offset(0, 3.0),
-                        blurRadius: 6.0,
-                      ),
-                    ],
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
-                    child: TextFormField(
-                      maxLines: 1,
-                      controller: titleController,
-                      decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          hintText: '...',
-                          hintStyle: TextStyle(
-                              color: Color(brownishColor),
-                              fontWeight: FontWeight.w600)),
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : Row(
-              children: [
-                SizedBox(
-                  width: screenWidth(context) * 0.1,
-                  child: txt(
-                    minFontSize: 18,
-                    maxLines: 1,
-                    txt: 'Task Name:',
-                    fontSize: 30,
-                  ),
-                ),
-                SizedBox(
-                  width: screenWidth(context) * 0.04,
-                ),
-                Container(
-                  width: screenWidth(context) * 0.2,
-                  height: screenHeight(context) * 0.05,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.16),
-                        offset: const Offset(0, 3.0),
-                        blurRadius: 6.0,
-                      ),
-                    ],
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
-                    child: TextFormField(
-                      maxLines: 1,
-                      controller: titleController,
-                      decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          hintText: '...',
-                          hintStyle: TextStyle(
-                              color: Color(brownishColor),
-                              fontWeight: FontWeight.w600)),
-                    ),
-                  ),
-                ),
-              ],
-            ));
-}
-
-StatefulBuilder phaseWidget(BuildContext context) {
-  return StatefulBuilder(builder: (context, setState) {
-    return Container(
-        child: screenWidth(context) < 800
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  txt(
-                    minFontSize: 18,
-                    txt: 'Phase:',
-                    fontSize: 30,
-                  ),
-                  SizedBox(
-                    width: screenWidth(context) * 0.04,
-                  ),
-                  Container(
-                    width: screenWidth(context) * 0.4,
-                    height: screenHeight(context) * 0.05,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.16),
-                          offset: const Offset(0, 3.0),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Center(
-                      child: DropdownButtonFormField(
-                        // itemHeight: 15,
-                        // menuMaxHeight: 30,
-                        items: <String>['3D Design', 'Optical Design']
-                            .map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-
-                        onChanged: (value) {
-                          setState(() {
-                            phaseValue = value.toString();
-                          });
-                        },
-
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          filled: true,
-                          hintStyle: GoogleFonts.montserrat(
-                            textStyle: const TextStyle(
-                              overflow: TextOverflow.ellipsis,
-                              letterSpacing: 0,
-                              color: Color(brownishColor),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          hintText: phaseValue,
-                          fillColor: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            : Row(
-                children: [
-                  SizedBox(
-                    width: screenWidth(context) * 0.1,
-                    child: txt(
-                      minFontSize: 18,
-                      maxLines: 1,
-                      txt: 'Phase:',
-                      fontSize: 30,
-                    ),
-                  ),
-                  SizedBox(
-                    width: screenWidth(context) * 0.04,
-                  ),
-                  Container(
-                    width: screenWidth(context) * 0.2,
-                    height: screenHeight(context) * 0.05,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.16),
-                          offset: const Offset(0, 3.0),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Center(
-                      child: DropdownButtonFormField(
-                        // itemHeight: 15,
-                        // menuMaxHeight: 30,
-                        items: <String>['3D Design', 'Optical Design']
-                            .map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-
-                        onChanged: (value) {
-                          setState(() {
-                            phaseValue = value.toString();
-                          });
-                        },
-
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          filled: true,
-                          hintStyle: GoogleFonts.montserrat(
-                            textStyle: const TextStyle(
-                              overflow: TextOverflow.ellipsis,
-                              letterSpacing: 0,
-                              color: Color(brownishColor),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          hintText: phaseValue,
-                          fillColor: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ));
-  });
-}
-
-Container dropdownContainer(BuildContext context) {
-  return Container(
-    width: screenWidth(context) * 0.2,
-    height: screenHeight(context) * 0.05,
-    decoration: BoxDecoration(
-      color: Colors.white,
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.16),
-          offset: const Offset(0, 3.0),
-          blurRadius: 6.0,
-        ),
-      ],
-      borderRadius: BorderRadius.circular(10.0),
-    ),
-  );
 }

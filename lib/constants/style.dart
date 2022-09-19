@@ -29,29 +29,39 @@ var firedartFirestore = firedart.Firestore.instance;
 final ProjectController projecttController = Get.find();
 final ProfileController profileController = Get.find();
 
-BoxDecoration boxDecoration = projecttController.isDarkTheme.value
-    ? BoxDecoration(
-        color: Colors.black45,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.16),
-            offset: const Offset(0, 3.0),
-            blurRadius: 6.0,
-          ),
-        ],
-        borderRadius: BorderRadius.circular(10.0),
-      )
-    : BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.16),
-            offset: const Offset(0, 3.0),
-            blurRadius: 6.0,
-          ),
-        ],
-        borderRadius: BorderRadius.circular(10.0),
-      );
+// final TextStyle montserratTextStyle = GoogleFonts.montserrat(
+//         textStyle: TextStyle(
+//             overflow: TextOverflow.visible,
+//             color: projecttController.isDarkTheme.value
+//                 ? Colors.white60
+//                 : const Color(brownishColor),
+//             fontWeight: fontWeight ?? FontWeight.w600,
+//             fontSize: fontSize ?? 14),
+//       )
+
+BoxDecoration darkThemeBoxDecoration = BoxDecoration(
+  color: Colors.black45,
+  boxShadow: [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.16),
+      offset: const Offset(0, 3.0),
+      blurRadius: 6.0,
+    ),
+  ],
+  borderRadius: BorderRadius.circular(10.0),
+);
+BoxDecoration lightThemeBoxDecoration = BoxDecoration(
+  color: Colors.white,
+  boxShadow: [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.16),
+      offset: const Offset(0, 3.0),
+      blurRadius: 6.0,
+    ),
+  ],
+  borderRadius: BorderRadius.circular(10.0),
+);
+
 BoxDecoration brownishBoxDecoration = BoxDecoration(
   borderRadius: BorderRadius.circular(12.0),
   color: const Color(0xFF958890),

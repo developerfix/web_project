@@ -2,11 +2,7 @@ import 'package:get/get.dart';
 import '../constants/style.dart';
 import 'package:flutter/material.dart';
 
-import '../controllers/project_controller.dart';
-
 Future<dynamic> selectFromUsersPopup(BuildContext context, {String? title}) {
-  final projectController = Get.put(ProjectController());
-
   return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -27,14 +23,12 @@ Future<dynamic> selectFromUsersPopup(BuildContext context, {String? title}) {
                 SizedBox(
                   height: screenHeight(context) * 0.015,
                 ),
-                SizedBox(
-                  height: screenHeight(context) * 0.4,
-                  width: screenWidth(context) * 0.25,
+                Expanded(
                   child: Obx(() {
                     return ListView.builder(
-                        itemCount: projectController.users.length,
+                        itemCount: projecttController.users.length,
                         itemBuilder: (context, i) {
-                          String username = projectController.users[i]['name'];
+                          String username = projecttController.users[i]['name'];
                           return screenWidth(context) < 600
                               ? InkWell(
                                   onTap: () {
@@ -63,9 +57,6 @@ Future<dynamic> selectFromUsersPopup(BuildContext context, {String? title}) {
                         });
                   }),
                 ),
-                SizedBox(
-                  height: screenHeight(context) * 0.005,
-                )
               ]),
             ),
           ),

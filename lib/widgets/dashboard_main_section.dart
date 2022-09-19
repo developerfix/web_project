@@ -216,6 +216,9 @@ Column completedKanbanList(
 
                       final int priorityLevel =
                           projectController.completedTasks[i]['priorityLevel'];
+                      final int deliverablesRequiredOrNot =
+                          projectController.completedTasks[i]
+                              ['isDeliverableNeededForCompletion'];
                       final String status =
                           projectController.completedTasks[i]['status'];
 
@@ -235,6 +238,7 @@ Column completedKanbanList(
                           pilot,
                           copilot,
                           priorityLevel,
+                          deliverablesRequiredOrNot,
                           status,
                           startDate,
                           endDate,
@@ -300,6 +304,9 @@ Column inprogressKanbanList(
 
                       final int priorityLevel =
                           projectController.inProgressTasks[i]['priorityLevel'];
+                      final int deliverablesRequiredOrNot =
+                          projectController.inProgressTasks[i]
+                              ['isDeliverableNeededForCompletion'];
                       final String status =
                           projectController.inProgressTasks[i]['status'];
 
@@ -320,6 +327,7 @@ Column inprogressKanbanList(
                           pilot,
                           copilot,
                           priorityLevel,
+                          deliverablesRequiredOrNot,
                           status,
                           startDate,
                           endDate,
@@ -386,6 +394,8 @@ Column todoKanbanList(
 
                       final int priorityLevel =
                           projectController.toDoTasks[i]['priorityLevel'];
+                      final int deliverablesRequiredOrNot = projectController
+                          .toDoTasks[i]['isDeliverableNeededForCompletion'];
                       final String status =
                           projectController.toDoTasks[i]['status'];
                       final List taskDeliverables = [];
@@ -407,6 +417,7 @@ Column todoKanbanList(
                           pilot,
                           copilot,
                           priorityLevel,
+                          deliverablesRequiredOrNot,
                           status,
                           startDate,
                           endDate,

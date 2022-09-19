@@ -36,8 +36,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   void initState() {
     super.initState();
 
-    projectController.updateProjectAndUserId(
-        projectId: widget.projectId, uid: _uid);
+    projectController.updateProject(projectId: widget.projectId, uid: _uid);
   }
 
   @override

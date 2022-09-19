@@ -207,7 +207,9 @@ Expanded notesSection(BoxConstraints constraints, BuildContext context,
                   Container(
                     width: screenWidth(context) * 0.2,
                     height: screenHeight(context) * 0.2,
-                    decoration: boxDecoration,
+                    decoration: projecttController.isDarkTheme.value
+                        ? darkThemeBoxDecoration
+                        : lightThemeBoxDecoration,
                     child: Padding(
                       padding:
                           const EdgeInsets.only(left: 15, right: 15, top: 5),

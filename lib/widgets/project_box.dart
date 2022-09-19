@@ -3,9 +3,8 @@ import 'package:hovering/hovering.dart';
 
 import '../constants/style.dart';
 
-HoverContainer projectBox({String? text}) {
+HoverContainer projectBox(BuildContext context, {String? text}) {
   return HoverContainer(
-    width: 250,
     hoverWidth: 250,
     decoration: BoxDecoration(
       color: const Color(secondaryColor).withOpacity(0.5),

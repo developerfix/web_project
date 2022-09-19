@@ -1,9 +1,9 @@
+import 'package:Ava/controllers/project_controller.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hovering/hovering.dart';
 import 'package:Ava/constants/style.dart';
 import 'package:Ava/pages/project_dashboard.dart' as dashboard;
-import 'package:Ava/pages/see_all_projs.dart';
 import 'package:Ava/widgets/loading_indicator.dart';
 
 import '../controllers/auth_controller.dart';
@@ -12,7 +12,6 @@ import '../widgets/create_project_popup.dart';
 import '../widgets/custom_appbar.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/project_box.dart';
-import '../widgets/users_selection_textfield.dart';
 
 class RecentProjects extends StatefulWidget {
   const RecentProjects({Key? key}) : super(key: key);
@@ -26,70 +25,23 @@ class _RecentProjectsState extends State<RecentProjects> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
   final ProfileController profileController = Get.put(ProfileController());
+  final ProjectController projectController = Get.put(ProjectController());
   final _uid = AuthController.instance.user!.uid;
+  final ScrollController _scrollController = ScrollController();
+  List tempList = [];
+  List projectsCategoriesList = [];
+  List projectsListCount = [];
+  // bool isAtTop = true;
 
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      profileController.updateUserId(_uid);
+      profileController.updateUserData(_uid);
+      projectController.updateUsers(uid: _uid);
       // executes after build
     });
-  }
-
-  itemCount(int length) {
-    if (length >= 5) {
-      if (screenWidth(context) > 2200) {
-        return 5;
-      } else if (screenWidth(context) > 1800) {
-        return 4;
-      } else if (screenWidth(context) > 1200) {
-        return 3;
-      } else if (screenWidth(context) > 800) {
-        return 2;
-      } else if (screenWidth(context) > 600) {
-        return 1;
-      } else {
-        return 0;
-      }
-    } else if (length >= 4) {
-      if (screenWidth(context) > 1500) {
-        return 4;
-      } else if (screenWidth(context) > 1200) {
-        return 3;
-      } else if (screenWidth(context) > 800) {
-        return 2;
-      } else if (screenWidth(context) > 600) {
-        return 1;
-      } else {
-        return 0;
-      }
-    } else if (length >= 3) {
-      if (screenWidth(context) > 1500) {
-        return 3;
-      } else if (screenWidth(context) > 800) {
-        return 2;
-      } else if (screenWidth(context) > 600) {
-        return 1;
-      } else {
-        return 1;
-      }
-    } else if (length >= 2) {
-      if (screenWidth(context) > 800) {
-        return 2;
-      } else if (screenWidth(context) > 600) {
-        return 1;
-      } else {
-        return 0;
-      }
-    } else if (length == 1) {
-      if (screenWidth(context) > 600) {
-        return 1;
-      } else {
-        return 0;
-      }
-    }
   }
 
   @override
@@ -99,6 +51,11 @@ class _RecentProjectsState extends State<RecentProjects> {
       return Form(
           key: _formKey,
           child: Obx(() {
+            for (var project in profileController.projects) {
+              tempList.add(project['category']);
+            }
+            projectsCategoriesList = tempList.toSet().toList();
+
             return Scaffold(
               key: _key,
               drawerEnableOpenDragGesture: false,
@@ -132,85 +89,101 @@ class _RecentProjectsState extends State<RecentProjects> {
                                     letterSpacing: 8.0,
                                     fontColor: Colors.white),
                                 SizedBox(
-                                  height: screenHeight(context) * 0.15,
+                                  height: screenHeight(context) * 0.05,
                                 ),
-                                SizedBox(
-                                  height: screenHeight(context) * 0.17,
-                                  width: screenWidth(context) * 0.9,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        width: screenWidth(context) < 600
-                                            ? 0
-                                            : screenWidth(context) * 0.55,
-                                        child: ListView.separated(
-                                            separatorBuilder: (context, index) {
-                                              return const SizedBox(
-                                                width: 15,
-                                              );
-                                            },
-                                            scrollDirection: Axis.horizontal,
-                                            itemCount: itemCount(
-                                                profileController
-                                                    .projects.length),
-                                            itemBuilder: (context, i) {
-                                              String projectTitle =
-                                                  profileController.projects[i]
-                                                      ['title'];
-                                              String projectId =
-                                                  profileController.projects[i]
-                                                      ['projectId'];
-                                              return InkWell(
-                                                onTap: (() {
-                                                  Get.to(() => dashboard
-                                                          .ProjectDashboard(
-                                                        projectId: projectId,
-                                                      ));
-                                                }),
-                                                child: projectBox(
-                                                    text: projectTitle),
-                                              );
-                                            }),
-                                      ),
-                                      profileController.projects.length > 5
-                                          ? InkWell(
-                                              onTap: (() {
-                                                Get.to(() =>
-                                                    const SeeAllProjects());
-                                              }),
-                                              child: Container(
-                                                width: 230,
-                                                height: screenHeight(context) *
-                                                    0.18,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          12.0),
-                                                  color: const Color(
-                                                          secondaryColor)
-                                                      .withOpacity(0.5),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.black
-                                                          .withOpacity(0.23),
-                                                      offset:
-                                                          const Offset(0, 3.0),
-                                                      blurRadius: 9.0,
-                                                    ),
-                                                  ],
+                                NotificationListener<ScrollNotification>(
+                                  onNotification: (notification) {
+                                    final metrices = notification.metrics;
+                                    if (metrices.pixels != 0) {
+                                      projectController
+                                          .isRecentProjectsListAtTop
+                                          .value = false;
+                                      projectController.update();
+                                      // });
+                                    } else {
+                                      projectController
+                                          .isRecentProjectsListAtTop
+                                          .value = true;
+                                      projectController.update();
+                                    }
+
+                                    return false;
+                                  },
+                                  child: SizedBox(
+                                    height: projectController
+                                            .isRecentProjectsListAtTop.value
+                                        ? screenHeight(context) * 0.2
+                                        : screenHeight(context) * 0.6,
+                                    width: screenWidth(context) * 0.7,
+                                    child: ListView.separated(
+                                        controller: _scrollController,
+                                        separatorBuilder: (context, index) {
+                                          return const SizedBox(
+                                            height: 24,
+                                          );
+                                        },
+                                        scrollDirection: Axis.vertical,
+                                        itemCount:
+                                            projectsCategoriesList.length,
+                                        itemBuilder: (context, i) {
+                                          projectsListCount.clear();
+                                          for (var project
+                                              in profileController.projects) {
+                                            if (project['category'] ==
+                                                projectsCategoriesList[i]) {
+                                              projectsListCount.add(project);
+                                            }
+                                          }
+                                          return Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: txt(
+                                                      txt:
+                                                          projectsCategoriesList[
+                                                                  i]
+                                                              .toString()
+                                                              .toUpperCase(),
+                                                      fontColor: Colors.white,
+                                                      fontSize: 24),
                                                 ),
-                                                child: Center(
-                                                    child: txt(
-                                                        txt: 'See all',
-                                                        fontSize: 30.0,
-                                                        letterSpacing: 2,
-                                                        fontColor:
-                                                            Colors.white)),
-                                              ),
-                                            )
-                                          : Container()
-                                    ],
+                                                GridView.builder(
+                                                    gridDelegate:
+                                                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                                                            maxCrossAxisExtent:
+                                                                250,
+                                                            crossAxisSpacing:
+                                                                20,
+                                                            mainAxisSpacing:
+                                                                20),
+                                                    shrinkWrap: true,
+                                                    itemCount: projectsListCount
+                                                        .length,
+                                                    itemBuilder: (context, i) {
+                                                      String projectTitle =
+                                                          projectsListCount[i]
+                                                              ['title'];
+                                                      String projectId =
+                                                          projectsListCount[i]
+                                                              ['projectId'];
+                                                      return InkWell(
+                                                        onTap: (() {
+                                                          Get.to(() => dashboard
+                                                                  .ProjectDashboard(
+                                                                projectId:
+                                                                    projectId,
+                                                              ));
+                                                        }),
+                                                        child: projectBox(
+                                                            context,
+                                                            text: projectTitle),
+                                                      );
+                                                    })
+                                              ]);
+                                        }),
                                   ),
                                 ),
                               ],
@@ -221,7 +194,10 @@ class _RecentProjectsState extends State<RecentProjects> {
                     children: [
                       InkWell(
                         onTap: () {
-                          createProjectPopUp(context);
+                          projecttController.projectPilot.value = '';
+                          projecttController.projectCoPilot.value = '';
+                          projectController.phaseValue.value = '3D Design';
+                          createProjectPopUp(context, uid: _uid);
                         },
                         child: Row(
                           children: [

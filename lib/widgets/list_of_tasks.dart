@@ -18,6 +18,7 @@ Widget listOfTasks(
   String pilot,
   String copilot,
   int priorityLevel,
+  int deliverablesRequiredOrNot,
   String status,
   String startDate,
   String endDate,
@@ -57,6 +58,7 @@ Widget listOfTasks(
                     phase,
                     pilot,
                     priorityLevel,
+                    deliverablesRequiredOrNot,
                     startDate,
                     taskDescription,
                     taskDeliverables),
@@ -194,6 +196,7 @@ GestureDetector expandedWidgetKanbanTask(
     String phase,
     String pilot,
     int priorityLevel,
+    int deliverablesRequiredOrNot,
     String startDate,
     String taskDescription,
     List<dynamic> taskDeliverables) {
@@ -262,6 +265,7 @@ GestureDetector expandedWidgetKanbanTask(
                         phase,
                         pilot,
                         priorityLevel,
+                        deliverablesRequiredOrNot,
                         startDate,
                         taskDescription,
                         taskTitle,
@@ -420,6 +424,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
     String phase,
     String pilot,
     int priorityLevel,
+    int deliverablesRequiredOrNot,
     String startDate,
     String taskDescription,
     String taskTitle,
@@ -435,6 +440,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                 phase: phase,
                 pilot: pilot,
                 priorityLevel: priorityLevel,
+                deliverablesRequiredOrNot: deliverablesRequiredOrNot,
                 startDate: startDate,
                 status: status,
                 taskDescription: taskDescription,
@@ -449,6 +455,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     priorityLevel: priorityLevel,
                     startDate: startDate,
                     status: status,
+                    deliverablesRequiredOrNot: deliverablesRequiredOrNot,
                     taskDescription: taskDescription,
                     taskDeliverables: taskDeliverables,
                     taskTitle: taskTitle)
@@ -462,6 +469,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     status: status,
                     taskDescription: taskDescription,
                     taskDeliverables: taskDeliverables,
+                    deliverablesRequiredOrNot: deliverablesRequiredOrNot,
                     taskTitle: taskTitle);
       } else if (value == 2) {
         status == 'todo'
@@ -474,6 +482,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                 startDate: startDate,
                 status: status,
                 taskDescription: taskDescription,
+                deliverablesRequiredOrNot: deliverablesRequiredOrNot,
                 taskDeliverables: taskDeliverables,
                 taskTitle: taskTitle)
             : status == 'inProgress'
@@ -487,6 +496,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     status: status,
                     taskDescription: taskDescription,
                     taskDeliverables: taskDeliverables,
+                    deliverablesRequiredOrNot: deliverablesRequiredOrNot,
                     taskTitle: taskTitle)
                 : projectController.addToInProgress(
                     copilot: copilot,
@@ -497,20 +507,23 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     startDate: startDate,
                     status: status,
                     taskDescription: taskDescription,
+                    deliverablesRequiredOrNot: deliverablesRequiredOrNot,
                     taskDeliverables: taskDeliverables,
                     taskTitle: taskTitle);
       } else if (value == 3) {
         projectController.selectedDeliverables.value = taskDeliverables;
+        projectController.phaseValue.value = '';
         editTaskPopUp(
           context,
           copilot: copilot,
-          endDate: endDate,
+          oldEndDate: endDate,
           phase: phase,
           pilot: pilot,
           priorityLevel: priorityLevel,
-          startDate: startDate,
+          oldStarttDate: startDate,
           status: status,
           taskDescription: taskDescription,
+          deliverablesRequiredOrNot: deliverablesRequiredOrNot,
           taskTitle: taskTitle,
         );
       } else {

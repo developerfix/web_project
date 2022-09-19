@@ -1,30 +1,23 @@
+import 'package:Ava/widgets/drop_down_button.dart';
 import 'package:Ava/widgets/popup_button.dart';
-import 'package:Ava/widgets/select_from_users_popup.dart';
 import 'package:Ava/widgets/users_selection_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:Ava/controllers/project_controller.dart';
 import 'package:Ava/widgets/popup_textfield.dart';
 
 import '../constants/style.dart';
-import '../controllers/auth_controller.dart';
-import '../controllers/profile_controller.dart';
-import 'add_new_task_popup.dart';
-import 'loading_indicator.dart';
+import '../models/project_member.dart';
 
 String categoryValue = '3D Design';
-Future<dynamic> createProjectPopUp(
-  BuildContext context,
-) {
+Future<dynamic> createProjectPopUp(BuildContext context,
+    {required final String uid}) {
   final titleController = TextEditingController();
   final subTitleController = TextEditingController();
 
-  final projectController = Get.put(ProjectController());
-
-  final uid = AuthController.instance.user!.uid;
-  String taskPilot = 'asdwed';
-  String taskCoPilot = 'aas';
+  String taskPilot = 'select team member';
+  String taskCoPilot = 'select team member';
+  List<ProjectMember> initialProjectMembers = [];
 
   final formKey = GlobalKey<FormState>();
 
@@ -57,75 +50,51 @@ Future<dynamic> createProjectPopUp(
                             child:
                                 Divider(thickness: 3, color: Color(0xffab9eab)),
                           ),
-                          Row(
+                          Expanded(
+                              child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              SizedBox(
-                                width: screenWidth(context) * 0.07,
-                                height: screenHeight(context) * 0.4,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    txt(
-                                      txt: 'Name:',
-                                      fontSize: 30,
-                                    ),
-                                    txt(
-                                      txt: 'Description:',
-                                      fontSize: 30,
-                                    ),
-                                    txt(
-                                      txt: 'Pilot:',
-                                      fontSize: 30,
-                                    ),
-                                    txt(
-                                      txt: 'CoPilot:',
-                                      fontSize: 30,
-                                    ),
-                                    txt(
-                                      txt: 'Category:',
-                                      fontSize: 30,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                width: screenWidth(context) * 0.2,
-                                height: screenHeight(context) * 0.4,
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    popUpTextField(
-                                      context,
-                                      hint: '...',
-                                      controller: titleController,
-                                    ),
-                                    popUpTextField(
-                                      context,
-                                      hint: '...',
-                                      controller: subTitleController,
-                                    ),
-                                    usersSelectionTextField(context,
-                                        taskPilotorCopit: taskPilot,
-                                        projectController: projectController,
-                                        title: 'Select Pilot for this Project',
-                                        valuee: projectController
-                                            .projectPilot.value),
-                                    usersSelectionTextField(context,
-                                        taskPilotorCopit: taskCoPilot,
-                                        projectController: projectController,
-                                        title:
-                                            'Select CoPilot for this Project',
-                                        valuee: projectController
-                                            .projectCoPilot.value),
-                                    categoryWidget(context)
-                                  ],
-                                ),
-                              )
+                              itemRow(context,
+                                  widget: popUpTextField(
+                                    context,
+                                    hint: '...',
+                                    controller: titleController,
+                                  ),
+                                  title: 'Name'),
+                              itemRow(context,
+                                  widget: popUpTextField(
+                                    height: screenHeight(context) * 0.1,
+                                    maxLines: 1000,
+                                    context,
+                                    hint: '...',
+                                    controller: subTitleController,
+                                  ),
+                                  title: 'Description'),
+                              itemRow(context,
+                                  widget: usersSelectionTextField(
+                                    context,
+                                    isPilot: true,
+                                    taskPilotorCopit: taskPilot,
+                                    title: 'Select Pilot for this Project',
+                                  ),
+                                  title: 'Pilot'),
+                              itemRow(context,
+                                  widget: usersSelectionTextField(
+                                    context,
+                                    isPilot: false,
+                                    taskPilotorCopit: taskCoPilot,
+                                    title: 'Select CoPilot for this Project',
+                                  ),
+                                  title: 'Copilot'),
+                              itemRow(context, widget:
+                                  StatefulBuilder(builder: (context, setState) {
+                                return dropDownButton(
+                                  context,
+                                  setState,
+                                );
+                              }), title: 'Category'),
                             ],
-                          ),
+                          )),
                           SizedBox(
                             height: screenHeight(context) * 0.025,
                           ),
@@ -140,18 +109,37 @@ Future<dynamic> createProjectPopUp(
                               ),
                               popupButton(context, ontap: () {
                                 if (formKey.currentState!.validate()) {
-                                  if (projectController
+                                  if (projecttController
                                           .projectPilot.value.isNotEmpty &&
-                                      projectController
+                                      projecttController
                                           .projectCoPilot.value.isNotEmpty) {
-                                    projectController.newProject(
+                                    for (var user in projecttController.users) {
+                                      if (user['name'] ==
+                                              projecttController
+                                                  .projectPilot.value ||
+                                          user['name'] ==
+                                              projecttController
+                                                  .projectCoPilot.value ||
+                                          user['uid'] == uid) {
+                                        initialProjectMembers.add(ProjectMember(
+                                            uid: user['uid'],
+                                            username: user['name']));
+                                      }
+                                    }
+                                    projecttController.newProject(
+                                        initialProjectMembers:
+                                            initialProjectMembers,
                                         username:
                                             profileController.user['name'],
                                         uid: uid,
                                         title: titleController.text,
                                         subtitle: subTitleController.text,
-                                        pilot: taskPilot,
-                                        copilot: taskCoPilot);
+                                        pilot: projecttController
+                                            .projectPilot.value,
+                                        catergory:
+                                            projecttController.phaseValue.value,
+                                        copilot: projecttController
+                                            .projectCoPilot.value);
                                   } else {
                                     getErrorSnackBar(
                                       "Please select pilot and copilot for the project",
@@ -171,52 +159,17 @@ Future<dynamic> createProjectPopUp(
       });
 }
 
-StatefulBuilder categoryWidget(BuildContext context) {
-  return StatefulBuilder(builder: (context, setState) {
-    return Container(
-        width: screenWidth(context) * 0.2,
-        height: screenHeight(context) * 0.05,
-        decoration: boxDecoration,
-        child: Center(
-          child: DropdownButtonFormField(
-            // itemHeight: 15,
-            // menuMaxHeight: 30,
-            items: <String>['3D Design', 'Optical Design'].map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-
-            style: GoogleFonts.montserrat(
-              textStyle: const TextStyle(
-                overflow: TextOverflow.ellipsis,
-                letterSpacing: 0,
-                color: Color(brownishColor),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            onChanged: (value) {
-              setState(() {
-                categoryValue = value.toString();
-              });
-            },
-
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              filled: true,
-              hintStyle: GoogleFonts.montserrat(
-                textStyle: const TextStyle(
-                  overflow: TextOverflow.ellipsis,
-                  letterSpacing: 0,
-                  color: Color(brownishColor),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              hintText: categoryValue,
-              fillColor: Colors.white,
-            ),
-          ),
-        ));
-  });
+Row itemRow(BuildContext context,
+    {required Widget widget, required String title}) {
+  return Row(
+    children: [
+      txt(
+        txt: '$title:',
+        fontSize: 30,
+      ),
+      const Spacer(),
+      widget,
+      // const Spacer(),
+    ],
+  );
 }
