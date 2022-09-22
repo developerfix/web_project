@@ -70,7 +70,7 @@ dependencies:
   liquid_progress_indicator: ^0.4.0
   responsive_framework: ^0.2.0
   universal_html: ^2.0.8
-  firebase_dart: ^1.0.10+1
+  firebase_dart: ^1.0.11
   gantt_chart:
     git:
       url: https://github.com/developerfix/flutter_gantt_chart.git

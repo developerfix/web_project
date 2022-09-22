@@ -279,7 +279,7 @@ Column inprogressKanbanList(
               )
             : projectController.inProgressTasks.isEmpty
                 ? Center(
-                    child: txt(txt: 'No task in progress', fontSize: 14),
+                    child: txt(txt: 'No task in is progress', fontSize: 14),
                   )
                 : ListView.builder(
                     // shrinkWrap: true,

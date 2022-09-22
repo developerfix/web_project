@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,8 +12,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../constants/style.dart';
 import 'package:firedart/firedart.dart' as firedart;
 import 'package:flutter/foundation.dart' show kIsWeb;
-// import 'package:googleapis_auth/googleapis_auth.dart';
-
 import 'package:googleapis_auth/auth_io.dart';
 
 class AuthController extends GetxController {

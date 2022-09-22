@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../controllers/project_controller.dart';
 
 Future<dynamic> editAssetPopUp(BuildContext context,
-    {String? path, String? pathName}) {
+    {String? path, String? pathName, String? assetID}) {
   final pathController = TextEditingController();
   final pathNameController = TextEditingController();
 
@@ -150,46 +150,63 @@ Future<dynamic> editAssetPopUp(BuildContext context,
                           } else {
                             bool validURL =
                                 Uri.parse(pathController.text).isAbsolute;
-                            if (pathController.text.contains('https://')) {
-                              if (validURL) {
-                                Get.back();
-                                projectController.deleteProjectAsset(
-                                    path: path);
-                                projectController.editAsset(
-                                  path: pathController.text.isEmpty
-                                      ? path
-                                      : pathController.text.trim(),
-                                  pathName: pathNameController.text.isEmpty
-                                      ? pathName
-                                      : pathNameController.text.trim(),
-                                );
+                            if (pathController.text.isNotEmpty) {
+                              if (pathController.text.contains('https://')) {
+                                if (validURL) {
+                                  Get.back();
+                                  // projectController.deleteProjectAsset(
+                                  //     assetID: assetID);
+                                  projectController.editAsset(
+                                    assetID: assetID,
+                                    path: pathController.text.isEmpty
+                                        ? path
+                                        : pathController.text.trim(),
+                                    pathName: pathNameController.text.isEmpty
+                                        ? pathName
+                                        : pathNameController.text.trim(),
+                                  );
+                                } else {
+                                  getErrorSnackBar(
+                                      'Please enter a valid url path');
+                                }
                               } else {
-                                getErrorSnackBar(
-                                    'Please enter a valid url path');
+                                pathController.text =
+                                    'https://${pathController.text}';
+
+                                bool validURL =
+                                    Uri.parse(pathController.text).isAbsolute;
+
+                                if (validURL) {
+                                  Get.back();
+                                  // projectController.deleteProjectAsset(
+                                  //     assetID: assetID);
+                                  projectController.editAsset(
+                                    assetID: assetID,
+                                    path: pathController.text.isEmpty
+                                        ? path
+                                        : pathController.text.trim(),
+                                    pathName: pathNameController.text.isEmpty
+                                        ? pathName
+                                        : pathNameController.text.trim(),
+                                  );
+                                } else {
+                                  getErrorSnackBar(
+                                      'Please enter a valid url path');
+                                }
                               }
                             } else {
-                              pathController.text =
-                                  'https://${pathController.text}';
-
-                              bool validURL =
-                                  Uri.parse(pathController.text).isAbsolute;
-
-                              if (validURL) {
-                                Get.back();
-                                projectController.deleteProjectAsset(
-                                    path: path);
-                                projectController.editAsset(
-                                  path: pathController.text.isEmpty
-                                      ? path
-                                      : pathController.text.trim(),
-                                  pathName: pathNameController.text.isEmpty
-                                      ? pathName
-                                      : pathNameController.text.trim(),
-                                );
-                              } else {
-                                getErrorSnackBar(
-                                    'Please enter a valid url path');
-                              }
+                              Get.back();
+                              // projectController.deleteProjectAsset(
+                              //     assetID: assetID);
+                              projectController.editAsset(
+                                assetID: assetID,
+                                path: pathController.text.isEmpty
+                                    ? path
+                                    : pathController.text.trim(),
+                                pathName: pathNameController.text.isEmpty
+                                    ? pathName
+                                    : pathNameController.text.trim(),
+                              );
                             }
                           }
                         },

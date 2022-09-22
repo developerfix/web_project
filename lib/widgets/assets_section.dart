@@ -50,6 +50,7 @@ StatefulBuilder assetsSection(
                         String path = projectController.assets[i]['path'];
                         String pathName =
                             projectController.assets[i]['pathName'];
+                        String assetID = projectController.assets[i]['assetID'];
                         return HoverCrossFadeWidget(
                           cursor: SystemMouseCursors.click,
                           duration: const Duration(milliseconds: 100),
@@ -85,11 +86,13 @@ StatefulBuilder assetsSection(
                                 onSelected: (value) async {
                                   if (value == 1) {
                                     editAssetPopUp(context,
-                                        path: path, pathName: pathName);
+                                        path: path,
+                                        pathName: pathName,
+                                        assetID: assetID);
                                   } else {
                                     await projectController.deleteProjectAsset(
-                                        path: projectController.assets[i]
-                                            ['path']);
+                                        assetID: projectController.assets[i]
+                                            ['assetID']);
                                   }
                                 },
                                 elevation: 3.2,
@@ -133,79 +136,6 @@ StatefulBuilder assetsSection(
                                     ),
                                     size: 18)),
                           ),
-
-                          // Padding(
-                          //   padding: const EdgeInsets.all(8.0),
-                          //   child: Row(
-                          //     mainAxisAlignment:
-                          //         MainAxisAlignment.spaceBetween,
-                          //     children: [
-                          //       const Icon(
-                          //         Icons.link,
-                          //         color: Color(secondaryColor),
-                          //       ),
-                          //       txt(
-                          //           txt: pathName,
-                          //           fontSize: 14,
-                          //           fontColor: const Color(secondaryColor),
-                          //           overflow: TextOverflow.ellipsis),
-                          //       PopupMenuButton(
-                          //           onSelected: (value) async {
-                          //             if (value == 1) {
-                          //               Get.to(editAssetPopUp(context,
-                          //                   path: path, pathName: pathName));
-                          //             } else {
-                          //               await projectController
-                          //                   .deleteProjectAsset(
-                          //                       path: projectController
-                          //                           .assets[i]['path']);
-                          //             }
-                          //           },
-                          //           elevation: 3.2,
-                          //           shape: const RoundedRectangleBorder(
-                          //             borderRadius: BorderRadius.all(
-                          //                 Radius.circular(8.0)),
-                          //           ),
-                          //           itemBuilder: (context) => [
-                          //                 PopupMenuItem(
-                          //                   value: 1,
-                          //                   child: Text(
-                          //                     'Edit',
-                          //                     maxLines: 1,
-                          //                     style: GoogleFonts.montserrat(
-                          //                       textStyle: const TextStyle(
-                          //                         fontSize: 14,
-                          //                         overflow:
-                          //                             TextOverflow.visible,
-                          //                         fontWeight: FontWeight.w600,
-                          //                       ),
-                          //                     ),
-                          //                   ),
-                          //                 ),
-                          //                 PopupMenuItem(
-                          //                   value: 2,
-                          //                   child: Text(
-                          //                     'Delete',
-                          //                     maxLines: 1,
-                          //                     style: GoogleFonts.montserrat(
-                          //                       textStyle: const TextStyle(
-                          //                         fontSize: 14,
-                          //                         overflow:
-                          //                             TextOverflow.visible,
-                          //                         fontWeight: FontWeight.w600,
-                          //                       ),
-                          //                     ),
-                          //                   ),
-                          //                 ),
-                          //               ],
-                          //           child: const Icon(Icons.more_horiz,
-                          //               color: Color(
-                          //                 secondaryColor,
-                          //               ),
-                          //               size: 18))
-                          //     ],
-                          //   ),
-                          // ),
                         );
                       }),
                 ),

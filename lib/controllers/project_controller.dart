@@ -159,39 +159,30 @@ class ProjectController extends GetxController {
     }
   }
 
-  deleteProjectAsset({path}) async {
-    assets.removeWhere((element) => element['path'] == path);
+  deleteProjectAsset({assetID}) async {
+    FutureGroup futureGroup = FutureGroup();
+    assets.removeWhere((element) => element['assetID'] == assetID);
     if (!kIsWeb) {
       for (var i = 0; i < projectMembers.length; i++) {
-        await firedartFirestore
+        futureGroup.add(firedartFirestore
             .collection('users')
             .document(projectMembers[i]['uid'])
             .collection('projects')
             .document(_projectId.value)
             .collection('assets')
-            .where('path', isEqualTo: path)
-            .get()
-            .then((assets) {
-          for (var doc in assets) {
-            doc.reference.delete();
-          }
-        });
+            .document(assetID)
+            .delete());
       }
     } else {
       for (var i = 0; i < projectMembers.length; i++) {
-        await firestore
+        futureGroup.add(firestore
             .collection('users')
             .doc(projectMembers[i]['uid'])
             .collection('projects')
             .doc(_projectId.value)
             .collection('assets')
-            .where('path', isEqualTo: path)
-            .get()
-            .then((QuerySnapshot querySnapshot) {
-          for (var doc in querySnapshot.docs) {
-            doc.reference.delete();
-          }
-        });
+            .doc(assetID)
+            .delete());
       }
     }
   }
@@ -651,26 +642,39 @@ class ProjectController extends GetxController {
   }
 
   void addNewAsset({type, path, pathName}) async {
-    assets.insert(0, {"type": type, "path": path, "pathName": pathName});
+    FutureGroup futureGroup = FutureGroup();
+    String assetID = '';
+
     if (!kIsWeb) {
       try {
         for (var member in projectMembers) {
-          await firedartFirestore
+          futureGroup.add(firedartFirestore
               .collection('users')
               .document(member['uid'])
               .collection('projects')
               .document(_projectId.value)
               .collection('assets')
-              .add({
-            "type": type,
-            "path": path,
-            "pathName": pathName,
-            "created": DateTime.now()
-                .millisecondsSinceEpoch
-                .toString()
-                .substring(0, 10)
-          });
+              .add({}).then((value) {
+            assetID = value.id;
+            firedartFirestore
+                .collection('users')
+                .document(member['uid'])
+                .collection('projects')
+                .document(_projectId.value)
+                .collection('assets')
+                .document(value.id)
+                .set({
+              "path": path,
+              "pathName": pathName,
+              "created": DateTime.now()
+                  .millisecondsSinceEpoch
+                  .toString()
+                  .substring(0, 10),
+              "assetID": value.id,
+            });
+          }));
         }
+        futureGroup.close();
       } catch (e) {
         getErrorSnackBar(
           "Something went wrong, Please try again",
@@ -679,50 +683,72 @@ class ProjectController extends GetxController {
     } else {
       try {
         for (var member in projectMembers) {
-          await firestore
+          futureGroup.add(firestore
               .collection('users')
               .doc(member['uid'])
               .collection('projects')
               .doc(_projectId.value)
               .collection('assets')
-              .add({
-            "type": type,
-            "path": path,
-            "pathName": pathName,
-            "created": DateTime.now()
-                .millisecondsSinceEpoch
-                .toString()
-                .substring(0, 10)
-          });
+              .add({}).then((value) {
+            assetID = value.id;
+            firedartFirestore
+                .collection('users')
+                .document(member['uid'])
+                .collection('projects')
+                .document(_projectId.value)
+                .collection('assets')
+                .document(value.id)
+                .set({
+              "type": type,
+              "path": path,
+              "pathName": pathName,
+              "created": DateTime.now()
+                  .millisecondsSinceEpoch
+                  .toString()
+                  .substring(0, 10),
+              "assetID": value.id,
+            });
+          }));
         }
+        futureGroup.close();
       } catch (e) {
         getErrorSnackBar(
           "Something went wrong, Please try again",
         );
       }
     }
+    assets.insert(0, {"path": path, "pathName": pathName, "assetID": assetID});
   }
 
-  void editAsset({type, path, pathName}) async {
-    assets.insert(0, {"type": type, "path": path, "pathName": pathName});
+  void editAsset({path, pathName, assetID}) async {
+    FutureGroup futureGroup = FutureGroup();
+
+    for (int i = 0; i < assets.length; i++) {
+      if (assets[i]['assetID'] == assetID) {
+        int indexOfAsset = assets.indexOf(assets[i]);
+        assets.removeAt(indexOfAsset);
+      }
+    }
+    assets.insert(0, {"path": path, "pathName": pathName, "assetID": assetID});
     if (!kIsWeb) {
       try {
         for (var member in projectMembers) {
-          await firedartFirestore
+          futureGroup.add(firedartFirestore
               .collection('users')
               .document(member['uid'])
               .collection('projects')
               .document(_projectId.value)
               .collection('assets')
-              .add({
-            "type": type,
+              .document(assetID)
+              .update({
             "path": path,
             "pathName": pathName,
             "created": DateTime.now()
                 .millisecondsSinceEpoch
                 .toString()
-                .substring(0, 10)
-          });
+                .substring(0, 10),
+            "assetID": assetID
+          }));
         }
       } catch (e) {
         getErrorSnackBar(
@@ -732,21 +758,22 @@ class ProjectController extends GetxController {
     } else {
       try {
         for (var member in projectMembers) {
-          await firestore
+          futureGroup.add(firestore
               .collection('users')
               .doc(member['uid'])
               .collection('projects')
               .doc(_projectId.value)
               .collection('assets')
-              .add({
-            "type": type,
+              .doc(assetID)
+              .update({
             "path": path,
             "pathName": pathName,
             "created": DateTime.now()
                 .millisecondsSinceEpoch
                 .toString()
-                .substring(0, 10)
-          });
+                .substring(0, 10),
+            "assetID": assetID
+          }));
         }
       } catch (e) {
         getErrorSnackBar(

@@ -307,8 +307,8 @@ GestureDetector expandedWidgetKanbanTask(
                             height: 5,
                           ),
                           txt(
-                              txt: pilot.isEmpty ? '' : pilot.substring(1),
-                              maxLines: 2,
+                              txt: pilot.isEmpty ? '' : pilot,
+                              maxLines: 1,
                               font: 'Comfortaa',
                               fontWeight: FontWeight.bold,
                               fontSize: 20),
@@ -316,7 +316,7 @@ GestureDetector expandedWidgetKanbanTask(
                             height: 5,
                           ),
                           txt(
-                              txt: copilot.isEmpty ? '' : copilot.substring(1),
+                              txt: copilot.isEmpty ? '' : copilot,
                               maxLines: 2,
                               font: 'Comfortaa',
                               fontSize: 20),

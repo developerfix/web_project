@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firedart/auth/client.dart';
+import 'package:firedart/auth/token_store.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +19,7 @@ import 'package:firedart/firedart.dart' as firedart;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'controllers/auth_controller.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:http/http.dart' as http;
 
 import 'package:firebase_dart/implementation/pure_dart.dart'
     as pure_dart_implementation;
@@ -32,9 +36,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (!kIsWeb) {
-    var firebaseAuth = firedart.FirebaseAuth(
-        'AIzaSyC9Jzj22llAEY9Zj1LjVMOxI8kVIFjP2VY', firedart.VolatileStore());
-    firedart.Firestore('ava-project-ab57c', auth: firebaseAuth);
     firedart.Firestore.initialize("ava-project-ab57c");
     pure_dart_implementation.FirebaseDart.setup();
   }
