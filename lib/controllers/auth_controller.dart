@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:Ava/pages/auth/auth_screen.dart';
-import 'package:Ava/pages/recent_project.dart';
-import 'package:Ava/models/user.dart' as model;
+import 'package:ava/pages/auth/auth_screen.dart';
+import 'package:ava/pages/recent_project.dart';
+import 'package:ava/models/user.dart' as model;
+// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import '../constants/style.dart';
@@ -154,11 +155,11 @@ class AuthController extends GetxController {
         final GoogleSignInAccount? googleSignInAccount =
             await googleSignIn.signIn();
         if (googleSignInAccount != null) {
-          final GoogleSignInAuthentication? googleAuth =
+          final GoogleSignInAuthentication googleAuth =
               await googleSignInAccount.authentication;
           final crendentials = GoogleAuthProvider.credential(
-            accessToken: googleAuth?.accessToken,
-            idToken: googleAuth?.idToken,
+            accessToken: googleAuth.accessToken,
+            idToken: googleAuth.idToken,
           );
 
           final UserCredential userCredential =

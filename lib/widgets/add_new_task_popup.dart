@@ -1,7 +1,7 @@
-import 'package:Ava/widgets/popup_button.dart';
+import 'package:ava/widgets/popup_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:Ava/constants/style.dart';
+import 'package:ava/constants/style.dart';
 import 'add_edit_task_widgets.dart';
 
 Future<dynamic> addNewTaskPopUp(BuildContext context) {

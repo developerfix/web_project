@@ -1,7 +1,7 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:Ava/pages/recent_project.dart';
+import 'package:ava/pages/recent_project.dart';
 
 import '../constants/style.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;

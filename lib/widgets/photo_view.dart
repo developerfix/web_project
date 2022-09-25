@@ -1,12 +1,8 @@
-import 'dart:convert';
-
 import 'package:context_menus/context_menus.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart' as photoview;
-import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart' hide MenuItem;
 

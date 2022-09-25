@@ -1,25 +1,18 @@
 import 'dart:async';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firedart/auth/client.dart';
-import 'package:firedart/auth/token_store.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:Ava/constants/style.dart';
-import 'package:Ava/controllers/project_controller.dart';
-import 'package:Ava/splash.dart';
-import 'package:Ava/widgets/edit_task_popup.dart';
+import 'package:ava/controllers/project_controller.dart';
+import 'package:ava/splash.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 import 'package:responsive_framework/utils/scroll_behavior.dart';
 import 'package:firedart/firedart.dart' as firedart;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'controllers/auth_controller.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:http/http.dart' as http;
 
 import 'package:firebase_dart/implementation/pure_dart.dart'
     as pure_dart_implementation;
@@ -89,13 +82,10 @@ class _MyAppState extends State<MyApp> {
   ProjectController projectController = Get.put(ProjectController());
 
   _getThemeStatus() async {
-    // Rx<Future<bool?>>? isDark = _prefs.then((SharedPreferences? prefs) {
-    //   return prefs!.getBool('theme');
-    // }).obs;
-    // print(isDark.value);
-    projectController.isDarkTheme.value = false;
-    // ignore: unnecessary_null_comparison
-    // isDark.value == null ? false : (await isDark.value)!;
+    Rx<Future<bool?>> isDark = _prefs.then((SharedPreferences prefs) {
+      return prefs.getBool('theme');
+    }).obs;
+    projectController.isDarkTheme.value = (await isDark.value)!;
 
     Get.changeThemeMode(
         projectController.isDarkTheme.value ? ThemeMode.dark : ThemeMode.light);

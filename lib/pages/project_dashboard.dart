@@ -1,12 +1,11 @@
-import 'package:Ava/widgets/custom_appbar.dart';
+import 'package:ava/widgets/custom_appbar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:Ava/constants/style.dart';
-import 'package:Ava/controllers/auth_controller.dart';
-import 'package:Ava/controllers/profile_controller.dart';
-import 'package:Ava/controllers/project_controller.dart';
-import 'package:Ava/widgets/loading_indicator.dart';
+import 'package:ava/controllers/auth_controller.dart';
+import 'package:ava/controllers/profile_controller.dart';
+import 'package:ava/controllers/project_controller.dart';
+import 'package:ava/widgets/loading_indicator.dart';
 
 import '../widgets/assets_section.dart';
 import '../widgets/custom_drawer.dart';

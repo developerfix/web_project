@@ -1,13 +1,11 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
-import 'package:Ava/controllers/project_controller.dart';
-import 'package:Ava/widgets/usersmsg.dart';
+import 'package:ava/controllers/project_controller.dart';
+import 'package:ava/widgets/usersmsg.dart';
 
 import '../constants/style.dart';
 import '../controllers/profile_controller.dart';

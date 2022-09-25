@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:get/get.dart';
-import 'package:Ava/main.dart';
-import 'package:Ava/widgets/edit_task_popup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/style.dart';

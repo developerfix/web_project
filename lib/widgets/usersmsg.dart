@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:Ava/widgets/photo_view.dart';
+import 'package:ava/widgets/photo_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants/style.dart';
 

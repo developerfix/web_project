@@ -1,10 +1,10 @@
-import 'package:Ava/widgets/drop_down_button.dart';
-import 'package:Ava/widgets/popup_button.dart';
-import 'package:Ava/widgets/users_selection_textfield.dart';
+import 'package:ava/widgets/drop_down_button.dart';
+import 'package:ava/widgets/popup_button.dart';
+import 'package:ava/widgets/users_selection_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:Ava/controllers/project_controller.dart';
-import 'package:Ava/widgets/popup_textfield.dart';
+import 'package:ava/controllers/project_controller.dart';
+import 'package:ava/widgets/popup_textfield.dart';
 
 import '../constants/style.dart';
 import '../models/project_member.dart';

@@ -1,6 +1,5 @@
-import 'package:Ava/controllers/project_controller.dart';
-import 'package:Ava/widgets/popup_textfield.dart';
-import 'package:Ava/widgets/select_members.dart';
+import 'package:ava/widgets/popup_textfield.dart';
+import 'package:ava/widgets/select_members.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';

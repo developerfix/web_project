@@ -1,10 +1,9 @@
-import 'package:Ava/controllers/project_controller.dart';
-import 'package:flutter/gestures.dart';
+import 'package:ava/controllers/project_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:Ava/constants/style.dart';
-import 'package:Ava/pages/project_dashboard.dart' as dashboard;
-import 'package:Ava/widgets/loading_indicator.dart';
+import 'package:ava/constants/style.dart';
+import 'package:ava/pages/project_dashboard.dart' as dashboard;
+import 'package:ava/widgets/loading_indicator.dart';
 
 import '../controllers/auth_controller.dart';
 import '../controllers/profile_controller.dart';
@@ -76,7 +75,7 @@ class _RecentProjectsState extends State<RecentProjects> {
                       : profileController.projects.isEmpty
                           ? txt(
                               txt:
-                                  'Click below to make your first project with Ava',
+                                  'Click below to make your first project with ava',
                               fontSize: 24,
                               fontColor: Colors.white)
                           : Column(

@@ -1,9 +1,8 @@
-import 'package:Ava/widgets/edit_task_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:Ava/constants/style.dart';
-import 'package:Ava/controllers/auth_controller.dart';
-import 'package:Ava/widgets/popup_textfield.dart';
+import 'package:ava/constants/style.dart';
+import 'package:ava/controllers/auth_controller.dart';
+import 'package:ava/widgets/popup_textfield.dart';
 
 import '../../controllers/input_validators.dart';
 

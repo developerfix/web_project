@@ -2,8 +2,6 @@ import 'package:get/get.dart';
 import '../constants/style.dart';
 import 'package:flutter/material.dart';
 
-import '../controllers/project_controller.dart';
-
 Future<dynamic> selectTaskMembersPopup(BuildContext context,
     {String? title, List? listOfMembers, required bool isUser}) {
   return showDialog(

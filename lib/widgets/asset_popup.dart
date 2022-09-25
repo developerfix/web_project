@@ -1,6 +1,6 @@
-import 'package:Ava/widgets/popup_button.dart';
+import 'package:ava/widgets/popup_button.dart';
 import 'package:get/get.dart';
-import 'package:Ava/widgets/popup_textfield.dart';
+import 'package:ava/widgets/popup_textfield.dart';
 import '../constants/style.dart';
 import 'package:flutter/material.dart';
 

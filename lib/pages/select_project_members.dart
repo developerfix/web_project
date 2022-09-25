@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:Ava/constants/style.dart';
-import 'package:Ava/controllers/auth_controller.dart';
-import 'package:Ava/controllers/profile_controller.dart';
-import 'package:Ava/controllers/project_controller.dart';
-import 'package:Ava/models/project_member.dart';
-import 'package:Ava/widgets/custom_appbar.dart';
-import 'package:Ava/widgets/loading_indicator.dart';
+import 'package:ava/constants/style.dart';
+import 'package:ava/controllers/auth_controller.dart';
+import 'package:ava/controllers/profile_controller.dart';
+import 'package:ava/controllers/project_controller.dart';
+import 'package:ava/models/project_member.dart';
+import 'package:ava/widgets/custom_appbar.dart';
+import 'package:ava/widgets/loading_indicator.dart';
 
 import '../widgets/custom_drawer.dart';
-import '../widgets/select_from_users_popup.dart';
-import '../widgets/select_task_members_popup.dart';
 import '../widgets/users_selection_textfield.dart';
 
 class SelectProjectMembers extends StatefulWidget {
