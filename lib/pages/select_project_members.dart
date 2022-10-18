@@ -256,41 +256,48 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                       if (taskPilot == '' ||
                                           taskCoPilot == '') {
                                       } else {
-                                        users.add(ProjectMember(
-                                            uid: taskPilotId,
-                                            username: taskPilot));
-                                        users.add(ProjectMember(
-                                            uid: taskCoPilotId,
-                                            username: taskCoPilot));
-                                        users.add(ProjectMember(
-                                            uid: _uid,
-                                            username: profileController
-                                                .user['name']));
+                                        try {
+                                          users.add(ProjectMember(
+                                              uid: taskPilotId,
+                                              username: taskPilot));
+                                          users.add(ProjectMember(
+                                              uid: taskCoPilotId,
+                                              username: taskCoPilot));
+                                          users.add(ProjectMember(
+                                              uid: _uid,
+                                              username: profileController
+                                                  .user['name']));
 
-                                        // removing duplicate values
-                                        for (var element in users) {
-                                          finalUserList.removeWhere(
-                                              (e) => element.uid == e.uid);
-                                          finalUserList.add(element);
+                                          // removing duplicate values
+                                          for (var element in users) {
+                                            finalUserList.removeWhere(
+                                                (e) => element.uid == e.uid);
+                                            finalUserList.add(element);
+                                          }
+                                          // checking the removed users
+                                          for (var element in users) {
+                                            usersList2.removeWhere(
+                                                (e) => element.uid == e.uid);
+                                            removedUsers = usersList2;
+                                          }
+
+                                          projectController
+                                              .manageProjectMembers(
+                                                  copilot: taskCoPilot,
+                                                  removedMembers: removedUsers,
+                                                  lead: taskPilot,
+                                                  members: finalUserList,
+                                                  subtitle: projectController
+                                                      .project['subtitle'],
+                                                  title: projectController
+                                                      .project['title']);
+
+                                          Get.back();
+                                        } catch (e) {
+                                          getErrorSnackBar(
+                                            "Something went wrong, Please try again",
+                                          );
                                         }
-                                        // checking the removed users
-                                        for (var element in users) {
-                                          usersList2.removeWhere(
-                                              (e) => element.uid == e.uid);
-                                          removedUsers = usersList2;
-                                        }
-
-                                        projectController.manageProjectMembers(
-                                            copilot: taskCoPilot,
-                                            removedMembers: removedUsers,
-                                            lead: taskPilot,
-                                            members: finalUserList,
-                                            subtitle: projectController
-                                                .project['subtitle'],
-                                            title: projectController
-                                                .project['title']);
-
-                                        Get.back();
                                       }
                                     },
                                     child: Container(

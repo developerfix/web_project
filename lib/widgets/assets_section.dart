@@ -9,7 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../constants/style.dart';
 import '../pages/project_members.dart';
 import '../pages/recent_project.dart';
-import '../pages/timeline.dart';
+import '../pages/GanttChart/timeline.dart';
 import 'add_new_task_popup.dart';
 import 'asset_popup.dart';
 

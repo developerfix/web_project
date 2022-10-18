@@ -221,12 +221,23 @@ Column completedKanbanList(
                               ['isDeliverableNeededForCompletion'];
                       final String status =
                           projectController.completedTasks[i]['status'];
+                      final String taskID =
+                          projectController.completedTasks[i]['taskID'];
 
                       final List taskDeliverables = [];
+                      final List requiredDeliverables = [];
 
                       for (var item in projectController.completedTasks[i]
                           ['deliverables']) {
                         taskDeliverables.add(item);
+                      }
+                      if (projectController.completedTasks[i]
+                              ['requiredDeliverables'] !=
+                          null) {
+                        for (var item in projectController.completedTasks[i]
+                            ['requiredDeliverables']) {
+                          requiredDeliverables.add(item);
+                        }
                       }
                       return listOfTasks(
                           context,
@@ -238,11 +249,13 @@ Column completedKanbanList(
                           pilot,
                           copilot,
                           priorityLevel,
+                          taskID,
                           deliverablesRequiredOrNot,
                           status,
                           startDate,
                           endDate,
-                          taskDeliverables);
+                          taskDeliverables,
+                          requiredDeliverables: requiredDeliverables);
                     },
                   ),
       ),
@@ -254,7 +267,7 @@ Column inprogressKanbanList(
     BuildContext context, ProjectController projectController) {
   return Column(
     children: [
-      statusContainer(context, 'INPROGRESS'),
+      statusContainer(context, 'IN PROGRESS'),
       SizedBox(
         height: screenHeight(context) * 0.02,
       ),
@@ -309,6 +322,8 @@ Column inprogressKanbanList(
                               ['isDeliverableNeededForCompletion'];
                       final String status =
                           projectController.inProgressTasks[i]['status'];
+                      final String taskID =
+                          projectController.inProgressTasks[i]['taskID'];
 
                       final List taskDeliverables = [];
 
@@ -327,11 +342,13 @@ Column inprogressKanbanList(
                           pilot,
                           copilot,
                           priorityLevel,
+                          taskID,
                           deliverablesRequiredOrNot,
                           status,
                           startDate,
                           endDate,
-                          taskDeliverables);
+                          taskDeliverables,
+                          requiredDeliverables: null);
                     },
                   ),
       ),
@@ -343,7 +360,7 @@ Column todoKanbanList(
     BuildContext context, ProjectController projectController) {
   return Column(
     children: [
-      statusContainer(context, 'TODO'),
+      statusContainer(context, 'TO DO'),
       SizedBox(
         height: screenHeight(context) * 0.02,
       ),
@@ -372,10 +389,7 @@ Column todoKanbanList(
                     child: txt(txt: 'No task in Todo list', fontSize: 14),
                   )
                 : ListView.builder(
-                    // shrinkWrap: true,
-                    // reverse: true,
                     itemCount: projectController.toDoTasks.length,
-
                     itemBuilder: (context, i) {
                       final String taskTitle =
                           projectController.toDoTasks[i]['taskTitle'];
@@ -391,6 +405,8 @@ Column todoKanbanList(
                           projectController.toDoTasks[i]['startDate'];
                       final String endDate =
                           projectController.toDoTasks[i]['endDate'];
+                      final String taskID =
+                          projectController.toDoTasks[i]['taskID'];
 
                       final int priorityLevel =
                           projectController.toDoTasks[i]['priorityLevel'];
@@ -405,8 +421,6 @@ Column todoKanbanList(
                         taskDeliverables.add(item);
                       }
 
-                      // projectController.toDoTasks[i]['deliverables'];
-
                       return listOfTasks(
                           context,
                           projectController,
@@ -417,11 +431,13 @@ Column todoKanbanList(
                           pilot,
                           copilot,
                           priorityLevel,
+                          taskID,
                           deliverablesRequiredOrNot,
                           status,
                           startDate,
                           endDate,
-                          taskDeliverables);
+                          taskDeliverables,
+                          requiredDeliverables: null);
                     },
                   ),
       ),

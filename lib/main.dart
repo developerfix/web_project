@@ -17,13 +17,11 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_dart/implementation/pure_dart.dart'
     as pure_dart_implementation;
 
-ThemeData _darkTheme = ThemeData(
-  brightness: Brightness.dark,
-);
+ThemeData _darkTheme =
+    ThemeData(brightness: Brightness.dark, primarySwatch: Colors.brown);
 
-ThemeData _lightTheme = ThemeData(
-  brightness: Brightness.light,
-);
+ThemeData _lightTheme =
+    ThemeData(brightness: Brightness.light, primarySwatch: Colors.brown);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,6 +64,7 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
   Set<PointerDeviceKind> get dragDevices => {
         PointerDeviceKind.touch,
         PointerDeviceKind.mouse,
+        PointerDeviceKind.stylus,
         // etc.
       };
 }
@@ -105,7 +104,7 @@ class _MyAppState extends State<MyApp> {
         darkTheme: _darkTheme,
         themeMode: ThemeMode.system,
         defaultTransition: Transition.fadeIn,
-        transitionDuration: const Duration(milliseconds: 600),
+        transitionDuration: const Duration(milliseconds: 300),
         builder: (context, child) => ResponsiveWrapper.builder(
             BouncingScrollWrapper.builder(context, child!),
             // maxWidth: 1200,

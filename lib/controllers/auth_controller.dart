@@ -22,6 +22,8 @@ class AuthController extends GetxController {
   User? get user => _user.value;
   final _auth = FirebaseAuth.instance;
 
+  Rx<int> isObscure = 1.obs;
+
   @override
   void onReady() {
     super.onReady();

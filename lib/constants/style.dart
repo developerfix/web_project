@@ -29,6 +29,20 @@ var firedartFirestore = firedart.Firestore.instance;
 final ProjectController projecttController = Get.find();
 final ProfileController profileController = Get.find();
 
+Widget popUpCloseButton = Row(children: [
+  const Spacer(),
+  ElevatedButton(
+    onPressed: () {
+      Get.back();
+    },
+    style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade300),
+    child: const Icon(
+      Icons.close,
+      color: Colors.white,
+    ),
+  ),
+]);
+
 // final TextStyle montserratTextStyle = GoogleFonts.montserrat(
 //         textStyle: TextStyle(
 //             overflow: TextOverflow.visible,

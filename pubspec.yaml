@@ -55,6 +55,8 @@ dependencies:
   context_menus: ^1.0.1
   flutter_switch: ^0.3.2
   rename: ^2.0.1
+  provider: ^5.0.0
+  linked_scroll_controller: ^0.2.0
   flutter:
     sdk: flutter
   flutter_animation_progress_bar: ^2.2.1
@@ -71,10 +73,8 @@ dependencies:
   responsive_framework: ^0.2.0
   universal_html: ^2.0.8
   firebase_dart: ^1.0.11
-  gantt_chart:
-    git:
-      url: https://github.com/developerfix/flutter_gantt_chart.git
-      ref: 25b63f4
+  fading_edge_scrollview: ^3.0.0
+
 
 dev_dependencies:
   flutter_lints: ^2.0.0

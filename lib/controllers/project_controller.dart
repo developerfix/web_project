@@ -23,6 +23,7 @@ class ProjectController extends GetxController {
   RxBool isCommentFileUpdatingAfter = false.obs;
   RxBool isSearching = false.obs;
   RxBool isTasksUpdating = false.obs;
+  RxBool isTaskDateUpdating = false.obs;
   RxBool isMembersUpdating = false.obs;
   RxBool isDarkTheme = false.obs;
   RxBool isRecentProjectsListAtTop = true.obs;
@@ -245,10 +246,9 @@ class ProjectController extends GetxController {
 
   addToInProgress(
       {String? taskTitle,
-      String? oldTaskTitle,
       String? phase,
+      required String taskID,
       String? taskDescription,
-      String? oldTaskDescription,
       String? pilot,
       String? copilot,
       String? startDate,
@@ -260,24 +260,23 @@ class ProjectController extends GetxController {
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
+        taskID: taskID,
         taskDescription: taskDescription,
         pilot: pilot,
         copilot: copilot,
         startDate: startDate,
         endDate: endDate,
         status: 'inProgress',
+        requiredDeliverables: null,
         isDeliverableNeededForCompletion: deliverablesRequiredOrNot,
         deliverables: taskDeliverables,
         priorityLevel: priorityLevel);
 
     try {
       status == 'todo'
-          ? toDoTasks.removeWhere((element) =>
-              element['taskDescription'] == taskDescription &&
-              element['taskTitle'] == taskTitle)
-          : completedTasks.removeWhere((element) =>
-              element['taskDescription'] == taskDescription &&
-              element['taskTitle'] == taskTitle);
+          ? toDoTasks.removeWhere((element) => element['taskID'] == taskID)
+          : completedTasks
+              .removeWhere((element) => element['taskID'] == taskID);
 
       inProgressTasks.add(task.toJson());
       if (!kIsWeb) {
@@ -288,14 +287,8 @@ class ProjectController extends GetxController {
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
-              .where('taskDescription', isEqualTo: taskDescription)
-              .where('taskTitle', isEqualTo: taskTitle)
-              .get()
-              .then((value) {
-            for (var doc in value) {
-              doc.reference.update({'status': 'inProgress'});
-            }
-          });
+              .document(taskID)
+              .update({'status': 'inProgress'});
         }
       } else {
         for (var i = 0; i < projectMembers.length; i++) {
@@ -305,14 +298,8 @@ class ProjectController extends GetxController {
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
-              .where('taskDescription', isEqualTo: taskDescription)
-              .where('taskTitle', isEqualTo: taskTitle)
-              .get()
-              .then((QuerySnapshot querySnapshot) {
-            for (var doc in querySnapshot.docs) {
-              doc.reference.update({'status': 'inProgress'});
-            }
-          });
+              .doc(taskID)
+              .update({'status': 'inProgress'});
         }
       }
     } catch (e) {
@@ -325,10 +312,9 @@ class ProjectController extends GetxController {
 
   addToTodo(
       {String? taskTitle,
-      String? oldTaskTitle,
       String? phase,
+      required String taskID,
       String? taskDescription,
-      String? oldTaskDescription,
       String? pilot,
       String? copilot,
       String? startDate,
@@ -339,6 +325,7 @@ class ProjectController extends GetxController {
       int? deliverablesRequiredOrNot}) async {
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
+        taskID: taskID,
         phase: phase,
         taskDescription: taskDescription,
         pilot: pilot,
@@ -348,15 +335,14 @@ class ProjectController extends GetxController {
         status: 'todo',
         isDeliverableNeededForCompletion: deliverablesRequiredOrNot,
         deliverables: taskDeliverables,
+        requiredDeliverables: null,
         priorityLevel: priorityLevel);
     try {
       status == 'inProgress'
-          ? inProgressTasks.removeWhere((element) =>
-              element['taskDescription'] == taskDescription &&
-              element['taskTitle'] == taskTitle)
-          : completedTasks.removeWhere((element) =>
-              element['taskDescription'] == taskDescription &&
-              element['taskTitle'] == taskTitle);
+          ? inProgressTasks
+              .removeWhere((element) => element['taskID'] == taskID)
+          : completedTasks
+              .removeWhere((element) => element['taskID'] == taskID);
 
       toDoTasks.add(task.toJson());
       if (!kIsWeb) {
@@ -367,14 +353,8 @@ class ProjectController extends GetxController {
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
-              .where('taskDescription', isEqualTo: taskDescription)
-              .where('taskTitle', isEqualTo: taskTitle)
-              .get()
-              .then((value) {
-            for (var doc in value) {
-              doc.reference.update({'status': 'todo'});
-            }
-          });
+              .document(taskID)
+              .update({'status': 'todo'});
         }
       } else {
         for (var i = 0; i < projectMembers.length; i++) {
@@ -384,14 +364,8 @@ class ProjectController extends GetxController {
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
-              .where('taskDescription', isEqualTo: taskDescription)
-              .where('taskTitle', isEqualTo: taskTitle)
-              .get()
-              .then((QuerySnapshot querySnapshot) {
-            for (var doc in querySnapshot.docs) {
-              doc.reference.update({'status': 'todo'});
-            }
-          });
+              .doc(taskID)
+              .update({'status': 'todo'});
         }
       }
     } catch (e) {
@@ -404,16 +378,16 @@ class ProjectController extends GetxController {
 
   addToCompleted(
       {String? taskTitle,
-      String? oldTaskTitle,
+      required String taskID,
       String? phase,
       String? taskDescription,
-      String? oldTaskDescription,
       String? pilot,
       String? copilot,
       String? startDate,
       String? endDate,
       String? status,
       List? taskDeliverables,
+      List? requiredDeliverables,
       int? priorityLevel,
       int? deliverablesRequiredOrNot}) async {
     task_model.Task task = task_model.Task(
@@ -421,21 +395,20 @@ class ProjectController extends GetxController {
         phase: phase,
         taskDescription: taskDescription,
         pilot: pilot,
+        taskID: taskID,
         copilot: copilot,
         startDate: startDate,
         endDate: endDate,
         deliverables: taskDeliverables,
+        requiredDeliverables: requiredDeliverables,
         status: 'completed',
         isDeliverableNeededForCompletion: deliverablesRequiredOrNot,
         priorityLevel: priorityLevel);
     try {
       status == 'todo'
-          ? toDoTasks.removeWhere((element) =>
-              element['taskDescription'] == taskDescription &&
-              element['taskTitle'] == taskTitle)
-          : inProgressTasks.removeWhere((element) =>
-              element['taskDescription'] == taskDescription &&
-              element['taskTitle'] == taskTitle);
+          ? toDoTasks.removeWhere((element) => element['taskID'] == taskID)
+          : inProgressTasks
+              .removeWhere((element) => element['taskID'] == taskID);
 
       completedTasks.add(task.toJson());
       if (!kIsWeb) {
@@ -446,14 +419,8 @@ class ProjectController extends GetxController {
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
-              .where('taskDescription', isEqualTo: taskDescription)
-              .where('taskTitle', isEqualTo: taskTitle)
-              .get()
-              .then((value) {
-            for (var doc in value) {
-              doc.reference.update({'status': 'completed'});
-            }
-          });
+              .document(taskID)
+              .update({'status': 'completed'});
         }
       } else {
         for (var i = 0; i < projectMembers.length; i++) {
@@ -463,14 +430,8 @@ class ProjectController extends GetxController {
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
-              .where('taskDescription', isEqualTo: taskDescription)
-              .where('taskTitle', isEqualTo: taskTitle)
-              .get()
-              .then((QuerySnapshot querySnapshot) {
-            for (var doc in querySnapshot.docs) {
-              doc.reference.update({'status': 'completed'});
-            }
-          });
+              .doc(taskID)
+              .update({'status': 'completed'});
         }
       }
     } catch (e) {
@@ -1058,10 +1019,8 @@ class ProjectController extends GetxController {
 
   addNewTask(
       {String? taskTitle,
-      String? oldTaskTitle,
       String? phase,
       String? taskDescription,
-      String? oldTaskDescription,
       String? pilot,
       String? copilot,
       String? startDate,
@@ -1072,10 +1031,10 @@ class ProjectController extends GetxController {
       int? priorityLevel}) async {
     isTasksUpdating.value = true;
     List deliverablesList = [];
+    FutureGroup futureGroup = FutureGroup();
     for (var item in deliverables!) {
       deliverablesList.add(item);
     }
-
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
@@ -1084,34 +1043,93 @@ class ProjectController extends GetxController {
         pilot: pilot,
         copilot: copilot,
         startDate: startDate,
+        requiredDeliverables: null,
         endDate: endDate,
         status: status,
         deliverables: deliverablesList,
         priorityLevel: priorityLevel);
+
     try {
       if (!kIsWeb) {
         for (var i = 0; i < projectMembers.length; i++) {
-          await firedartFirestore
+          futureGroup.add(firedartFirestore
               .collection('users')
               .document(projectMembers[i]['uid'])
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
               .add(task.toJson())
-              .then((value) async {});
+              .then((value) async {
+            if (i == 0) {
+              task_model.Task updatedTaskWithID = task_model.Task(
+                  taskTitle: taskTitle,
+                  phase: phase,
+                  taskID: value.id,
+                  isDeliverableNeededForCompletion:
+                      isDeliverableNeededForCompletion,
+                  taskDescription: taskDescription,
+                  pilot: pilot,
+                  copilot: copilot,
+                  startDate: startDate,
+                  requiredDeliverables: null,
+                  endDate: endDate,
+                  status: status,
+                  deliverables: deliverablesList,
+                  priorityLevel: priorityLevel);
+
+              toDoTasks.add(updatedTaskWithID.toJson());
+            }
+            firedartFirestore
+                .collection('users')
+                .document(projectMembers[i]['uid'])
+                .collection('projects')
+                .document(_projectId.value)
+                .collection('tasks')
+                .document(value.id)
+                .update({'taskID': value.id});
+          }));
         }
       } else {
         for (var i = 0; i < projectMembers.length; i++) {
-          await firestore
+          futureGroup.add(firestore
               .collection('users')
               .doc(projectMembers[i]['uid'])
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
-              .add(task.toJson());
+              .add(task.toJson())
+              .then((value) {
+            if (i == 0) {
+              task_model.Task updatedTaskWithID = task_model.Task(
+                  taskTitle: taskTitle,
+                  phase: phase,
+                  taskID: value.id,
+                  isDeliverableNeededForCompletion:
+                      isDeliverableNeededForCompletion,
+                  taskDescription: taskDescription,
+                  pilot: pilot,
+                  copilot: copilot,
+                  startDate: startDate,
+                  requiredDeliverables: null,
+                  endDate: endDate,
+                  status: status,
+                  deliverables: deliverablesList,
+                  priorityLevel: priorityLevel);
+              toDoTasks.add(updatedTaskWithID.toJson());
+            }
+            firestore
+                .collection('users')
+                .doc(projectMembers[i]['uid'])
+                .collection('projects')
+                .doc(_projectId.value)
+                .collection('tasks')
+                .doc(value.id)
+                .update({'taskID': value.id});
+          }));
         }
       }
-      getProjectTasks();
+      futureGroup.close();
+
       isTasksUpdating.value = false;
       getSuccessSnackBar("task added successfully");
     } catch (e) {
@@ -1123,12 +1141,52 @@ class ProjectController extends GetxController {
     }
   }
 
+  addRequiredTaskDeliverables({
+    required String taskID,
+    required List requiredDeliverables,
+  }) async {
+    isTasksUpdating.value = true;
+
+    try {
+      if (!kIsWeb) {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firedartFirestore
+              .collection('users')
+              .document(projectMembers[i]['uid'])
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('tasks')
+              .document(taskID)
+              .update({'requiredDeliverables': requiredDeliverables});
+        }
+      } else {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firestore
+              .collection('users')
+              .doc(projectMembers[i]['uid'])
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('tasks')
+              .doc(taskID)
+              .update({'requiredDeliverables': requiredDeliverables});
+        }
+      }
+      getProjectTasks();
+      isTasksUpdating.value = false;
+    } catch (e) {
+      isTasksUpdating.value = false;
+      //define error
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
+    }
+  }
+
   updateTask({
     String? taskTitle,
-    String? oldTaskTitle,
+    required String taskID,
     String? phase,
     String? taskDescription,
-    String? oldTaskDescription,
     String? pilot,
     String? copilot,
     String? startDate,
@@ -1143,6 +1201,8 @@ class ProjectController extends GetxController {
     task_model.Task task = task_model.Task(
         taskTitle: taskTitle,
         phase: phase,
+        taskID: taskID,
+        requiredDeliverables: null,
         taskDescription: taskDescription,
         isDeliverableNeededForCompletion: isDeliverableNeededForCompletion,
         pilot: pilot,
@@ -1161,14 +1221,8 @@ class ProjectController extends GetxController {
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
-              .where('taskDescription', isEqualTo: oldTaskDescription)
-              .where('taskTitle', isEqualTo: oldTaskTitle)
-              .get()
-              .then((value) {
-            for (var doc in value) {
-              futureGroup.add(doc.reference.update(task.toJson()));
-            }
-          });
+              .document(taskID)
+              .update(task.toJson());
         }
       } else {
         for (var i = 0; i < projectMembers.length; i++) {
@@ -1178,14 +1232,8 @@ class ProjectController extends GetxController {
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
-              .where('taskDescription', isEqualTo: oldTaskDescription)
-              .where('taskTitle', isEqualTo: oldTaskTitle)
-              .get()
-              .then((QuerySnapshot querySnapshot) {
-            for (var doc in querySnapshot.docs) {
-              futureGroup.add(doc.reference.update(task.toJson()));
-            }
-          });
+              .doc(taskID)
+              .update(task.toJson());
         }
       }
 
@@ -1197,6 +1245,90 @@ class ProjectController extends GetxController {
       getSuccessSnackBar("task updated successfully");
     } catch (e) {
       isTasksUpdating.value = false;
+      //define error
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
+    }
+  }
+
+  updateTaskDateFromGanttChart({
+    required String taskID,
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    isTaskDateUpdating.value = true;
+    FutureGroup futureGroup = FutureGroup();
+
+    try {
+      if (!kIsWeb) {
+        for (var i = 0; i < projectMembers.length; i++) {
+          await firedartFirestore
+                  .collection('users')
+                  .document(projectMembers[i]['uid'])
+                  .collection('projects')
+                  .document(_projectId.value)
+                  .collection('tasks')
+                  .document(taskID)
+                  .exists
+              ? futureGroup.add(
+                  firedartFirestore
+                      .collection('users')
+                      .document(projectMembers[i]['uid'])
+                      .collection('projects')
+                      .document(_projectId.value)
+                      .collection('tasks')
+                      .document(taskID)
+                      .update(
+                    {
+                      'startDate':
+                          '${startDate.year}/${startDate.month}/${startDate.day}',
+                      'endDate':
+                          '${endDate.year}/${endDate.month}/${endDate.day}',
+                    },
+                  ),
+                )
+              : null;
+        }
+      } else {
+        for (var i = 0; i < projectMembers.length; i++) {
+          firestore
+                      .collection('users')
+                      .doc(projectMembers[i]['uid'])
+                      .collection('projects')
+                      .doc(_projectId.value)
+                      .collection('tasks')
+                      .id ==
+                  taskID
+              ? futureGroup.add(
+                  firestore
+                      .collection('users')
+                      .doc(projectMembers[i]['uid'])
+                      .collection('projects')
+                      .doc(_projectId.value)
+                      .collection('tasks')
+                      .doc(taskID)
+                      .update(
+                    {
+                      'startDate':
+                          '${startDate.year},${startDate.month},${startDate.day}}',
+                      'endDate':
+                          '${endDate.year},${endDate.month},${endDate.day}}',
+                    },
+                  ),
+                )
+              : null;
+        }
+      }
+
+      futureGroup.close();
+      getProjectTasks();
+
+      isTaskDateUpdating.value = false;
+
+      getSuccessSnackBar("task Date updated successfully");
+    } catch (e) {
+      isTaskDateUpdating.value = false;
       //define error
       getErrorSnackBar(
         "Something went wrong, Please try again",

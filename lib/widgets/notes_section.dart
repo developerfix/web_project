@@ -542,7 +542,10 @@ ListView searchedNotesListViewBuilder(
         for (int i = 0; i < username.length; i++) {
           firstChar += username[i];
         }
-        if (comment.contains(projectController.searchedNote.value)) {
+        String lowerCaseSearchedNote =
+            projectController.searchedNote.value.toLowerCase();
+        String lowerCaseComment = comment.toLowerCase();
+        if (lowerCaseComment.contains(lowerCaseSearchedNote)) {
           return usersMsg(context,
               created: created,
               username: username,

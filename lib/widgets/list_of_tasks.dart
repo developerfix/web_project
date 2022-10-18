@@ -4,6 +4,7 @@ import 'package:ava/controllers/project_controller.dart';
 import 'package:ava/widgets/usersmsg.dart';
 
 import '../constants/style.dart';
+import 'add_deliverable.dart';
 import 'edit_task_popup.dart';
 
 Widget listOfTasks(
@@ -16,12 +17,14 @@ Widget listOfTasks(
   String pilot,
   String copilot,
   int priorityLevel,
+  String taskID,
   int deliverablesRequiredOrNot,
   String status,
   String startDate,
   String endDate,
-  List taskDeliverables,
-) {
+  List taskDeliverables, {
+  List? requiredDeliverables,
+}) {
   return Builder(builder: (context) {
     return ExpandableNotifier(
         child: Padding(
@@ -56,10 +59,12 @@ Widget listOfTasks(
                     phase,
                     pilot,
                     priorityLevel,
+                    taskID,
                     deliverablesRequiredOrNot,
                     startDate,
                     taskDescription,
-                    taskDeliverables),
+                    taskDeliverables,
+                    requiredDeliverables: requiredDeliverables),
               );
             }),
           ],
@@ -194,10 +199,12 @@ GestureDetector expandedWidgetKanbanTask(
     String phase,
     String pilot,
     int priorityLevel,
+    String taskID,
     int deliverablesRequiredOrNot,
     String startDate,
     String taskDescription,
-    List<dynamic> taskDeliverables) {
+    List<dynamic> taskDeliverables,
+    {List<dynamic>? requiredDeliverables}) {
   return GestureDetector(
     onTap: () {
       controller.toggle();
@@ -263,6 +270,7 @@ GestureDetector expandedWidgetKanbanTask(
                         phase,
                         pilot,
                         priorityLevel,
+                        taskID,
                         deliverablesRequiredOrNot,
                         startDate,
                         taskDescription,
@@ -352,47 +360,32 @@ GestureDetector expandedWidgetKanbanTask(
                       ),
                 taskDeliverables.isEmpty
                     ? Container()
-                    : GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.all(8.0),
-                        gridDelegate:
-                            const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 100,
-                                childAspectRatio: 2 / 2,
-                                crossAxisSpacing: 30,
-                                mainAxisSpacing: 30),
-                        itemCount: taskDeliverables.length,
-                        itemBuilder: (BuildContext ctx, index) {
-                          return InkWell(
-                            onTap: (() {
-                              downloadFile(
-                                  taskDeliverables[index]['urlDownload'],
-                                  taskDeliverables[index]['filename']);
-                            }),
-                            child: Container(
-                              padding: const EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.0),
-                                color: const Color(secondaryColor),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.16),
-                                    offset: const Offset(0, 3.0),
-                                    blurRadius: 6.0,
-                                  ),
-                                ],
-                              ),
-                              child: Center(
-                                child: txt(
-                                    txt: taskDeliverables[index]['filename'],
-                                    maxLines: 2,
-                                    fontColor: Colors.white,
-                                    fontSize: 16),
-                              ),
-                            ),
-                          );
-                        }),
+                    : deliverablesGrid(taskDeliverables),
+                const SizedBox(
+                  height: 10,
+                ),
+                // board == 'todo' || board == 'inProgress'
+                //     ? Container()
+                //     : requiredDeliverables != null
+                //         ? requiredDeliverables.isEmpty
+                //             ? Container()
+                //             : Row(
+                //                 children: [
+                //                   txt(
+                //                       txt: 'Required Deliverables:',
+                //                       maxLines: 2,
+                //                       font: 'Comfortaa',
+                //                       fontSize: 24),
+                //                 ],
+                //               )
+                //         : Container(),
+                // board == 'todo' || board == 'inProgress'
+                //     ? Container()
+                //     : requiredDeliverables != null
+                //         ? requiredDeliverables!.isEmpty
+                //             ? Container()
+                //             : deliverablesGrid(requiredDeliverables)
+                //         : Container(),
                 const Divider(
                   color: Color(secondaryColor),
                   thickness: 2,
@@ -414,6 +407,48 @@ GestureDetector expandedWidgetKanbanTask(
   );
 }
 
+GridView deliverablesGrid(List<dynamic> taskDeliverables) {
+  return GridView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      padding: const EdgeInsets.all(8.0),
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 100,
+          childAspectRatio: 2 / 2,
+          crossAxisSpacing: 30,
+          mainAxisSpacing: 30),
+      itemCount: taskDeliverables.length,
+      itemBuilder: (BuildContext ctx, index) {
+        return InkWell(
+          onTap: (() {
+            downloadFile(taskDeliverables[index]['urlDownload'],
+                taskDeliverables[index]['filename']);
+          }),
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.0),
+              color: const Color(secondaryColor),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.16),
+                  offset: const Offset(0, 3.0),
+                  blurRadius: 6.0,
+                ),
+              ],
+            ),
+            child: Center(
+              child: txt(
+                  txt: taskDeliverables[index]['filename'],
+                  maxLines: 2,
+                  fontColor: Colors.white,
+                  fontSize: 16),
+            ),
+          ),
+        );
+      });
+}
+
 PopupMenuButton<int> popupMenuButtonWidget(
     String status,
     ProjectController projectController,
@@ -422,6 +457,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
     String phase,
     String pilot,
     int priorityLevel,
+    String taskID,
     int deliverablesRequiredOrNot,
     String startDate,
     String taskDescription,
@@ -435,6 +471,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
             ? projectController.addToInProgress(
                 copilot: copilot,
                 endDate: endDate,
+                taskID: taskID,
                 phase: phase,
                 pilot: pilot,
                 priorityLevel: priorityLevel,
@@ -447,6 +484,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
             : status == 'inProgress'
                 ? projectController.addToTodo(
                     copilot: copilot,
+                    taskID: taskID,
                     endDate: endDate,
                     phase: phase,
                     pilot: pilot,
@@ -458,6 +496,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     taskDeliverables: taskDeliverables,
                     taskTitle: taskTitle)
                 : projectController.addToTodo(
+                    taskID: taskID,
                     copilot: copilot,
                     endDate: endDate,
                     phase: phase,
@@ -470,50 +509,75 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     deliverablesRequiredOrNot: deliverablesRequiredOrNot,
                     taskTitle: taskTitle);
       } else if (value == 2) {
-        status == 'todo'
-            ? projectController.addToCompleted(
-                copilot: copilot,
-                endDate: endDate,
-                phase: phase,
-                pilot: pilot,
-                priorityLevel: priorityLevel,
-                startDate: startDate,
-                status: status,
-                taskDescription: taskDescription,
-                deliverablesRequiredOrNot: deliverablesRequiredOrNot,
-                taskDeliverables: taskDeliverables,
-                taskTitle: taskTitle)
-            : status == 'inProgress'
-                ? projectController.addToCompleted(
-                    copilot: copilot,
-                    endDate: endDate,
-                    phase: phase,
-                    pilot: pilot,
-                    priorityLevel: priorityLevel,
-                    startDate: startDate,
-                    status: status,
-                    taskDescription: taskDescription,
-                    taskDeliverables: taskDeliverables,
-                    deliverablesRequiredOrNot: deliverablesRequiredOrNot,
-                    taskTitle: taskTitle)
-                : projectController.addToInProgress(
-                    copilot: copilot,
-                    endDate: endDate,
-                    phase: phase,
-                    pilot: pilot,
-                    priorityLevel: priorityLevel,
-                    startDate: startDate,
-                    status: status,
-                    taskDescription: taskDescription,
-                    deliverablesRequiredOrNot: deliverablesRequiredOrNot,
-                    taskDeliverables: taskDeliverables,
-                    taskTitle: taskTitle);
+        if (deliverablesRequiredOrNot != 1) {
+          status == 'todo'
+              ? projectController.addToCompleted(
+                  copilot: copilot,
+                  endDate: endDate,
+                  phase: phase,
+                  pilot: pilot,
+                  taskID: taskID,
+                  priorityLevel: priorityLevel,
+                  startDate: startDate,
+                  status: status,
+                  requiredDeliverables: null,
+                  taskDescription: taskDescription,
+                  deliverablesRequiredOrNot: deliverablesRequiredOrNot,
+                  taskDeliverables: taskDeliverables,
+                  taskTitle: taskTitle)
+              : status == 'inProgress'
+                  ? projectController.addToCompleted(
+                      copilot: copilot,
+                      endDate: endDate,
+                      phase: phase,
+                      taskID: taskID,
+                      pilot: pilot,
+                      requiredDeliverables: null,
+                      priorityLevel: priorityLevel,
+                      startDate: startDate,
+                      status: status,
+                      taskDescription: taskDescription,
+                      taskDeliverables: taskDeliverables,
+                      deliverablesRequiredOrNot: deliverablesRequiredOrNot,
+                      taskTitle: taskTitle)
+                  : projectController.addToInProgress(
+                      copilot: copilot,
+                      endDate: endDate,
+                      taskID: taskID,
+                      phase: phase,
+                      pilot: pilot,
+                      priorityLevel: priorityLevel,
+                      startDate: startDate,
+                      status: status,
+                      taskDescription: taskDescription,
+                      deliverablesRequiredOrNot: deliverablesRequiredOrNot,
+                      taskDeliverables: taskDeliverables,
+                      taskTitle: taskTitle);
+        } else {
+          projectController.selectedDeliverables.clear();
+          addTaskDeliverableDialog(
+              context,
+              projectController,
+              taskID,
+              status,
+              copilot,
+              endDate,
+              phase,
+              pilot,
+              priorityLevel,
+              startDate,
+              taskDescription,
+              deliverablesRequiredOrNot,
+              taskDeliverables,
+              taskTitle);
+        }
       } else if (value == 3) {
         projectController.selectedDeliverables.value = taskDeliverables;
         projectController.phaseValue.value = '';
         editTaskPopUp(
           context,
           copilot: copilot,
+          taskID: taskID,
           oldEndDate: endDate,
           phase: phase,
           pilot: pilot,

@@ -9,9 +9,11 @@ class Task {
   String? startDate;
   String? endDate;
   int? priorityLevel;
+  String? taskID;
   String? status;
   int? isDeliverableNeededForCompletion;
   List? deliverables;
+  List? requiredDeliverables;
 
   Task(
       {this.taskTitle,
@@ -21,8 +23,10 @@ class Task {
       this.pilot,
       this.copilot,
       this.startDate,
+      this.taskID,
       this.endDate,
       this.status,
+      this.requiredDeliverables,
       this.isDeliverableNeededForCompletion,
       this.priorityLevel});
 
@@ -31,7 +35,9 @@ class Task {
         "phase": phase,
         "isDeliverableNeededForCompletion": isDeliverableNeededForCompletion,
         "taskDescription": taskDescription,
+        "taskID": taskID,
         "deliverables": deliverables,
+        "requiredDeliverables": requiredDeliverables,
         "pilot": pilot,
         "copilot": copilot,
         "startDate": startDate,
@@ -45,10 +51,12 @@ class Task {
     return Task(
       taskTitle: snapshot['taskTitle'],
       phase: snapshot['phase'],
+      taskID: snapshot['taskID'],
       isDeliverableNeededForCompletion:
           snapshot['isDeliverableNeededForCompletion'],
       taskDescription: snapshot['taskDescription'],
       deliverables: snapshot['deliverables'],
+      requiredDeliverables: snapshot['requiredDeliverables'],
       pilot: snapshot['pilot'],
       copilot: snapshot['copilot'],
       startDate: snapshot['startDate'],

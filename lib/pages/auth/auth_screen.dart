@@ -3,8 +3,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ava/constants/style.dart';
 import 'package:ava/controllers/auth_controller.dart';
 import 'package:ava/widgets/popup_textfield.dart';
+import 'package:get/get.dart';
 
 import '../../controllers/input_validators.dart';
+import '../../widgets/custom_appbar.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key}) : super(key: key);
@@ -23,6 +25,10 @@ class _AuthScreenState extends State<AuthScreen> {
     final passwordController = TextEditingController();
 
     return Scaffold(
+      appBar: customAppBar(
+        context,
+        isAuthScreen: true,
+      ),
       body: Row(
         children: [
           isLogin
@@ -282,184 +288,208 @@ class _AuthScreenState extends State<AuthScreen> {
     ));
   }
 
-  Expanded loginBox(BuildContext context, TextEditingController emailController,
+  GetBuilder loginBox(
+      BuildContext context,
+      TextEditingController emailController,
       TextEditingController passwordController) {
-    return Expanded(
-        child: Stack(
-      children: [
-        Align(
-          alignment: const Alignment(0, -0.7),
-          child: Opacity(
-            opacity: 0.1,
-            child: SvgPicture.asset(
-              'assets/svgs/A.svg',
-            ),
-          ),
-        ),
-        Positioned.fill(
-          child: Center(
-            child: SizedBox(
-              height: screenHeight(context) * 0.8,
-              width: screenWidth(context) < 1200
-                  ? screenWidth(context) * 0.5
-                  : screenWidth(context) * 0.2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  txt(
-                      txt: 'Welcome to Ava',
-                      fontSize: 30,
-                      fontColor: const Color(secondaryColor)),
-                  SizedBox(
-                    height: screenHeight(context) * 0.05,
+    return GetBuilder<AuthController>(
+        init: AuthController(),
+        builder: (controller) {
+          return Expanded(
+              child: Stack(
+            children: [
+              Align(
+                alignment: const Alignment(0, -0.7),
+                child: Opacity(
+                  opacity: 0.1,
+                  child: SvgPicture.asset(
+                    'assets/svgs/A.svg',
                   ),
-                  txt(
-                      txt: 'Sign in to continue',
-                      fontSize: 14,
-                      fontColor: const Color(secondaryColor)),
-                  SizedBox(
-                    height: screenHeight(context) * 0.02,
-                  ),
-                  popUpTextField(context,
-                      controller: emailController, hint: 'Email'),
-                  SizedBox(
-                    height: screenHeight(context) * 0.01,
-                  ),
-                  popUpTextField(context,
-                      controller: passwordController, hint: 'Password'),
-                  SizedBox(
-                    height: screenHeight(context) * 0.01,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            isLogin = false;
-                            isSignup = false;
-                            isResetScreen = true;
-                          });
-                        },
-                        child: txt(
-                            txt: 'Forgot password?',
+                ),
+              ),
+              Positioned.fill(
+                child: Center(
+                  child: SizedBox(
+                    height: screenHeight(context) * 0.8,
+                    width: screenWidth(context) < 1200
+                        ? screenWidth(context) * 0.5
+                        : screenWidth(context) * 0.2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        txt(
+                            txt: 'Welcome to Ava',
+                            fontSize: 30,
+                            fontColor: const Color(secondaryColor)),
+                        SizedBox(
+                          height: screenHeight(context) * 0.05,
+                        ),
+                        txt(
+                            txt: 'Sign in to continue',
                             fontSize: 14,
                             fontColor: const Color(secondaryColor)),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: screenHeight(context) * 0.05,
-                  ),
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          AuthController.instance.login(
-                              emailController.text.trim(),
-                              passwordController.text.trim());
-                        },
-                        child: Container(
-                          width: screenWidth(context) < 1200
-                              ? screenWidth(context) * 0.2
-                              : screenWidth(context) * 0.07,
-                          height: screenHeight(context) * 0.05,
-                          color: const Color(secondaryColor),
-                          child: Center(
-                            child: txt(
-                                txt: 'Login Now',
-                                fontSize: 14,
-                                fontColor: Colors.white),
-                          ),
+                        SizedBox(
+                          height: screenHeight(context) * 0.02,
                         ),
-                      ),
-                      const Spacer(),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            isLogin = false;
-                            isSignup = true;
-                            isResetScreen = false;
-                          });
-                        },
-                        child: Container(
-                          width: screenWidth(context) < 1200
-                              ? screenWidth(context) * 0.2
-                              : screenWidth(context) * 0.07,
-                          height: screenHeight(context) * 0.05,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              width: 1.0,
-                              color: const Color(secondaryColor),
-                            ),
-                          ),
-                          child: Center(
-                            child: txt(
-                              txt: 'Signup',
-                              fontSize: 14,
-                            ),
-                          ),
+                        popUpTextField(context,
+                            controller: emailController, hint: 'Email'),
+                        SizedBox(
+                          height: screenHeight(context) * 0.01,
                         ),
-                      ),
-                      const Spacer(
-                        flex: 2,
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: screenHeight(context) * 0.03,
-                  ),
-                  Row(
-                    children: [
-                      txt(txt: 'OR', fontSize: 12),
-                      SizedBox(
-                        width: screenWidth(context) * 0.005,
-                      ),
-                      const Expanded(child: Divider())
-                    ],
-                  ),
-                  SizedBox(
-                    height: screenHeight(context) * 0.03,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      AuthController.instance.googleLogin(context);
-                    },
-                    child: Container(
-                      width: screenWidth(context) < 1200
-                          ? screenWidth(context) * 0.5
-                          : screenWidth(context) * 0.25,
-                      height: screenHeight(context) * 0.06,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(2.0),
-                        color: projecttController.isDarkTheme.value
-                            ? Colors.black45
-                            : Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.24),
-                            offset: const Offset(0, 1.0),
-                            blurRadius: 2.0,
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        popUpTextField(context,
+                            isObscure: controller.isObscure.value,
+                            trailing: InkWell(
+                              onTap: (() {
+                                if (controller.isObscure.value == 1) {
+                                  controller.isObscure.value = 2;
+                                } else {
+                                  controller.isObscure.value = 1;
+                                }
+                                controller.update();
+                              }),
+                              child: controller.isObscure.value == 1
+                                  ? const Icon(
+                                      Icons.visibility_off,
+                                    )
+                                  : const Icon(Icons.visibility),
+                            ),
+                            controller: passwordController,
+                            hint: 'Password'),
+                        SizedBox(
+                          height: screenHeight(context) * 0.01,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            SvgPicture.asset('assets/svgs/google-icon.svg'),
-                            const SizedBox(
-                              width: 20,
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  isLogin = false;
+                                  isSignup = false;
+                                  isResetScreen = true;
+                                });
+                              },
+                              child: txt(
+                                  txt: 'Forgot password?',
+                                  fontSize: 14,
+                                  fontColor: const Color(secondaryColor)),
                             ),
-                            txt(txt: 'Sign in with Google', fontSize: 22)
-                          ]),
+                          ],
+                        ),
+                        SizedBox(
+                          height: screenHeight(context) * 0.05,
+                        ),
+                        Row(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                AuthController.instance.login(
+                                    emailController.text.trim(),
+                                    passwordController.text.trim());
+                              },
+                              child: Container(
+                                width: screenWidth(context) < 1200
+                                    ? screenWidth(context) * 0.2
+                                    : screenWidth(context) * 0.07,
+                                height: screenHeight(context) * 0.05,
+                                color: const Color(secondaryColor),
+                                child: Center(
+                                  child: txt(
+                                      txt: 'Login Now',
+                                      fontSize: 14,
+                                      fontColor: Colors.white),
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  isLogin = false;
+                                  isSignup = true;
+                                  isResetScreen = false;
+                                });
+                              },
+                              child: Container(
+                                width: screenWidth(context) < 1200
+                                    ? screenWidth(context) * 0.2
+                                    : screenWidth(context) * 0.07,
+                                height: screenHeight(context) * 0.05,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 1.0,
+                                    color: const Color(secondaryColor),
+                                  ),
+                                ),
+                                child: Center(
+                                  child: txt(
+                                    txt: 'Signup',
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const Spacer(
+                              flex: 2,
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: screenHeight(context) * 0.03,
+                        ),
+                        Row(
+                          children: [
+                            txt(txt: 'OR', fontSize: 12),
+                            SizedBox(
+                              width: screenWidth(context) * 0.005,
+                            ),
+                            const Expanded(child: Divider())
+                          ],
+                        ),
+                        SizedBox(
+                          height: screenHeight(context) * 0.03,
+                        ),
+                        InkWell(
+                          onTap: () {
+                            AuthController.instance.googleLogin(context);
+                          },
+                          child: Container(
+                            width: screenWidth(context) < 1200
+                                ? screenWidth(context) * 0.5
+                                : screenWidth(context) * 0.25,
+                            height: screenHeight(context) * 0.06,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(2.0),
+                              color: projecttController.isDarkTheme.value
+                                  ? Colors.black45
+                                  : Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.24),
+                                  offset: const Offset(0, 1.0),
+                                  blurRadius: 2.0,
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                      'assets/svgs/google-icon.svg'),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  txt(txt: 'Sign in with Google', fontSize: 22)
+                                ]),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ),
-      ],
-    ));
+            ],
+          ));
+        });
   }
 }

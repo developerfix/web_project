@@ -1,4 +1,5 @@
 import 'package:ava/controllers/project_controller.dart';
+import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ava/constants/style.dart';
@@ -108,81 +109,125 @@ class _RecentProjectsState extends State<RecentProjects> {
 
                                     return false;
                                   },
-                                  child: SizedBox(
-                                    height: projectController
-                                            .isRecentProjectsListAtTop.value
-                                        ? screenHeight(context) * 0.2
-                                        : screenHeight(context) * 0.6,
-                                    width: screenWidth(context) * 0.7,
-                                    child: ListView.separated(
+                                  child: AnimatedSize(
+                                    duration: const Duration(seconds: 1),
+                                    curve: Curves.easeInOut,
+                                    child: SizedBox(
+                                      height:
+                                          // projectController
+                                          //         .isRecentProjectsListAtTop.value
+                                          //     ? screenHeight(context) * 0.5
+                                          // :
+                                          screenHeight(context) * 0.5,
+                                      width: screenWidth(context) * 0.75,
+                                      child: RawScrollbar(
+                                        thumbColor: Colors.white,
+                                        thumbVisibility: true,
+                                        trackColor: const Color(secondaryColor),
+                                        trackRadius: const Radius.circular(50),
+                                        thickness: 15,
+                                        trackVisibility: true,
+                                        interactive: true,
                                         controller: _scrollController,
-                                        separatorBuilder: (context, index) {
-                                          return const SizedBox(
-                                            height: 24,
-                                          );
-                                        },
-                                        scrollDirection: Axis.vertical,
-                                        itemCount:
-                                            projectsCategoriesList.length,
-                                        itemBuilder: (context, i) {
-                                          projectsListCount.clear();
-                                          for (var project
-                                              in profileController.projects) {
-                                            if (project['category'] ==
-                                                projectsCategoriesList[i]) {
-                                              projectsListCount.add(project);
-                                            }
-                                          }
-                                          return Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Padding(
+                                        shape: const CircleBorder(
+                                          side: BorderSide(
+                                            style: BorderStyle.none,
+                                          ),
+                                        ),
+                                        child:
+                                            FadingEdgeScrollView.fromScrollView(
+                                          child: ListView.separated(
+                                              controller: _scrollController,
+                                              separatorBuilder:
+                                                  (context, index) {
+                                                return const SizedBox(
+                                                  height: 24,
+                                                );
+                                              },
+                                              scrollDirection: Axis.vertical,
+                                              itemCount:
+                                                  projectsCategoriesList.length,
+                                              itemBuilder: (context, i) {
+                                                projectsListCount.clear();
+                                                for (var project
+                                                    in profileController
+                                                        .projects) {
+                                                  if (project['category'] ==
+                                                      projectsCategoriesList[
+                                                          i]) {
+                                                    projectsListCount
+                                                        .add(project);
+                                                  }
+                                                }
+                                                return Padding(
                                                   padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: txt(
-                                                      txt:
-                                                          projectsCategoriesList[
-                                                                  i]
-                                                              .toString()
-                                                              .toUpperCase(),
-                                                      fontColor: Colors.white,
-                                                      fontSize: 24),
-                                                ),
-                                                GridView.builder(
-                                                    gridDelegate:
-                                                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                                                            maxCrossAxisExtent:
-                                                                250,
-                                                            crossAxisSpacing:
-                                                                20,
-                                                            mainAxisSpacing:
-                                                                20),
-                                                    shrinkWrap: true,
-                                                    itemCount: projectsListCount
-                                                        .length,
-                                                    itemBuilder: (context, i) {
-                                                      String projectTitle =
-                                                          projectsListCount[i]
-                                                              ['title'];
-                                                      String projectId =
-                                                          projectsListCount[i]
-                                                              ['projectId'];
-                                                      return InkWell(
-                                                        onTap: (() {
-                                                          Get.to(() => dashboard
-                                                                  .ProjectDashboard(
-                                                                projectId:
-                                                                    projectId,
-                                                              ));
-                                                        }),
-                                                        child: projectBox(
-                                                            context,
-                                                            text: projectTitle),
-                                                      );
-                                                    })
-                                              ]);
-                                        }),
+                                                      const EdgeInsets.only(
+                                                          left: 0,
+                                                          top: 0,
+                                                          bottom: 10,
+                                                          right: 100),
+                                                  child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: txt(
+                                                              txt: projectsCategoriesList[
+                                                                      i]
+                                                                  .toString()
+                                                                  .toUpperCase(),
+                                                              fontColor:
+                                                                  Colors.white,
+                                                              fontSize: 24),
+                                                        ),
+                                                        GridView.builder(
+                                                            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                                                maxCrossAxisExtent:
+                                                                    250,
+                                                                crossAxisSpacing:
+                                                                    20,
+                                                                mainAxisSpacing:
+                                                                    20),
+                                                            shrinkWrap: true,
+                                                            itemCount:
+                                                                projectsListCount
+                                                                    .length,
+                                                            itemBuilder:
+                                                                (context, i) {
+                                                              String
+                                                                  projectTitle =
+                                                                  projectsListCount[
+                                                                          i]
+                                                                      ['title'];
+                                                              String projectId =
+                                                                  projectsListCount[
+                                                                          i][
+                                                                      'projectId'];
+                                                              return InkWell(
+                                                                onTap: (() {
+                                                                  Get.to(() =>
+                                                                      dashboard
+                                                                          .ProjectDashboard(
+                                                                        projectId:
+                                                                            projectId,
+                                                                      ));
+                                                                }),
+                                                                child: projectBox(
+                                                                    context,
+                                                                    text:
+                                                                        projectTitle),
+                                                              );
+                                                            })
+                                                      ]),
+                                                );
+                                              }),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],

@@ -7,7 +7,10 @@ Container popUpTextField(BuildContext context,
     {TextEditingController? controller,
     double? height,
     String? hint,
+    int? isObscure,
+    Widget? trailing,
     int? maxLines}) {
+  bool isObscurePlus = isObscure == 1 ? true : false;
   return Container(
     width: screenWidth(context) < 1200
         ? screenWidth(context) * 0.5
@@ -19,6 +22,7 @@ Container popUpTextField(BuildContext context,
     child: Padding(
       padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
       child: TextFormField(
+        obscureText: isObscure != null ? isObscurePlus : false,
         maxLines: maxLines ?? 1,
         validator: (val) {
           if (val!.isEmpty) {
@@ -35,6 +39,7 @@ Container popUpTextField(BuildContext context,
         ),
         controller: controller,
         decoration: InputDecoration(
+          suffixIcon: trailing,
           border: InputBorder.none,
           hintText: hint,
           hintStyle: GoogleFonts.montserrat(
