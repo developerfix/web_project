@@ -29,6 +29,8 @@ void main() async {
   if (!kIsWeb) {
     firedart.Firestore.initialize("ava-project-ab57c");
     pure_dart_implementation.FirebaseDart.setup();
+  } else {
+    pure_dart_implementation.FirebaseDart.setup();
   }
   await Firebase.initializeApp(
     options: const FirebaseOptions(

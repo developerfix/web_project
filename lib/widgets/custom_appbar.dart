@@ -54,13 +54,18 @@ AppBar customAppBar(BuildContext context,
                         )),
                   ],
                 )
-              : InkWell(
-                  onTap: () {
-                    Get.to(() => const RecentProjects());
-                  },
-                  child: Image.asset(
-                    'assets/images/logoMini.png',
-                  ))
+              : Row(
+                  children: [
+                    InkWell(
+                        onTap: () {
+                          Get.to(() => const RecentProjects());
+                        },
+                        child: Image.asset(
+                          'assets/images/logoMini.png',
+                          height: 25,
+                        )),
+                  ],
+                )
           : Row(
               children: [
                 Image.asset(

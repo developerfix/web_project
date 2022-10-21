@@ -170,19 +170,6 @@ class _TimelineState extends State<Timeline> with TickerProviderStateMixin {
     }
 
     GanttChartController.instance.gitHub!.getIssuesList(issuesList: tasksList);
-    // if (GanttChartController.instance.horizontalController.hasClients) {
-    //   GanttChartController.instance.horizontalController.jumpTo(
-    //     GanttChartController.instance.calculateDistanceToLeftBorder(
-    //                 GanttChartController.instance.issueList!.first.startTime!) *
-    //             GanttChartController.instance.chartViewWidth /
-    //             GanttChartController.instance.viewRangeToFitScreen! +
-    //         (GanttChartController.instance.isPanStartActive ||
-    //                 GanttChartController.instance.isPanMiddleActive
-    //             ? GanttChartController.instance.issueList!.first.width
-    //             : 0),
-    //   );
-    // }
-    // GanttChartController.instance.update();
   }
 
   @override
@@ -203,7 +190,11 @@ class _TimelineState extends State<Timeline> with TickerProviderStateMixin {
           .setContext(context, MediaQuery.of(context).size.width);
     }
 
-    return Obx(() {
+    return WillPopScope(onWillPop: () async {
+      projectController.getProjectTasks();
+
+      return Future(() => true);
+    }, child: Obx(() {
       return Scaffold(
         key: _key,
         backgroundColor: Colors.black87.withOpacity(0.8),
@@ -278,6 +269,6 @@ class _TimelineState extends State<Timeline> with TickerProviderStateMixin {
           ],
         ),
       );
-    });
+    }));
   }
 }

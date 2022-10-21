@@ -192,6 +192,7 @@ class _GanttChartState extends State<GanttChart> {
                                 icon: const Center(
                                   child: Icon(
                                     Icons.keyboard_arrow_left_rounded,
+                                    color: Colors.white,
                                     size: 15,
                                   ),
                                 ),
@@ -216,6 +217,7 @@ class _GanttChartState extends State<GanttChart> {
                                 padding: const EdgeInsets.all(0),
                                 icon: const Icon(
                                   Icons.keyboard_arrow_right_rounded,
+                                  color: Colors.white,
                                   size: 15,
                                 ),
                                 iconSize: 15,

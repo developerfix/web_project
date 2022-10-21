@@ -590,9 +590,9 @@ PopupMenuButton<int> popupMenuButtonWidget(
         );
       } else {
         projectController.deleteProjectTask(
-            status: status,
-            taskDescription: taskDescription,
-            taskTitle: taskTitle);
+          taskID: taskID,
+          status: status,
+        );
       }
     },
     elevation: 3.2,
