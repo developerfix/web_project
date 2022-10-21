@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../constants/style.dart';
 import '../../controllers/gantt_chart_controller.dart';
 import '../../models/issue.dart';
 
@@ -327,17 +328,17 @@ class ChartBars extends StatelessWidget {
                                                 .onIssueEndPan(PanType.middle);
                                           },
                                           child: Container(
-                                            alignment: Alignment.center,
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 4.0),
-                                            child: Text(
-                                              issuesValue.title!,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: const TextStyle(
-                                                  fontSize: 10.0),
-                                            ),
-                                          ),
+                                              alignment: Alignment.center,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 4.0),
+                                              child: txt(
+                                                  txt: issuesValue.title!,
+                                                  fontSize: 10,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  fontColor: Colors.white)),
                                         ),
                                       ),
                                       GestureDetector(

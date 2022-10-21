@@ -69,7 +69,10 @@ class _GanttChartState extends State<GanttChart> {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 10),
                               child: Center(
-                                  child: txt(txt: 'Tasks', fontSize: 24.0))),
+                                  child: txt(
+                                      txt: 'Tasks',
+                                      fontSize: 24.0,
+                                      fontColor: Colors.white))),
                           Expanded(
                             child: ListView.builder(
                               controller: ganttChartValue.listController,
@@ -139,11 +142,12 @@ class _GanttChartState extends State<GanttChart> {
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 10),
                                           child: Center(
-                                            child: Text(
-                                              issuesValue.title!,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
+                                              child: txt(
+                                                  txt: issuesValue.title!,
+                                                  fontSize: 14,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  fontColor: Colors.white)),
                                         ),
                                       ),
                                     );
