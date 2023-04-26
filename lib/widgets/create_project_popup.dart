@@ -1,4 +1,5 @@
-import 'package:ava/widgets/drop_down_button.dart';
+import 'package:ava/controllers/profile_controller.dart';
+import 'package:ava/widgets/phase_drop_down_button.dart';
 import 'package:ava/widgets/popup_button.dart';
 import 'package:ava/widgets/users_selection_textfield.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,8 @@ Future<dynamic> createProjectPopUp(BuildContext context,
     {required final String uid}) {
   final titleController = TextEditingController();
   final subTitleController = TextEditingController();
-
+  final ProfileController profileController = Get.find();
+  final ProjectController projectController = Get.find();
   String taskPilot = 'select team member';
   String taskCoPilot = 'select team member';
   List<ProjectMember> initialProjectMembers = [];
@@ -95,7 +97,7 @@ Future<dynamic> createProjectPopUp(BuildContext context,
                                         title: 'Copilot'),
                                     itemRow(context, widget: StatefulBuilder(
                                         builder: (context, setState) {
-                                      return dropDownButton(
+                                      return phaseDropDownButton(
                                         context,
                                         setState,
                                       );
@@ -110,17 +112,17 @@ Future<dynamic> createProjectPopUp(BuildContext context,
                                   children: [
                                     popupButton(context, ontap: () {
                                       if (formKey.currentState!.validate()) {
-                                        if (projecttController.projectPilot
-                                                .value.isNotEmpty &&
-                                            projecttController.projectCoPilot
+                                        if (projectController.projectPilot.value
+                                                .isNotEmpty &&
+                                            projectController.projectCoPilot
                                                 .value.isNotEmpty) {
                                           for (var user
-                                              in projecttController.users) {
+                                              in projectController.users) {
                                             if (user['name'] ==
-                                                    projecttController
+                                                    projectController
                                                         .projectPilot.value ||
                                                 user['name'] ==
-                                                    projecttController
+                                                    projectController
                                                         .projectCoPilot.value ||
                                                 user['uid'] == uid) {
                                               initialProjectMembers.add(
@@ -129,19 +131,19 @@ Future<dynamic> createProjectPopUp(BuildContext context,
                                                       username: user['name']));
                                             }
                                           }
-                                          projecttController.newProject(
+                                          projectController.newProject(
                                               initialProjectMembers:
                                                   initialProjectMembers,
                                               username: profileController
-                                                  .user['name'],
+                                                  .currentUser.value.name,
                                               uid: uid,
                                               title: titleController.text,
                                               subtitle: subTitleController.text,
-                                              pilot: projecttController
+                                              pilot: projectController
                                                   .projectPilot.value,
-                                              catergory: projecttController
+                                              catergory: projectController
                                                   .phaseValue.value,
-                                              copilot: projecttController
+                                              copilot: projectController
                                                   .projectCoPilot.value);
                                         } else {
                                           getErrorSnackBar(

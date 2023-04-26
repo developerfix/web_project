@@ -1,11 +1,10 @@
 import 'dart:async';
+import 'package:ava/controllers/profile_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ava/pages/auth/auth_screen.dart';
-import 'package:ava/pages/recent_project.dart';
 import 'package:ava/models/user.dart' as model;
 // ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
@@ -15,12 +14,15 @@ import 'package:firedart/firedart.dart' as firedart;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:googleapis_auth/auth_io.dart';
 
+import '../pages/departments_grid.dart';
+
 class AuthController extends GetxController {
   static AuthController instance = Get.find();
   late Rx<User?> _user;
   bool isLoging = false;
   User? get user => _user.value;
   final _auth = FirebaseAuth.instance;
+  RxBool isDarkTheme = false.obs;
 
   Rx<int> isObscure = 1.obs;
 
@@ -41,7 +43,7 @@ class AuthController extends GetxController {
       } else {
         isLoging = true;
         update();
-        Get.to(() => const RecentProjects());
+        Get.to(() => const DepartmentsGrid());
       }
     });
   }
@@ -55,11 +57,11 @@ class AuthController extends GetxController {
           email: email, password: password);
 
       model.User user = model.User(
-          name: name,
-          email: email,
-          uid: cred.user!.uid,
-          profilePhoto: '',
-          noOfProjects: 0);
+        name: name,
+        email: email,
+        uid: cred.user!.uid,
+        profilePhoto: '',
+      );
       if (!kIsWeb) {
         await firedart.Firestore.instance
             .collection('users')
@@ -129,11 +131,11 @@ class AuthController extends GetxController {
           User? registereduser = userCredential.user;
 
           model.User user = model.User(
-              name: registereduser!.displayName,
-              email: registereduser.email,
-              uid: registereduser.uid,
-              profilePhoto: '',
-              noOfProjects: 0);
+            name: registereduser!.displayName,
+            email: registereduser.email,
+            uid: registereduser.uid,
+            profilePhoto: registereduser.photoURL,
+          );
 
           await firedartFirestore
               .collection('users')
@@ -170,11 +172,11 @@ class AuthController extends GetxController {
           User? registereduser = userCredential.user;
 
           model.User user = model.User(
-              name: registereduser!.displayName,
-              email: registereduser.email,
-              uid: registereduser.uid,
-              profilePhoto: '',
-              noOfProjects: 0);
+            name: registereduser!.displayName,
+            email: registereduser.email,
+            uid: registereduser.uid,
+            profilePhoto: registereduser.photoURL,
+          );
 
           await firestore
               .collection('users')
@@ -183,13 +185,17 @@ class AuthController extends GetxController {
 
           getSuccessSnackBar("Successfully logged in");
         }
-      } on FirebaseAuthException {
+        // } on FirebaseAuthException {
+        //   getErrorSnackBar(
+        //     "Google Login Failed",
+        //   );
+        // } on PlatformException {
+        //   getErrorSnackBar(
+        //     "Google Login Failed",
+        //   );
+      } catch (e) {
         getErrorSnackBar(
-          "Google Login Failed",
-        );
-      } on PlatformException {
-        getErrorSnackBar(
-          "Google Login Failed",
+          e.toString(),
         );
       }
     }
@@ -207,6 +213,9 @@ class AuthController extends GetxController {
   }
 
   void signOut() async {
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
     await _auth.signOut();
+    await Get.deleteAll();
+    await Get.delete<ProfileController>(force: true);
   }
 }

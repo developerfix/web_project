@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../constants/style.dart';
+import '../controllers/auth_controller.dart';
+import '../controllers/project_controller.dart';
 
 Container popUpTextField(BuildContext context,
     {TextEditingController? controller,
@@ -10,13 +13,12 @@ Container popUpTextField(BuildContext context,
     int? isObscure,
     Widget? trailing,
     int? maxLines}) {
+  final AuthController authController = Get.find();
   bool isObscurePlus = isObscure == 1 ? true : false;
   return Container(
-    width: screenWidth(context) < 1200
-        ? screenWidth(context) * 0.5
-        : screenWidth(context) * 0.2,
-    height: height ?? screenHeight(context) * 0.05,
-    decoration: projecttController.isDarkTheme.value
+    width: 450,
+    height: height ?? 70,
+    decoration: authController.isDarkTheme.value
         ? darkThemeBoxDecoration
         : lightThemeBoxDecoration,
     child: Padding(

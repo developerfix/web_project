@@ -78,8 +78,9 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
               builder: (BuildContext context, BoxConstraints constraints) {
             return Scaffold(
               key: _key,
-              appBar: customAppBar(context,
-                  username: profileController.user['name']),
+              appBar: customAppBar(
+                context,
+              ),
               endDrawer: const EndDrawerWidget(),
               body: projectController.isMembersUpdating.isTrue
                   ? Column(
@@ -266,7 +267,7 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                           users.add(ProjectMember(
                                               uid: _uid,
                                               username: profileController
-                                                  .user['name']));
+                                                  .currentUser.value.name));
 
                                           // removing duplicate values
                                           for (var element in users) {
@@ -288,9 +289,13 @@ class _SelectProjectMembersState extends State<SelectProjectMembers> {
                                                   lead: taskPilot,
                                                   members: finalUserList,
                                                   subtitle: projectController
-                                                      .project['subtitle'],
+                                                      .currentProject
+                                                      .value
+                                                      .subtitle,
                                                   title: projectController
-                                                      .project['title']);
+                                                      .currentProject
+                                                      .value
+                                                      .title);
 
                                           Get.back();
                                         } catch (e) {

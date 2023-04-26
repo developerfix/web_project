@@ -32,6 +32,7 @@ dependencies:
   cloud_firestore: ^3.1.17
   cupertino_icons: ^1.0.2
   desktop_webview_auth: any
+  file: ^6.1.4
   ffi: any
   file_picker: ^4.6.1
   file_saver: ^0.1.0
@@ -46,8 +47,9 @@ dependencies:
   path_provider: ^2.0.11
   url_launcher: ^6.1.5
   image_picker: ^0.8.5+3
+  fast_cached_network_image: ^1.2.0
   hovering: ^1.0.4
-  dio: ^4.0.6
+  dio: any
   async: any
   path: any
   expandable: ^5.0.1
@@ -74,6 +76,9 @@ dependencies:
   universal_html: ^2.0.8
   firebase_dart: ^1.0.11
   fading_edge_scrollview: ^3.0.0
+  desktop_drop: ^0.4.1
+  mime: ^1.0.4
+  
 
 
 dev_dependencies:

@@ -1,7 +1,7 @@
+import 'package:ava/widgets/profile_avatar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:ava/widgets/photo_view.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,54 +12,66 @@ Padding usersMsg(BuildContext context,
     String? comment,
     String? type,
     String? username,
+    String? downloadUrl,
     String? filename,
     String? nameFirstChar}) {
   var formatter = DateFormat('MM/dd/yyyy');
   final now = DateTime.now();
-  String formattedTime = DateFormat('k:mm:a').format(created!);
+  String formattedTime = DateFormat('k:mm a').format(created!);
   String formattedDateDay = formatter.format(created);
-  String formattedCommentDate = ', $formattedDateDay';
+  String formattedCommentDate = formattedDateDay;
   String formattedDateToday = formatter.format(now);
 
   return Padding(
     padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
     child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        CircleAvatar(
-          backgroundColor: const Color(brownishColor),
-          maxRadius: 25,
-          child: Center(
-            child: txt(
-                txt: nameFirstChar!.capitalize.toString(),
-                fontSize: 20,
-                fontColor: Colors.white),
-          ),
+        profileAvatar(
+          context,
         ),
         SizedBox(
           width: screenWidth(context) * 0.005,
         ),
         type == 'text'
             ? Flexible(
-                child: Text.rich(
-                TextSpan(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    textSpanForUserMsg(text: username),
-                    textSpanForUserMsg(
-                      fontWeight: FontWeight.normal,
-                      text:
-                          ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        textSpanForUserMsg(
+                            text: username,
+                            fontSize: 22,
+                            fontColor: checkThemeColorwhite60),
+                        textSpanForUserMsg(
+                          fontWeight: FontWeight.normal,
+                          text: '   $formattedTime',
+                        ),
+                        const Spacer(),
+                        textSpanForUserMsg(
+                          fontWeight: FontWeight.normal,
+                          text: formattedDateDay == formattedDateToday
+                              ? ''
+                              : formattedCommentDate,
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: screenHeight(context) * 0.003,
                     ),
                     textSpanForUserMsg(
-                        text: comment,
-                        fontSize: 18,
-                        fontWeight: FontWeight.normal),
+                      text: comment,
+                      fontSize: 18,
+                      fontWeight: FontWeight.normal,
+                    ),
                   ],
                 ),
-              ))
+              )
             : InkWell(
                 onTap: () {
-                  downloadFile(comment, filename);
+                  downloadFile(downloadUrl, filename);
                 },
                 child: fileContinerSizedBox(
                     context,
@@ -130,19 +142,13 @@ Container fileContainerForUserMsg(BuildContext context, String? filename) {
   );
 }
 
-TextSpan textSpanForUserMsg(
-    {String? text, double? fontSize, FontWeight? fontWeight}) {
-  return TextSpan(
-      text: text!,
-      style: GoogleFonts.montserrat(
-        textStyle: TextStyle(
-            overflow: TextOverflow.visible,
-            color: projecttController.isDarkTheme.value
-                ? Colors.white60
-                : const Color(brownishColor),
-            fontWeight: fontWeight ?? FontWeight.w600,
-            fontSize: fontSize ?? 14),
-      ));
+textSpanForUserMsg(
+    {String? text,
+    double? fontSize,
+    Color? fontColor,
+    FontWeight? fontWeight}) {
+  return txt(
+      txt: text!, fontSize: fontSize ?? 14, fontColor: fontColor, maxLines: 5);
 }
 
 downloadFile(url, filename) async {

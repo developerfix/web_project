@@ -200,7 +200,6 @@ class _TimelineState extends State<Timeline> with TickerProviderStateMixin {
         backgroundColor: Colors.black87.withOpacity(0.8),
         appBar: customAppBar(
           context,
-          username: profileController.user['name'],
           shouldRefreshTasks: true,
           title: txt(
               txt: 'Timeline view',
@@ -231,7 +230,7 @@ class _TimelineState extends State<Timeline> with TickerProviderStateMixin {
                     children: [
                       txt(
                           txt:
-                              projectController.project['title'] + ' ' + '2022',
+                              '${projectController.currentProject.value.title!} 2022',
                           font: 'comfortaa',
                           fontSize: 25,
                           letterSpacing: 5,
@@ -241,7 +240,8 @@ class _TimelineState extends State<Timeline> with TickerProviderStateMixin {
                         height: 10,
                       ),
                       txt(
-                          txt: '-  ${projectController.project['subtitle']} ',
+                          txt:
+                              '-  ${projectController.currentProject.value.subtitle} ',
                           font: 'comfortaa',
                           fontSize: 20,
                           fontWeight: FontWeight.w200,

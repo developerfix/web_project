@@ -1,3 +1,5 @@
+import 'package:ava/controllers/auth_controller.dart';
+import 'package:ava/controllers/profile_controller.dart';
 import 'package:ava/widgets/popup_textfield.dart';
 import 'package:ava/widgets/select_members.dart';
 import 'package:flutter/material.dart';
@@ -5,15 +7,18 @@ import 'package:get/get.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
 import '../constants/style.dart';
-import 'drop_down_button.dart';
+import '../controllers/project_controller.dart';
+import 'phase_drop_down_button.dart';
 import 'loading_indicator.dart';
 
 Container dateSelectorBox(BuildContext context,
     {required TextEditingController controller, required var date}) {
+  // final ProjectController projectController = Get.find();
+  final AuthController authController = Get.find();
   return Container(
     width: screenWidth(context) * 0.2,
     height: screenHeight(context) * 0.05,
-    decoration: projecttController.isDarkTheme.value
+    decoration: authController.isDarkTheme.value
         ? darkThemeBoxDecoration
         : lightThemeBoxDecoration,
     child: Padding(
@@ -45,7 +50,7 @@ Container dateSelectorBox(BuildContext context,
                   ? '${date.year}/${date.month}/${date.day}'
                   : date,
               hintStyle: const TextStyle(
-                  color: Color(brownishColor), fontWeight: FontWeight.w600)),
+                  color: brownishColor, fontWeight: FontWeight.w600)),
         ),
       ),
     ),
@@ -56,6 +61,7 @@ SizedBox deliverableQuestionBox(
   BuildContext context,
   BoxConstraints constraints,
 ) {
+  final ProjectController projectController = Get.find();
   return SizedBox(
       height: screenHeight(context) * 0.1,
       width: constraints.maxWidth < 800
@@ -68,14 +74,14 @@ SizedBox deliverableQuestionBox(
             priorityWidget(
               constraints,
               context,
-              projecttController.taskSelectedValue.value,
+              projectController.taskSelectedValue.value,
               'Yes',
               1,
               (int? val) {
                 setState(
                   () {
-                    projecttController.taskSelectedValue.value = val!;
-                    projecttController.update();
+                    projectController.taskSelectedValue.value = val!;
+                    projectController.update();
                   },
                 );
               },
@@ -83,14 +89,14 @@ SizedBox deliverableQuestionBox(
             priorityWidget(
               constraints,
               context,
-              projecttController.taskSelectedValue.value,
+              projectController.taskSelectedValue.value,
               'No',
               2,
               (int? val) {
                 setState(
                   () {
-                    projecttController.taskSelectedValue.value = val!;
-                    projecttController.update();
+                    projectController.taskSelectedValue.value = val!;
+                    projectController.update();
                   },
                 );
               },
@@ -105,6 +111,7 @@ SizedBox priorityBox(
   BoxConstraints constraints,
   // {required int prioritySelectedValue}
 ) {
+  final ProjectController projectController = Get.find();
   return SizedBox(
       height: screenHeight(context) * 0.2,
       width: constraints.maxWidth < 800
@@ -117,14 +124,14 @@ SizedBox priorityBox(
             priorityWidget(
               constraints,
               context,
-              projecttController.taskPrioritySelectedValue.value,
+              projectController.taskPrioritySelectedValue.value,
               'High Priority',
               1,
               (int? val) {
                 setState(
                   () {
-                    projecttController.taskPrioritySelectedValue.value = val!;
-                    projecttController.update();
+                    projectController.taskPrioritySelectedValue.value = val!;
+                    projectController.update();
                   },
                 );
               },
@@ -132,14 +139,14 @@ SizedBox priorityBox(
             priorityWidget(
               constraints,
               context,
-              projecttController.taskPrioritySelectedValue.value,
+              projectController.taskPrioritySelectedValue.value,
               'Medium Priority',
               2,
               (int? val) {
                 setState(
                   () {
-                    projecttController.taskPrioritySelectedValue.value = val!;
-                    projecttController.update();
+                    projectController.taskPrioritySelectedValue.value = val!;
+                    projectController.update();
                   },
                 );
               },
@@ -147,14 +154,14 @@ SizedBox priorityBox(
             priorityWidget(
               constraints,
               context,
-              projecttController.taskPrioritySelectedValue.value,
+              projectController.taskPrioritySelectedValue.value,
               'Future Priority',
               3,
               (int? val) {
                 setState(
                   () {
-                    projecttController.taskPrioritySelectedValue.value = val!;
-                    projecttController.update();
+                    projectController.taskPrioritySelectedValue.value = val!;
+                    projectController.update();
                   },
                 );
               },
@@ -201,6 +208,7 @@ StatefulBuilder priorityWidget(
 Container copilotWidget(BuildContext context,
     {required TextEditingController taskCoPilotController,
     String? oldPilotorCopilot}) {
+  final ProjectController projectController = Get.find();
   return Container(
     child: screenWidth(context) < 800
         ? Column(
@@ -215,7 +223,7 @@ Container copilotWidget(BuildContext context,
                 width: screenWidth(context) * 0.04,
               ),
               selectMember(context,
-                  pilotOrCopilotValue: projecttController.taskCoPilot.value,
+                  pilotOrCopilotValue: projectController.taskCoPilot.value,
                   controller: taskCoPilotController,
                   oldPilotorCopilot: oldPilotorCopilot,
                   pilotOrCopilot: 'copilot')
@@ -236,7 +244,7 @@ Container copilotWidget(BuildContext context,
                 width: screenWidth(context) * 0.04,
               ),
               selectMember(context,
-                  pilotOrCopilotValue: projecttController.taskCoPilot.value,
+                  pilotOrCopilotValue: projectController.taskCoPilot.value,
                   controller: taskCoPilotController,
                   oldPilotorCopilot: oldPilotorCopilot,
                   pilotOrCopilot: 'copilot')
@@ -248,6 +256,7 @@ Container copilotWidget(BuildContext context,
 StatefulBuilder deliverablesWidget(
   BuildContext context,
 ) {
+  final ProjectController projectController = Get.find();
   return StatefulBuilder(builder: (context, setState) {
     return Obx(() {
       return Container(
@@ -268,7 +277,7 @@ StatefulBuilder deliverablesWidget(
                     SizedBox(
                       width: screenWidth(context) * 0.04,
                     ),
-                    projecttController
+                    projectController
                             .isSelectedDeliverablesUpdatingBefore.isTrue
                         ? Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -279,17 +288,16 @@ StatefulBuilder deliverablesWidget(
                                   fontSize: 14)
                             ],
                           )
-                        : projecttController
-                                        .deliverableUplaodingProgress.value !=
+                        : projectController.deliverableUplaodingProgress.value !=
                                     100 &&
-                                projecttController
+                                projectController
                                         .deliverableUplaodingProgress.value !=
                                     0.0
                             ? SizedBox(
                                 height: 40,
                                 width: 350,
                                 child: LiquidLinearProgressIndicator(
-                                    value: projecttController
+                                    value: projectController
                                             .deliverableUplaodingProgress
                                             .value /
                                         100,
@@ -302,9 +310,9 @@ StatefulBuilder deliverablesWidget(
                                     direction: Axis.horizontal,
                                     center: txt(
                                         txt:
-                                            "${projecttController.deliverableUplaodingProgress.value.ceil()}%",
+                                            "${projectController.deliverableUplaodingProgress.value.ceil()}%",
                                         fontSize: 18)))
-                            : projecttController
+                            : projectController
                                     .isSelectedDeliverablesUpdatingAfter.isTrue
                                 ? Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -315,8 +323,7 @@ StatefulBuilder deliverablesWidget(
                                           fontSize: 14)
                                     ],
                                   )
-                                : projecttController
-                                        .selectedDeliverables.isEmpty
+                                : projectController.selectedDeliverables.isEmpty
                                     ? ElevatedButton(
                                         style: ButtonStyle(
                                           backgroundColor:
@@ -325,7 +332,7 @@ StatefulBuilder deliverablesWidget(
                                         ),
                                         onPressed: () {
                                           // addTaskDeliverables()
-                                          projecttController
+                                          projectController
                                               .addTaskDeliverables();
                                         },
                                         child: Center(
@@ -343,7 +350,7 @@ StatefulBuilder deliverablesWidget(
                                           children: [
                                             Expanded(
                                               child: GridView.builder(
-                                                  itemCount: projecttController
+                                                  itemCount: projectController
                                                       .selectedDeliverables
                                                       .length,
                                                   gridDelegate:
@@ -369,7 +376,7 @@ StatefulBuilder deliverablesWidget(
                                                           children: [
                                                             Expanded(
                                                               child: txt(
-                                                                  txt: projecttController
+                                                                  txt: projectController
                                                                               .selectedDeliverables[
                                                                           index]
                                                                       [
@@ -379,7 +386,7 @@ StatefulBuilder deliverablesWidget(
                                                             ),
                                                             InkWell(
                                                                 onTap: () {
-                                                                  projecttController
+                                                                  projectController
                                                                       .selectedDeliverables
                                                                       .removeAt(
                                                                           index);
@@ -393,7 +400,7 @@ StatefulBuilder deliverablesWidget(
                                             ),
                                             GestureDetector(
                                               onTap: () {
-                                                projecttController
+                                                projectController
                                                     .addTaskDeliverables();
                                               },
                                               child: const Icon(
@@ -412,6 +419,7 @@ StatefulBuilder deliverablesWidget(
 Container pilotWidget(BuildContext context,
     {required TextEditingController taskPilotController,
     String? oldPilotorCopilot}) {
+  final ProjectController projectController = Get.find();
   return Container(
     child: screenWidth(context) < 800
         ? Column(
@@ -427,7 +435,7 @@ Container pilotWidget(BuildContext context,
               ),
               selectMember(
                 context,
-                pilotOrCopilotValue: projecttController.taskPilot.value,
+                pilotOrCopilotValue: projectController.taskPilot.value,
                 controller: taskPilotController,
                 oldPilotorCopilot: oldPilotorCopilot,
                 pilotOrCopilot: 'pilot',
@@ -449,7 +457,7 @@ Container pilotWidget(BuildContext context,
                 width: screenWidth(context) * 0.04,
               ),
               selectMember(context,
-                  pilotOrCopilotValue: projecttController.taskPilot.value,
+                  pilotOrCopilotValue: projectController.taskPilot.value,
                   controller: taskPilotController,
                   oldPilotorCopilot: oldPilotorCopilot,
                   pilotOrCopilot: 'pilot')
@@ -562,7 +570,7 @@ StatefulBuilder phaseWidget(BuildContext context, {String? phase}) {
                   SizedBox(
                     width: screenWidth(context) * 0.04,
                   ),
-                  dropDownButton(context, setState, phase: phase),
+                  phaseDropDownButton(context, setState, phase: phase),
                 ],
               )
             : Row(
@@ -579,7 +587,7 @@ StatefulBuilder phaseWidget(BuildContext context, {String? phase}) {
                   SizedBox(
                     width: screenWidth(context) * 0.04,
                   ),
-                  dropDownButton(context, setState, phase: phase),
+                  phaseDropDownButton(context, setState, phase: phase),
                 ],
               ));
   });

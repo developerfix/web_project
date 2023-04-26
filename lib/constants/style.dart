@@ -1,4 +1,3 @@
-import 'package:ava/controllers/profile_controller.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,12 +8,32 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firedart/firedart.dart' as firedart;
-import 'package:ava/controllers/project_controller.dart';
 
 const int mainColor = 0xff736879;
 const int secondaryColor = 0xff958890;
-const int brownishColor = 0xff707070;
+const Color brownishColor = Color(0xff707070);
+
+//sharedPreferences Keys
+const String lastOpenedProjectId = 'lastOpenedProjectId';
+Color checkThemeColorwhite54 =
+    // authController.isDarkTheme.value ?
+    Colors.white54;
+//  : brownishColor;
+Color checkThemeColorwhite60 =
+    // authController.isDarkTheme.value ?
+    Colors.white60;
+//  : brownishColor;
 const int darkgreyishColor = 0xff304869;
+//status
+const String todo = 'todo';
+const String inProgress = 'inProgress';
+const String completed = 'completed';
+//assetCategory
+const String newAssetCategory = 'Create new category';
+const String noCategory = 'No category';
+//assetType
+const String linkAssetType = 'linkAssetType';
+const String fileAssetType = 'fileAssetType';
 
 var titleBarButtonColors = WindowButtonColors(
     mouseOver: const Color(secondaryColor), iconNormal: Colors.white);
@@ -25,9 +44,6 @@ var firebaseAuth = FirebaseAuth.instance;
 var firebaseStorage = FirebaseStorage.instance;
 var firestore = FirebaseFirestore.instance;
 var firedartFirestore = firedart.Firestore.instance;
-
-final ProjectController projecttController = Get.find();
-final ProfileController profileController = Get.find();
 
 Widget popUpCloseButton = Row(children: [
   const Spacer(),
@@ -46,9 +62,9 @@ Widget popUpCloseButton = Row(children: [
 // final TextStyle montserratTextStyle = GoogleFonts.montserrat(
 //         textStyle: TextStyle(
 //             overflow: TextOverflow.visible,
-//             color: projecttController.isDarkTheme.value
+//             color: authController.isDarkTheme.value
 //                 ? Colors.white60
-//                 : const Color(brownishColor),
+//                 : const brownishColor,
 //             fontWeight: fontWeight ?? FontWeight.w600,
 //             fontSize: fontSize ?? 14),
 //       )
@@ -113,10 +129,7 @@ Widget txt(
               textStyle: TextStyle(
                 overflow: overflow ?? TextOverflow.ellipsis,
                 letterSpacing: letterSpacing ?? 0,
-                color: fontColor ??
-                    (projecttController.isDarkTheme.value
-                        ? Colors.white60
-                        : const Color(brownishColor)),
+                color: fontColor ?? checkThemeColorwhite54,
                 fontWeight: fontWeight ?? FontWeight.w600,
               ),
             )
@@ -124,10 +137,7 @@ Widget txt(
               textStyle: TextStyle(
                 overflow: overflow ?? TextOverflow.visible,
                 letterSpacing: letterSpacing ?? 0,
-                color: fontColor ??
-                    (projecttController.isDarkTheme.value
-                        ? Colors.white60
-                        : const Color(brownishColor)),
+                color: fontColor ?? checkThemeColorwhite54,
                 fontWeight: fontWeight ?? FontWeight.w600,
               ),
             ),
@@ -143,9 +153,7 @@ Text popText(String status) {
       textStyle: TextStyle(
         fontSize: 14,
         overflow: TextOverflow.visible,
-        color: projecttController.isDarkTheme.value
-            ? Colors.white54
-            : const Color(brownishColor),
+        color: checkThemeColorwhite54,
         fontWeight: FontWeight.w600,
       ),
     ),

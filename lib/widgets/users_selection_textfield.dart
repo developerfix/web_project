@@ -1,8 +1,11 @@
 import 'package:ava/widgets/select_from_users_popup.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../constants/style.dart';
+import '../controllers/auth_controller.dart';
+import '../controllers/project_controller.dart';
 
 Container usersSelectionTextField(
   BuildContext context, {
@@ -10,10 +13,12 @@ Container usersSelectionTextField(
   String? taskPilotorCopit,
   String? title,
 }) {
+  final ProjectController projectController = Get.find();
+  final AuthController authController = Get.find();
   return Container(
     width: screenWidth(context) * 0.2,
     height: screenHeight(context) * 0.05,
-    decoration: projecttController.isDarkTheme.value
+    decoration: authController.isDarkTheme.value
         ? darkThemeBoxDecoration
         : lightThemeBoxDecoration,
     child: Padding(
@@ -23,9 +28,9 @@ Container usersSelectionTextField(
           selectFromUsersPopup(context, title: title).then((value) {
             if (value != null) {
               isPilot
-                  ? projecttController.projectPilot.value = value
-                  : projecttController.projectCoPilot.value = value;
-              projecttController.update();
+                  ? projectController.projectPilot.value = value
+                  : projectController.projectCoPilot.value = value;
+              projectController.update();
             }
           });
         },
@@ -35,7 +40,7 @@ Container usersSelectionTextField(
             textStyle: const TextStyle(
               overflow: TextOverflow.ellipsis,
               letterSpacing: 0,
-              color: Color(brownishColor),
+              color: brownishColor,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -46,17 +51,17 @@ Container usersSelectionTextField(
             suffixIconColor: const Color(secondaryColor),
             border: InputBorder.none,
             hintText: isPilot
-                ? projecttController.projectPilot.value.isNotEmpty
-                    ? '@${projecttController.projectPilot.value}'
+                ? projectController.projectPilot.value.isNotEmpty
+                    ? '@${projectController.projectPilot.value}'
                     : taskPilotorCopit
-                : projecttController.projectCoPilot.value.isNotEmpty
-                    ? '@${projecttController.projectCoPilot.value}'
+                : projectController.projectCoPilot.value.isNotEmpty
+                    ? '@${projectController.projectCoPilot.value}'
                     : taskPilotorCopit,
             hintStyle: GoogleFonts.montserrat(
               textStyle: const TextStyle(
                 overflow: TextOverflow.ellipsis,
                 letterSpacing: 0,
-                color: Color(brownishColor),
+                color: brownishColor,
                 fontWeight: FontWeight.w600,
               ),
             ),

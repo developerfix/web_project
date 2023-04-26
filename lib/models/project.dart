@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firedart/firedart.dart';
 
 class Project {
   String? projectId;
@@ -25,8 +26,30 @@ class Project {
         "category": category
       };
 
-  static Project fromSnap(DocumentSnapshot snap) {
-    var snapshot = snap.data() as Map<String, dynamic>;
+  static Project fromSnap(Document snap) {
+    var snapshot = snap.map;
+    return Project(
+        projectId: snapshot['projectId'],
+        title: snapshot['title'],
+        subtitle: snapshot['subtitle'],
+        copilot: snapshot['copilot'],
+        category: snapshot['category'],
+        lead: snapshot['lead']);
+  }
+
+  static Project fromQuerySnap(QueryDocumentSnapshot snap) {
+    var snapshot = snap;
+    return Project(
+        projectId: snapshot['projectId'],
+        title: snapshot['title'],
+        subtitle: snapshot['subtitle'],
+        copilot: snapshot['copilot'],
+        category: snapshot['category'],
+        lead: snapshot['lead']);
+  }
+
+  static Project fromDocSnap(DocumentSnapshot snap) {
+    var snapshot = snap;
     return Project(
         projectId: snapshot['projectId'],
         title: snapshot['title'],

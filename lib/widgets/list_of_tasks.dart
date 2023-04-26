@@ -1,9 +1,12 @@
+import 'package:ava/widgets/profile_avatar.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:ava/controllers/project_controller.dart';
 import 'package:ava/widgets/usersmsg.dart';
+import 'package:get/get.dart';
 
 import '../constants/style.dart';
+import '../controllers/auth_controller.dart';
 import 'add_deliverable.dart';
 import 'edit_task_popup.dart';
 
@@ -84,13 +87,14 @@ GestureDetector collapsedWidgetKanbanTask(
     String endDate,
     String pilot,
     String phase) {
+  final AuthController authController = Get.find();
   return GestureDetector(
     onTap: () {
       controller.toggle();
     },
     child: Container(
       margin: const EdgeInsets.all(16),
-      decoration: projectController.isDarkTheme.value
+      decoration: authController.isDarkTheme.value
           ? BoxDecoration(
               color: Colors.black26,
               borderRadius: BorderRadius.circular(8),
@@ -114,7 +118,7 @@ GestureDetector collapsedWidgetKanbanTask(
           Container(
               height: screenHeight(context) * 0.008,
               decoration: BoxDecoration(
-                color: board == 'todo'
+                color: board == todo
                     ? Colors.grey.shade500
                     : board == 'inProgress'
                         ? Colors.yellow.shade600
@@ -156,11 +160,11 @@ GestureDetector collapsedWidgetKanbanTask(
                           const SizedBox(
                             height: 5,
                           ),
-                          txt(
-                              txt: pilot.isEmpty ? pilot : pilot.substring(1),
-                              maxLines: 2,
-                              font: 'Comfortaa',
-                              fontSize: 20),
+                          profileAvatar(
+                            context,
+                            maxRadius: 20,
+                            fontSize: 16,
+                          ),
                         ],
                       ),
                     )
@@ -205,13 +209,14 @@ GestureDetector expandedWidgetKanbanTask(
     String taskDescription,
     List<dynamic> taskDeliverables,
     {List<dynamic>? requiredDeliverables}) {
+  final AuthController authController = Get.find();
   return GestureDetector(
     onTap: () {
       controller.toggle();
     },
     child: Container(
       margin: const EdgeInsets.all(16),
-      decoration: projectController.isDarkTheme.value
+      decoration: authController.isDarkTheme.value
           ? BoxDecoration(
               color: Colors.black26,
               borderRadius: BorderRadius.circular(8),
@@ -235,7 +240,7 @@ GestureDetector expandedWidgetKanbanTask(
           Container(
               height: screenHeight(context) * 0.008,
               decoration: BoxDecoration(
-                color: board == 'todo'
+                color: board == todo
                     ? Colors.grey.shade500
                     : board == 'inProgress'
                         ? Colors.yellow.shade600
@@ -312,20 +317,19 @@ GestureDetector expandedWidgetKanbanTask(
                           const SizedBox(
                             height: 5,
                           ),
-                          txt(
-                              txt: pilot.isEmpty ? '' : pilot,
-                              maxLines: 1,
-                              font: 'Comfortaa',
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20),
+                          profileAvatar(
+                            context,
+                            maxRadius: 20,
+                            fontSize: 16,
+                          ),
                           const SizedBox(
                             height: 5,
                           ),
-                          txt(
-                              txt: copilot.isEmpty ? '' : copilot,
-                              maxLines: 2,
-                              font: 'Comfortaa',
-                              fontSize: 20),
+                          profileAvatar(
+                            context,
+                            maxRadius: 20,
+                            fontSize: 16,
+                          ),
                           const SizedBox(
                             height: 5,
                           ),
@@ -364,7 +368,7 @@ GestureDetector expandedWidgetKanbanTask(
                 const SizedBox(
                   height: 10,
                 ),
-                // board == 'todo' || board == 'inProgress'
+                // board == todo || board == 'inProgress'
                 //     ? Container()
                 //     : requiredDeliverables != null
                 //         ? requiredDeliverables.isEmpty
@@ -379,7 +383,7 @@ GestureDetector expandedWidgetKanbanTask(
                 //                 ],
                 //               )
                 //         : Container(),
-                // board == 'todo' || board == 'inProgress'
+                // board == todo || board == 'inProgress'
                 //     ? Container()
                 //     : requiredDeliverables != null
                 //         ? requiredDeliverables!.isEmpty
@@ -467,7 +471,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
   return PopupMenuButton(
     onSelected: (value) async {
       if (value == 1) {
-        status == 'todo'
+        status == todo
             ? projectController.addToInProgress(
                 copilot: copilot,
                 endDate: endDate,
@@ -510,7 +514,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     taskTitle: taskTitle);
       } else if (value == 2) {
         if (deliverablesRequiredOrNot != 1) {
-          status == 'todo'
+          status == todo
               ? projectController.addToCompleted(
                   copilot: copilot,
                   endDate: endDate,
@@ -603,7 +607,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
       PopupMenuItem(
         value: 1,
         child: popText(
-          status == 'todo'
+          status == todo
               ? 'Add to Inprogress'
               : status == 'inProgress'
                   ? 'Add to Todo'
@@ -613,7 +617,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
       PopupMenuItem(
         value: 2,
         child: popText(
-          status == 'todo'
+          status == todo
               ? 'Add to Completed'
               : status == 'inProgress'
                   ? 'Add to Completed'

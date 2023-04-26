@@ -1,3 +1,9 @@
+import 'dart:io';
+
+import 'package:ava/controllers/profile_controller.dart';
+import 'package:ava/widgets/edit_name_popup.dart';
+import 'package:ava/widgets/profile_avatar.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:get/get.dart';
@@ -6,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/style.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/project_controller.dart';
+import 'cached_image.dart';
 
 class EndDrawerWidget extends StatefulWidget {
   const EndDrawerWidget({
@@ -19,88 +26,161 @@ class EndDrawerWidget extends StatefulWidget {
 class _EndDrawerWidgetState extends State<EndDrawerWidget> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final ProjectController projectController = Get.find();
+  final ProfileController profileController = Get.find();
+  final AuthController authController = Get.find();
 
   _saveThemeStatus() async {
     SharedPreferences pref = await _prefs;
-    pref.setBool('theme', projectController.isDarkTheme.value);
+    pref.setBool('theme', authController.isDarkTheme.value);
   }
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
         backgroundColor: const Color(secondaryColor),
-        child: Column(
-          children: <Widget>[
-            DrawerHeader(
-              margin: EdgeInsets.zero,
-              child: InkWell(
-                onTap: () {
-                  AuthController.instance.signOut();
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        child: Obx(
+          () => Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              const SizedBox(
+                height: 50,
+              ),
+              DrawerHeader(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    const Icon(
-                      Icons.logout,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                    SizedBox(
-                      width: screenWidth(context) * 0.02,
-                    ),
+                    profileAvatar(context,
+                        maxRadius: 50, fontSize: 30, isDrawer: true),
                     txt(
-                      txt: "LOGOUT",
-                      fontSize: 30.0,
+                      txt: profileController.currentUser.value.name ?? "",
+                      fontSize: 20.0,
                       fontColor: Colors.white,
-                      letterSpacing: 5,
+                      letterSpacing: 2,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
                       fontWeight: FontWeight.w700,
                     ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                txt(
-                  txt: "Dark mode",
-                  fontSize: 20.0,
-                  fontColor: Colors.white,
-                  letterSpacing: 2,
-                  fontWeight: FontWeight.w700,
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                ObxValue(
-                  (data) => FlutterSwitch(
-                    width: 80.0,
-                    height: 30.0,
-                    activeColor: const Color(mainColor),
-                    value: projectController.isDarkTheme.value,
-                    borderRadius: 30.0,
-                    padding: 8.0,
-                    showOnOff: false,
-                    onToggle: (val) {
-                      projectController.isDarkTheme.value = val;
+              Expanded(
+                  child: ListView(
+                children: [
+                  drawerRow(
+                      title: "Edit name",
+                      onTap: () {
+                        editNamePopUp(
+                          context,
+                        ).then((value) {
+                          setState(() {});
+                        });
+                      },
+                      trailing: const Icon(Icons.edit, color: Colors.white)),
+                  drawerRow(
+                      title: "Change profile picture",
+                      onTap: () async {
+                        FilePickerResult? result = await FilePicker.platform
+                            .pickFiles(withData: true, allowMultiple: false);
+                        if (result != null) {
+                          profileController.profilePhotoUpdate(
+                              result: File(result.files.first.path!));
+                        }
+                      },
+                      trailing: const Icon(
+                        Icons.person,
+                        color: Colors.white,
+                      )),
+                  drawerRow(
+                    title: 'Dark mode',
+                    trailing: ObxValue(
+                      (data) => FlutterSwitch(
+                        width: 80.0,
+                        height: 30.0,
+                        activeColor: const Color(mainColor),
+                        value: authController.isDarkTheme.value,
+                        borderRadius: 30.0,
+                        padding: 8.0,
+                        showOnOff: false,
+                        onToggle: (val) {
+                          authController.isDarkTheme.value = val;
 
-                      Get.changeThemeMode(
-                        projectController.isDarkTheme.value
-                            ? ThemeMode.dark
-                            : ThemeMode.light,
-                      );
-                      projectController.update();
-                      _saveThemeStatus();
-                    },
+                          Get.changeThemeMode(
+                            authController.isDarkTheme.value
+                                ? ThemeMode.dark
+                                : ThemeMode.light,
+                          );
+                          projectController.update();
+                          _saveThemeStatus();
+                        },
+                      ),
+                      false.obs,
+                    ),
                   ),
-                  false.obs,
+                ],
+              )),
+              SizedBox(
+                height: screenHeight(context) * 0.1,
+                child: InkWell(
+                  onTap: () {
+                    AuthController.instance.signOut();
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.logout,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                      SizedBox(
+                        width: screenWidth(context) * 0.02,
+                      ),
+                      txt(
+                        txt: "LOGOUT",
+                        fontSize: 30.0,
+                        fontColor: Colors.white,
+                        letterSpacing: 5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ));
+  }
+
+  InkWell drawerRow({
+    required String title,
+    required Widget trailing,
+    Function()? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: txt(
+                txt: title,
+                fontSize: 20.0,
+                fontColor: Colors.white,
+                letterSpacing: 2,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            // const SizedBox(
+            //   width: 10,
+            // ),
+            trailing
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -1,6 +1,11 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:async/async.dart';
+import 'package:ava/models/asset.dart';
+import 'package:ava/models/department.dart';
+import 'package:ava/pages/projects_grid.dart';
+import 'package:ava/widgets/notes_section.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
@@ -11,11 +16,11 @@ import 'package:ava/pages/project_dashboard.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../constants/style.dart';
 import 'package:firebase_dart/storage.dart' as firebase_dart_storage;
-import 'package:firebase_dart/core.dart' as firebase_dart;
+
+import '../models/comment.dart';
 
 class ProjectController extends GetxController {
-  final Rx<Map<String, dynamic>> _project = Rx<Map<String, dynamic>>({});
-  Map<String, dynamic> get project => _project.value;
+  Rx<Project> currentProject = Project().obs;
 
   RxBool isCommentFileUpdatingBefore = false.obs;
   RxBool isSelectedDeliverablesUpdatingBefore = false.obs;
@@ -25,22 +30,27 @@ class ProjectController extends GetxController {
   RxBool isTasksUpdating = false.obs;
   RxBool isTaskDateUpdating = false.obs;
   RxBool isMembersUpdating = false.obs;
-  RxBool isDarkTheme = false.obs;
+
   RxBool isRecentProjectsListAtTop = true.obs;
-  RxList<dynamic> comments = <dynamic>[].obs;
-  RxList<dynamic> assets = <dynamic>[].obs;
+
+  RxList<Comment> comments = <Comment>[].obs;
+  RxList<File> commentFiles = <File>[].obs;
+  RxList<Asset> assets = <Asset>[].obs;
   RxList<dynamic> users = <dynamic>[].obs;
   RxList<dynamic> projectMembers = <dynamic>[].obs;
   RxList<dynamic> toDoTasks = <dynamic>[].obs;
   RxList<dynamic> inProgressTasks = <dynamic>[].obs;
   RxList<dynamic> completedTasks = <dynamic>[].obs;
   RxList<dynamic> selectedDeliverables = <dynamic>[].obs;
+  RxList<dynamic> assetFiles = <dynamic>[].obs;
   Rx<double> progress = 0.0.obs;
   Rx<int> commentsFilter = 1.obs;
   Rx<int> taskPrioritySelectedValue = 1.obs;
   Rx<int> taskSelectedValue = 1.obs;
   Rx<double> deliverableUplaodingProgress = 0.0.obs;
   Rx<String> phaseValue = "".obs;
+  Rx<int> iconCodeValue = 0xe1a3.obs;
+  Rx<String> assetCategory = "".obs;
   Rx<String> searchedNote = "".obs;
   Rx<String> taskPilot = "".obs;
   Rx<String> taskCoPilot = "".obs;
@@ -48,33 +58,23 @@ class ProjectController extends GetxController {
   Rx<String> projectCoPilot = "".obs;
   final Rx<String> _uid = "".obs;
   final Rx<String> _projectId = "".obs;
+  final Rx<String> _departmentId = "".obs;
   // ignore: prefer_typing_uninitialized_variables
   var app;
 
   updateUsers({
     String? uid,
+    String? departmentId,
   }) {
     _uid.value = uid!;
+    _departmentId.value = departmentId!;
     getUsers();
-    initialize();
   }
 
-  updateProject({String? uid, String? projectId}) {
-    _uid.value = uid!;
+  updateProject(String? projectId) {
     _projectId.value = projectId!;
-    getProjectData();
-  }
 
-  initialize() async {
-    app = await firebase_dart.Firebase.initializeApp(
-      options: const firebase_dart.FirebaseOptions(
-          apiKey: "AIzaSyC9Jzj22llAEY9Zj1LjVMOxI8kVIFjP2VY",
-          authDomain: "ava-project-ab57c.firebaseapp.com",
-          projectId: "ava-project-ab57c",
-          storageBucket: "ava-project-ab57c.appspot.com",
-          messagingSenderId: "69104603518",
-          appId: "1:69104603518:web:4ff45ea30c6e823b1fe32f"),
-    );
+    getProjectData();
   }
 
   getProjectAssets() async {
@@ -83,6 +83,8 @@ class ProjectController extends GetxController {
       var projectAssets = await firedartFirestore
           .collection('users')
           .document(_uid.value)
+          .collection('departments')
+          .document(_departmentId.value)
           .collection('projects')
           .document(_projectId.value)
           .collection('assets')
@@ -90,12 +92,14 @@ class ProjectController extends GetxController {
           .get();
 
       for (var asset in projectAssets) {
-        assets.add(asset);
+        assets.add(Asset.fromSnap(asset));
       }
     } else {
       QuerySnapshot projectAssets = await firestore
           .collection('users')
           .doc(_uid.value)
+          .collection('departments')
+          .doc(_departmentId.value)
           .collection('projects')
           .doc(_projectId.value)
           .collection('assets')
@@ -103,7 +107,7 @@ class ProjectController extends GetxController {
           .get();
 
       for (var asset in projectAssets.docs) {
-        assets.add((asset.data() as dynamic));
+        assets.add((Asset.fromQuerySnap(asset)));
       }
     }
   }
@@ -114,6 +118,8 @@ class ProjectController extends GetxController {
       await firedartFirestore
           .collection('users')
           .document(_uid.value)
+          .collection('departments')
+          .document(_departmentId.value)
           .collection('projects')
           .document(_projectId.value)
           .collection('members')
@@ -127,6 +133,8 @@ class ProjectController extends GetxController {
       await firestore
           .collection('users')
           .doc(_uid.value)
+          .collection('departments')
+          .doc(_departmentId.value)
           .collection('projects')
           .doc(_projectId.value)
           .collection('members')
@@ -162,12 +170,15 @@ class ProjectController extends GetxController {
 
   deleteProjectAsset({assetID}) async {
     FutureGroup futureGroup = FutureGroup();
-    assets.removeWhere((element) => element['assetID'] == assetID);
+    assets.removeWhere((element) => element.assetID == assetID);
+    update();
     if (!kIsWeb) {
       for (var i = 0; i < projectMembers.length; i++) {
         futureGroup.add(firedartFirestore
             .collection('users')
             .document(projectMembers[i]['uid'])
+            .collection('departments')
+            .document(_departmentId.value)
             .collection('projects')
             .document(_projectId.value)
             .collection('assets')
@@ -179,6 +190,8 @@ class ProjectController extends GetxController {
         futureGroup.add(firestore
             .collection('users')
             .doc(projectMembers[i]['uid'])
+            .collection('departments')
+            .doc(_departmentId.value)
             .collection('projects')
             .doc(_projectId.value)
             .collection('assets')
@@ -191,18 +204,21 @@ class ProjectController extends GetxController {
   deleteProjectTask({taskID, status}) async {
     FutureGroup futureGroup = FutureGroup();
     try {
-      status == 'todo'
+      status == todo
           ? toDoTasks.removeWhere((element) => element['taskID'] == taskID)
-          : status == 'inProgress'
+          : status == inProgress
               ? inProgressTasks
                   .removeWhere((element) => element['taskID'] == taskID)
               : completedTasks
                   .removeWhere((element) => element['taskID'] == taskID);
+      update();
       if (!kIsWeb) {
         for (var i = 0; i < projectMembers.length; i++) {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(projectMembers[i]['uid'])
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
@@ -214,6 +230,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firestore
               .collection('users')
               .doc(projectMembers[i]['uid'])
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -252,14 +270,14 @@ class ProjectController extends GetxController {
         copilot: copilot,
         startDate: startDate,
         endDate: endDate,
-        status: 'inProgress',
+        status: inProgress,
         requiredDeliverables: null,
         isDeliverableNeededForCompletion: deliverablesRequiredOrNot,
         deliverables: taskDeliverables,
         priorityLevel: priorityLevel);
 
     try {
-      status == 'todo'
+      status == todo
           ? toDoTasks.removeWhere((element) => element['taskID'] == taskID)
           : completedTasks
               .removeWhere((element) => element['taskID'] == taskID);
@@ -270,22 +288,26 @@ class ProjectController extends GetxController {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(projectMembers[i]['uid'])
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
               .document(taskID)
-              .update({'status': 'inProgress'}));
+              .update({'status': inProgress}));
         }
       } else {
         for (var i = 0; i < projectMembers.length; i++) {
           futureGroup.add(firestore
               .collection('users')
               .doc(projectMembers[i]['uid'])
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
               .doc(taskID)
-              .update({'status': 'inProgress'}));
+              .update({'status': inProgress}));
         }
       }
       futureGroup.close();
@@ -320,13 +342,13 @@ class ProjectController extends GetxController {
         copilot: copilot,
         startDate: startDate,
         endDate: endDate,
-        status: 'todo',
+        status: todo,
         isDeliverableNeededForCompletion: deliverablesRequiredOrNot,
         deliverables: taskDeliverables,
         requiredDeliverables: null,
         priorityLevel: priorityLevel);
     try {
-      status == 'inProgress'
+      status == inProgress
           ? inProgressTasks
               .removeWhere((element) => element['taskID'] == taskID)
           : completedTasks
@@ -338,22 +360,26 @@ class ProjectController extends GetxController {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(projectMembers[i]['uid'])
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
               .document(taskID)
-              .update({'status': 'todo'}));
+              .update({'status': todo}));
         }
       } else {
         for (var i = 0; i < projectMembers.length; i++) {
           futureGroup.add(firestore
               .collection('users')
               .doc(projectMembers[i]['uid'])
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
               .doc(taskID)
-              .update({'status': 'todo'}));
+              .update({'status': todo}));
         }
       }
       futureGroup.close();
@@ -391,11 +417,11 @@ class ProjectController extends GetxController {
         endDate: endDate,
         deliverables: taskDeliverables,
         requiredDeliverables: requiredDeliverables,
-        status: 'completed',
+        status: completed,
         isDeliverableNeededForCompletion: deliverablesRequiredOrNot,
         priorityLevel: priorityLevel);
     try {
-      status == 'todo'
+      status == todo
           ? toDoTasks.removeWhere((element) => element['taskID'] == taskID)
           : inProgressTasks
               .removeWhere((element) => element['taskID'] == taskID);
@@ -406,22 +432,26 @@ class ProjectController extends GetxController {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(projectMembers[i]['uid'])
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
               .document(taskID)
-              .update({'status': 'completed'}));
+              .update({'status': completed}));
         }
       } else {
         for (var i = 0; i < projectMembers.length; i++) {
           futureGroup.add(firestore
               .collection('users')
               .doc(projectMembers[i]['uid'])
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
               .doc(taskID)
-              .update({'status': 'completed'}));
+              .update({'status': completed}));
         }
       }
       futureGroup.close();
@@ -435,56 +465,42 @@ class ProjectController extends GetxController {
 
   getProjectData() async {
     if (!kIsWeb) {
-      var projectDataDoc = await firedartFirestore
+      await firedartFirestore
           .collection('users')
           .document(_uid.value)
+          .collection('departments')
+          .document(_departmentId.value)
           .collection('projects')
           .document(_projectId.value)
-          .get();
+          .get()
+          .then((value) {
+        currentProject.value = Project.fromSnap(value);
+      });
 
       getProjectMembers();
       getProjectAssets();
       getProjectComments();
       getProjectTasks();
 
-      // final projectData = projectDataDoc.data()! as dynamic;
-      String title = projectDataDoc['title'];
-      String subtitle = projectDataDoc['subtitle'];
-      String lead = projectDataDoc['lead'];
-      String copilot = projectDataDoc['copilot'];
-
-      _project.value = {
-        'title': title,
-        'subtitle': subtitle,
-        'lead': lead,
-        'copilot': copilot,
-      };
       update();
     } else {
-      DocumentSnapshot projectDataDoc = await firestore
+      await firestore
           .collection('users')
           .doc(_uid.value)
+          .collection('departments')
+          .doc(_departmentId.value)
           .collection('projects')
           .doc(_projectId.value)
-          .get();
+          .get()
+          .then((value) {
+        currentProject.value = Project.fromDocSnap(value);
+      });
 
       getProjectMembers();
       getProjectAssets();
       getProjectComments();
       getProjectTasks();
 
-      final projectData = projectDataDoc.data()! as dynamic;
-      String title = projectData['title'];
-      String subtitle = projectData['subtitle'];
-      String lead = projectData['lead'];
-      String copilot = projectData['copilot'];
-
-      _project.value = {
-        'title': title,
-        'subtitle': subtitle,
-        'lead': lead,
-        'copilot': copilot,
-      };
       update();
     }
   }
@@ -514,6 +530,8 @@ class ProjectController extends GetxController {
         await firedartFirestore
             .collection('users')
             .document('$uid')
+            .collection('departments')
+            .document(_departmentId.value)
             .collection('projects')
             .add(project.toJson())
             .then((value) async {
@@ -521,6 +539,8 @@ class ProjectController extends GetxController {
           await firedartFirestore
               .collection('users')
               .document('$uid')
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(value.id)
               .update({'projectId': value.id}).then((value) async {
@@ -528,6 +548,8 @@ class ProjectController extends GetxController {
               futureGroup.add(firedartFirestore
                   .collection('users')
                   .document('$uid')
+                  .collection('departments')
+                  .document(_departmentId.value)
                   .collection('projects')
                   .document(projectId)
                   .collection('members')
@@ -546,6 +568,7 @@ class ProjectController extends GetxController {
         getSuccessSnackBar("Project created successfully");
       } catch (e) {
         //define error
+
         getErrorSnackBar(
           "Something went wrong, Please try again",
         );
@@ -555,6 +578,8 @@ class ProjectController extends GetxController {
         await firestore
             .collection('users')
             .doc(uid)
+            .collection('departments')
+            .doc(_departmentId.value)
             .collection('projects')
             .add(project.toJson())
             .then((value) async {
@@ -562,6 +587,8 @@ class ProjectController extends GetxController {
           await firestore
               .collection('users')
               .doc(uid)
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(value.id)
               .update({'projectId': value.id}).then((value) async {
@@ -569,6 +596,8 @@ class ProjectController extends GetxController {
               futureGroup.add(firestore
                   .collection('users')
                   .doc('$uid')
+                  .collection('departments')
+                  .doc(_departmentId.value)
                   .collection('projects')
                   .doc(projectId)
                   .collection('members')
@@ -593,37 +622,112 @@ class ProjectController extends GetxController {
     }
   }
 
-  void addNewAsset({type, path, pathName}) async {
+  void newDepartment({
+    String? title,
+    String? uid,
+  }) async {
+    String departmentId = '';
+    Department department = Department(
+        departmentId: departmentId,
+        title: title,
+        iconCode: iconCodeValue.value);
+
+    if (!kIsWeb) {
+      try {
+        await firedartFirestore
+            .collection('users')
+            .document('$uid')
+            .collection('departments')
+            .add(department.toJson())
+            .then((value) async {
+          departmentId = value.id;
+          await firedartFirestore
+              .collection('users')
+              .document('$uid')
+              .collection('departments')
+              .document(value.id)
+              .update({'departmentId': value.id}).then((value) async {
+            Get.to(() => ProjectsGrid(departmentId: departmentId));
+          });
+        });
+
+        getSuccessSnackBar("Department created successfully");
+      } catch (e) {
+        //define error
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
+      }
+    } else {
+      try {
+        await firestore
+            .collection('users')
+            .doc(uid)
+            .collection('departments')
+            .add(department.toJson())
+            .then((value) async {
+          departmentId = value.id;
+          await firestore
+              .collection('users')
+              .doc(uid)
+              .collection('departments')
+              .doc(value.id)
+              .update({'departmentId': value.id}).then((value) async {
+            Get.to(() => ProjectsGrid(departmentId: departmentId));
+          });
+        });
+
+        getSuccessSnackBar("Department created successfully");
+      } catch (e) {
+        //define error
+        getErrorSnackBar(
+          "Something went wrong, Please try again",
+        );
+      }
+    }
+  }
+
+  void addNewAsset({type, path, pathName, assetCategoryTitle}) async {
     FutureGroup futureGroup = FutureGroup();
     String assetID = '';
 
     if (!kIsWeb) {
       try {
+        update();
         for (var member in projectMembers) {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(member['uid'])
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('assets')
               .add({}).then((value) {
             assetID = value.id;
+            Asset asset = Asset(
+                assetCategory: assetCategoryTitle,
+                assetID: assetID,
+                created: DateTime.now()
+                    .millisecondsSinceEpoch
+                    .toString()
+                    .substring(0, 10),
+                path: path,
+                type: type,
+                pathName: pathName);
+
+            assets.insert(0, asset);
+
             firedartFirestore
                 .collection('users')
                 .document(member['uid'])
+                .collection('departments')
+                .document(_departmentId.value)
                 .collection('projects')
                 .document(_projectId.value)
                 .collection('assets')
                 .document(value.id)
-                .set({
-              "path": path,
-              "pathName": pathName,
-              "created": DateTime.now()
-                  .millisecondsSinceEpoch
-                  .toString()
-                  .substring(0, 10),
-              "assetID": value.id,
-            });
+                .set(asset.toJson());
           }));
         }
         futureGroup.close();
@@ -638,30 +742,38 @@ class ProjectController extends GetxController {
           futureGroup.add(firestore
               .collection('users')
               .doc(member['uid'])
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('assets')
               .add({}).then((value) {
             assetID = value.id;
+            Asset asset = Asset(
+                assetCategory: assetCategoryTitle,
+                assetID: assetID,
+                created: DateTime.now()
+                    .millisecondsSinceEpoch
+                    .toString()
+                    .substring(0, 10),
+                path: path,
+                type: type,
+                pathName: pathName);
+            assets.insert(0, asset);
+
             firestore
                 .collection('users')
                 .doc(member['uid'])
+                .collection('departments')
+                .doc(_departmentId.value)
                 .collection('projects')
                 .doc(_projectId.value)
                 .collection('assets')
                 .doc(value.id)
-                .set({
-              "type": type,
-              "path": path,
-              "pathName": pathName,
-              "created": DateTime.now()
-                  .millisecondsSinceEpoch
-                  .toString()
-                  .substring(0, 10),
-              "assetID": value.id,
-            });
+                .set(asset.toJson());
           }));
         }
+        update();
         futureGroup.close();
       } catch (e) {
         getErrorSnackBar(
@@ -669,39 +781,39 @@ class ProjectController extends GetxController {
         );
       }
     }
-    assets.insert(0, {"path": path, "pathName": pathName, "assetID": assetID});
   }
 
-  void editAsset({path, pathName, assetID}) async {
+  void editAsset({type, path, pathName, assetID, assetCategoryTitle}) async {
     FutureGroup futureGroup = FutureGroup();
 
-    for (int i = 0; i < assets.length; i++) {
-      if (assets[i]['assetID'] == assetID) {
-        int indexOfAsset = assets.indexOf(assets[i]);
-        assets.removeAt(indexOfAsset);
-      }
-    }
-    assets.insert(0, {"path": path, "pathName": pathName, "assetID": assetID});
+    assets.removeWhere((element) => element.assetID == assetID);
+    Asset asset = Asset(
+        assetCategory: assetCategoryTitle,
+        assetID: assetID,
+        type: type,
+        created:
+            DateTime.now().millisecondsSinceEpoch.toString().substring(0, 10),
+        path: path,
+        pathName: pathName);
+    assets.insert(0, asset);
+    update();
+
     if (!kIsWeb) {
       try {
         for (var member in projectMembers) {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(member['uid'])
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('assets')
               .document(assetID)
-              .update({
-            "path": path,
-            "pathName": pathName,
-            "created": DateTime.now()
-                .millisecondsSinceEpoch
-                .toString()
-                .substring(0, 10),
-            "assetID": assetID
-          }));
+              .update(asset.toJson()));
         }
+        futureGroup.close();
+        update();
       } catch (e) {
         getErrorSnackBar(
           "Something went wrong, Please try again",
@@ -713,20 +825,16 @@ class ProjectController extends GetxController {
           futureGroup.add(firestore
               .collection('users')
               .doc(member['uid'])
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('assets')
               .doc(assetID)
-              .update({
-            "path": path,
-            "pathName": pathName,
-            "created": DateTime.now()
-                .millisecondsSinceEpoch
-                .toString()
-                .substring(0, 10),
-            "assetID": assetID
-          }));
+              .update(asset.toJson()));
         }
+        futureGroup.close();
+        update();
       } catch (e) {
         getErrorSnackBar(
           "Something went wrong, Please try again",
@@ -741,31 +849,35 @@ class ProjectController extends GetxController {
       var projectComments = await firedartFirestore
           .collection('users')
           .document(_uid.value)
+          .collection('departments')
+          .document(_departmentId.value)
           .collection('projects')
           .document(_projectId.value)
           .collection('comments')
           .orderBy(
-            'created',
+            'createdAt',
           )
           .get();
 
       for (var comment in projectComments) {
-        comments.add(comment);
+        comments.add(Comment.fromSnap(comment));
       }
     } else {
       QuerySnapshot projectComments = await firestore
           .collection('users')
           .doc(_uid.value)
+          .collection('departments')
+          .doc(_departmentId.value)
           .collection('projects')
           .doc(_projectId.value)
           .collection('comments')
           .orderBy(
-            'created',
+            'createdAt',
           )
           .get();
 
       for (var comment in projectComments.docs) {
-        comments.add((comment.data() as dynamic));
+        comments.add(Comment.fromQuerySnap(comment));
       }
     }
   }
@@ -778,15 +890,17 @@ class ProjectController extends GetxController {
       var projectTasks = await firedartFirestore
           .collection('users')
           .document(_uid.value)
+          .collection('departments')
+          .document(_departmentId.value)
           .collection('projects')
           .document(_projectId.value)
           .collection('tasks')
           .get();
 
       for (var task in projectTasks) {
-        if (task['status'] == 'todo') {
+        if (task['status'] == todo) {
           toDoTasks.add(task);
-        } else if (task['status'] == 'inProgress') {
+        } else if (task['status'] == inProgress) {
           inProgressTasks.add(task);
         } else {
           completedTasks.add(task);
@@ -796,6 +910,8 @@ class ProjectController extends GetxController {
       QuerySnapshot projectTasks = await firestore
           .collection('users')
           .doc(_uid.value)
+          .collection('departments')
+          .doc(_departmentId.value)
           .collection('projects')
           .doc(_projectId.value)
           .collection('tasks')
@@ -804,9 +920,9 @@ class ProjectController extends GetxController {
       for (var tasks in projectTasks.docs) {
         var task = tasks.data() as dynamic;
 
-        if (task['status'] == 'todo') {
+        if (task['status'] == todo) {
           toDoTasks.add(task);
-        } else if (task['status'] == 'inProgress') {
+        } else if (task['status'] == inProgress) {
           inProgressTasks.add(task);
         } else {
           completedTasks.add(task);
@@ -815,21 +931,19 @@ class ProjectController extends GetxController {
     }
   }
 
-  addNewCommentFile({username, created}) async {
+  addNewCommentFile({comment, username, created, List<File>? result}) async {
     FutureGroup futureGroup = FutureGroup();
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(withData: true);
 
-    if (result != null) {
-      Uint8List? file = result.files.first.bytes;
-      String fileName = result.files.first.name;
+    for (var pickedfile in result!) {
+      Uint8List? file = pickedfile.readAsBytesSync();
+      String fileName = getFileName(pickedfile.path);
       String? urlDownload;
 
       try {
         isCommentFileUpdatingBefore.value = true;
         var storage =
             firebase_dart_storage.FirebaseStorage.instanceFor(app: app);
-        var ref = storage.ref().child("files/$fileName").putData(file!);
+        var ref = storage.ref().child("files/$fileName").putData(file);
 
         ref.snapshotEvents.listen((event) {
           isCommentFileUpdatingBefore.value = false;
@@ -842,19 +956,21 @@ class ProjectController extends GetxController {
             event.ref.getDownloadURL().then((downloadUrl) async {
               urlDownload = downloadUrl;
 
-              comments.add({
-                "type": 'file',
-                "comment": urlDownload,
-                "username": username,
-                "filename": event.ref.name,
-                "created": created,
-              });
+              comments.add(Comment(
+                  type: 'file',
+                  comment: comment,
+                  createdAt: created,
+                  downloadUrl: urlDownload,
+                  filename: event.ref.name,
+                  username: username));
 
               if (!kIsWeb) {
                 for (var i = 0; i < projectMembers.length; i++) {
                   futureGroup.add(firedartFirestore
                       .collection('users')
                       .document(projectMembers[i]['uid'])
+                      .collection('departments')
+                      .document(_departmentId.value)
                       .collection('projects')
                       .document(_projectId.value)
                       .collection('comments')
@@ -863,7 +979,7 @@ class ProjectController extends GetxController {
                     "comment": urlDownload,
                     "username": username,
                     'filename': event.ref.name,
-                    "created": created
+                    "createdAt": created
                   }));
                 }
               } else {
@@ -871,6 +987,8 @@ class ProjectController extends GetxController {
                   futureGroup.add(firestore
                       .collection('users')
                       .doc(projectMembers[i]['uid'])
+                      .collection('departments')
+                      .doc(_departmentId.value)
                       .collection('projects')
                       .doc(_projectId.value)
                       .collection('comments')
@@ -879,7 +997,7 @@ class ProjectController extends GetxController {
                     "comment": urlDownload,
                     "username": username,
                     'filename': event.ref.name,
-                    "created": created
+                    "createdAt": created
                   }));
                 }
               }
@@ -887,7 +1005,6 @@ class ProjectController extends GetxController {
             });
           }
         });
-        futureGroup.close();
       } catch (e) {
         isCommentFileUpdatingBefore.value = false;
         isCommentFileUpdatingAfter.value = false;
@@ -896,9 +1013,8 @@ class ProjectController extends GetxController {
           "Something went wrong, Please try again",
         );
       }
-    } else {
-      // User canceled the picker
     }
+    futureGroup.close();
   }
 
   addTaskDeliverables() async {
@@ -956,20 +1072,78 @@ class ProjectController extends GetxController {
     }
   }
 
+  addFileInAsset() async {
+    FilePickerResult? result = await FilePicker.platform
+        .pickFiles(withData: true, allowMultiple: true);
+
+    if (result != null) {
+      Map<String?, Uint8List?> files = {};
+
+      for (int i = 0; i < result.files.length; i++) {
+        files[result.files[i].name] = result.files[i].bytes;
+      }
+
+      files.forEach((key, value) {
+        String? urlDownload;
+
+        try {
+          isSelectedDeliverablesUpdatingBefore.value = true;
+          var storage =
+              firebase_dart_storage.FirebaseStorage.instanceFor(app: app);
+          var ref = storage.ref().child("assetfiles/$key").putData(value!);
+
+          ref.snapshotEvents.listen((event) {
+            isSelectedDeliverablesUpdatingBefore.value = false;
+            deliverableUplaodingProgress.value =
+                ((event.bytesTransferred.toDouble() /
+                        event.totalBytes.toDouble()) *
+                    100);
+            if (event.state == firebase_dart_storage.TaskState.success) {
+              isSelectedDeliverablesUpdatingAfter.value = true;
+
+              event.ref.getDownloadURL().then((downloadUrl) async {
+                urlDownload = downloadUrl;
+
+                assetFiles.add({
+                  "urlDownload": urlDownload,
+                  "filename": event.ref.name,
+                });
+
+                isSelectedDeliverablesUpdatingAfter.value = false;
+              });
+            }
+          });
+        } catch (e) {
+          isSelectedDeliverablesUpdatingBefore.value = false;
+          isSelectedDeliverablesUpdatingAfter.value = false;
+          //define error
+          getErrorSnackBar(
+            "Something went wrong, Please try again",
+          );
+        }
+      });
+    } else {
+      // User canceled the picker
+    }
+  }
+
   addNewComment({comment, username, created}) async {
     FutureGroup futureGroup = FutureGroup();
-    comments.add({
-      "type": 'text',
-      "comment": comment,
-      "created": created,
-      "username": username
-    });
+    comments.add(Comment(
+        type: 'text',
+        comment: comment,
+        createdAt: created,
+        downloadUrl: null,
+        filename: null,
+        username: username));
     if (!kIsWeb) {
       try {
         for (var i = 0; i < projectMembers.length; i++) {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(projectMembers[i]['uid'])
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('comments')
@@ -977,7 +1151,7 @@ class ProjectController extends GetxController {
             "type": 'text',
             "comment": comment,
             "username": username,
-            "created": created
+            "createdAt": created
           }));
         }
       } catch (e) {
@@ -999,7 +1173,7 @@ class ProjectController extends GetxController {
             "type": 'text',
             "comment": comment,
             "username": username,
-            "created": created
+            "createdAt": created
           }));
         }
       } catch (e) {
@@ -1049,6 +1223,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(projectMembers[i]['uid'])
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
@@ -1070,11 +1246,19 @@ class ProjectController extends GetxController {
                 deliverables: deliverablesList,
                 priorityLevel: priorityLevel);
             if (projectMembers[i]['uid'] == _uid.value) {
-              toDoTasks.add(updatedTaskWithID.toJson());
+              if (status == todo) {
+                toDoTasks.add(updatedTaskWithID.toJson());
+              } else if (status == inProgress) {
+                inProgressTasks.add(updatedTaskWithID.toJson());
+              } else {
+                completedTasks.add(updatedTaskWithID.toJson());
+              }
             }
             firedartFirestore
                 .collection('users')
                 .document(projectMembers[i]['uid'])
+                .collection('departments')
+                .document(_departmentId.value)
                 .collection('projects')
                 .document(_projectId.value)
                 .collection('tasks')
@@ -1087,6 +1271,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firestore
               .collection('users')
               .doc(projectMembers[i]['uid'])
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -1108,12 +1294,20 @@ class ProjectController extends GetxController {
                 deliverables: deliverablesList,
                 priorityLevel: priorityLevel);
             if (projectMembers[i]['uid'] == _uid.value) {
-              toDoTasks.add(updatedTaskWithID.toJson());
+              if (status == todo) {
+                toDoTasks.add(updatedTaskWithID.toJson());
+              } else if (status == inProgress) {
+                inProgressTasks.add(updatedTaskWithID.toJson());
+              } else {
+                completedTasks.add(updatedTaskWithID.toJson());
+              }
             }
 
             firestore
                 .collection('users')
                 .doc(projectMembers[i]['uid'])
+                .collection('departments')
+                .doc(_departmentId.value)
                 .collection('projects')
                 .doc(_projectId.value)
                 .collection('tasks')
@@ -1148,6 +1342,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(projectMembers[i]['uid'])
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
@@ -1159,6 +1355,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firestore
               .collection('users')
               .doc(projectMembers[i]['uid'])
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -1208,10 +1406,10 @@ class ProjectController extends GetxController {
         deliverables: taskDeliverables,
         priorityLevel: priorityLevel);
 
-    if (status == 'todo') {
+    if (status == todo) {
       toDoTasks.removeWhere((element) => element['taskID'] == taskID);
       toDoTasks.add(task.toJson());
-    } else if (status == 'inProgress') {
+    } else if (status == inProgress) {
       inProgressTasks.removeWhere((element) => element['taskID'] == taskID);
       inProgressTasks.add(task.toJson());
     } else {
@@ -1225,6 +1423,8 @@ class ProjectController extends GetxController {
           if (await firedartFirestore
               .collection('users')
               .document(projectMembers[i]['uid'])
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
@@ -1233,6 +1433,8 @@ class ProjectController extends GetxController {
             futureGroup.add(firedartFirestore
                 .collection('users')
                 .document(projectMembers[i]['uid'])
+                .collection('departments')
+                .document(_departmentId.value)
                 .collection('projects')
                 .document(_projectId.value)
                 .collection('tasks')
@@ -1245,6 +1447,8 @@ class ProjectController extends GetxController {
           firestore
               .collection('users')
               .doc(projectMembers[i]['uid'])
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -1255,6 +1459,8 @@ class ProjectController extends GetxController {
                 futureGroup.add(firestore
                     .collection('users')
                     .doc(projectMembers[i]['uid'])
+                    .collection('departments')
+                    .doc(_departmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('tasks')
@@ -1293,6 +1499,8 @@ class ProjectController extends GetxController {
           await firedartFirestore
                   .collection('users')
                   .document(projectMembers[i]['uid'])
+                  .collection('departments')
+                  .document(_departmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .collection('tasks')
@@ -1302,6 +1510,8 @@ class ProjectController extends GetxController {
                   firedartFirestore
                       .collection('users')
                       .document(projectMembers[i]['uid'])
+                      .collection('departments')
+                      .document(_departmentId.value)
                       .collection('projects')
                       .document(_projectId.value)
                       .collection('tasks')
@@ -1322,6 +1532,8 @@ class ProjectController extends GetxController {
           firestore
               .collection('users')
               .doc(projectMembers[i]['uid'])
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -1333,6 +1545,8 @@ class ProjectController extends GetxController {
                   firestore
                       .collection('users')
                       .doc(projectMembers[i]['uid'])
+                      .collection('departments')
+                      .doc(_departmentId.value)
                       .collection('projects')
                       .doc(_projectId.value)
                       .collection('tasks')
@@ -1380,6 +1594,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(removedMembers[i].uid!)
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .delete());
@@ -1387,6 +1603,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(removedMembers[i].uid!)
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('assets')
@@ -1399,6 +1617,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(removedMembers[i].uid!)
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('comments')
@@ -1411,6 +1631,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(removedMembers[i].uid!)
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('members')
@@ -1423,6 +1645,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firedartFirestore
               .collection('users')
               .document(removedMembers[i].uid!)
+              .collection('departments')
+              .document(_departmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
@@ -1437,6 +1661,8 @@ class ProjectController extends GetxController {
         await firedartFirestore
             .collection('users')
             .document(_uid.value)
+            .collection('departments')
+            .document(_departmentId.value)
             .collection('projects')
             .document(_projectId.value)
             .collection('members')
@@ -1453,6 +1679,8 @@ class ProjectController extends GetxController {
               firedartFirestore
                   .collection('users')
                   .document(members[i].uid!)
+                  .collection('departments')
+                  .document(_departmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .update(
@@ -1469,6 +1697,8 @@ class ProjectController extends GetxController {
                 futureGroup.add(firedartFirestore
                     .collection('users')
                     .document(members[i].uid!)
+                    .collection('departments')
+                    .document(_departmentId.value)
                     .collection('projects')
                     .document(_projectId.value)
                     .collection('members')
@@ -1484,6 +1714,8 @@ class ProjectController extends GetxController {
               futureGroup.add(firedartFirestore
                   .collection('users')
                   .document(members[i].uid!)
+                  .collection('departments')
+                  .document(_departmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .collection('members')
@@ -1501,6 +1733,8 @@ class ProjectController extends GetxController {
             futureGroup.add(firedartFirestore
                 .collection('users')
                 .document(members[i].uid!)
+                .collection('departments')
+                .document(_departmentId.value)
                 .collection('projects')
                 .document(_projectId.value)
                 .set(project.toJson()));
@@ -1509,6 +1743,8 @@ class ProjectController extends GetxController {
               futureGroup.add(firedartFirestore
                   .collection('users')
                   .document(members[i].uid!)
+                  .collection('departments')
+                  .document(_departmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .collection('members')
@@ -1522,29 +1758,24 @@ class ProjectController extends GetxController {
               futureGroup.add(firedartFirestore
                   .collection('users')
                   .document(members[i].uid!)
+                  .collection('departments')
+                  .document(_departmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .collection('assets')
-                  .add({
-                "type": asset['type'],
-                "path": asset['path'],
-                "created": asset['created']
-              }));
+                  .add(asset.toJson()));
             }
 
             for (var comment in comments) {
               futureGroup.add(firedartFirestore
                   .collection('users')
                   .document(members[i].uid!)
+                  .collection('departments')
+                  .document(_departmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .collection('comments')
-                  .add({
-                "type": comment['type'],
-                "comment": comment['comment'],
-                "username": comment['username'],
-                "created": comment['created']
-              }));
+                  .add(comment.toJson()));
             }
 
             var tasksList = toDoTasks + inProgressTasks + completedTasks;
@@ -1553,6 +1784,8 @@ class ProjectController extends GetxController {
               futureGroup.add(firedartFirestore
                   .collection('users')
                   .document(members[i].uid!)
+                  .collection('departments')
+                  .document(_departmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .collection('tasks')
@@ -1592,6 +1825,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firestore
               .collection('users')
               .doc(removedMembers[i].uid)
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .delete());
@@ -1599,6 +1834,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firestore
               .collection('users')
               .doc(removedMembers[i].uid)
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('assets')
@@ -1611,6 +1848,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firestore
               .collection('users')
               .doc(removedMembers[i].uid)
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('comments')
@@ -1623,6 +1862,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firestore
               .collection('users')
               .doc(removedMembers[i].uid)
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('members')
@@ -1635,6 +1876,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firestore
               .collection('users')
               .doc(removedMembers[i].uid)
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -1650,6 +1893,8 @@ class ProjectController extends GetxController {
           await firestore
               .collection('users')
               .doc(members[i].uid)
+              .collection('departments')
+              .doc(_departmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .get()
@@ -1659,6 +1904,8 @@ class ProjectController extends GetxController {
                 firestore
                     .collection('users')
                     .doc(members[i].uid)
+                    .collection('departments')
+                    .doc(_departmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .update(
@@ -1673,6 +1920,8 @@ class ProjectController extends GetxController {
                 futureGroup.add(firestore
                     .collection('users')
                     .doc(members[i].uid)
+                    .collection('departments')
+                    .doc(_departmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('members')
@@ -1684,6 +1933,8 @@ class ProjectController extends GetxController {
                     await firestore
                         .collection('users')
                         .doc(members[i].uid)
+                        .collection('departments')
+                        .doc(_departmentId.value)
                         .collection('projects')
                         .doc(_projectId.value)
                         .collection('members')
@@ -1700,6 +1951,8 @@ class ProjectController extends GetxController {
                 futureGroup.add(firestore
                     .collection('users')
                     .doc(members[i].uid)
+                    .collection('departments')
+                    .doc(_departmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('members')
@@ -1717,6 +1970,8 @@ class ProjectController extends GetxController {
               futureGroup.add(firestore
                   .collection('users')
                   .doc(members[i].uid)
+                  .collection('departments')
+                  .doc(_departmentId.value)
                   .collection('projects')
                   .doc(_projectId.value)
                   .set(project.toJson()));
@@ -1725,6 +1980,8 @@ class ProjectController extends GetxController {
                 futureGroup.add(firestore
                     .collection('users')
                     .doc(members[i].uid)
+                    .collection('departments')
+                    .doc(_departmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('members')
@@ -1738,29 +1995,24 @@ class ProjectController extends GetxController {
                 futureGroup.add(firestore
                     .collection('users')
                     .doc(members[i].uid)
+                    .collection('departments')
+                    .doc(_departmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('assets')
-                    .add({
-                  "type": asset['type'],
-                  "path": asset['path'],
-                  "created": asset['created']
-                }));
+                    .add(asset.toJson()));
               }
 
               for (var comment in comments) {
                 futureGroup.add(firestore
                     .collection('users')
                     .doc(members[i].uid)
+                    .collection('departments')
+                    .doc(_departmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('comments')
-                    .add({
-                  "type": comment['type'],
-                  "comment": comment['comment'],
-                  "username": comment['username'],
-                  "created": comment['created']
-                }));
+                    .add(comment.toJson()));
               }
 
               var tasksList = toDoTasks + inProgressTasks + completedTasks;
@@ -1769,6 +2021,8 @@ class ProjectController extends GetxController {
                 futureGroup.add(firestore
                     .collection('users')
                     .doc(members[i].uid)
+                    .collection('departments')
+                    .doc(_departmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('tasks')

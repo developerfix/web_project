@@ -1,12 +1,13 @@
+import 'package:ava/widgets/auth_popup_textfield.dart';
+import 'package:ava/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ava/constants/style.dart';
 import 'package:ava/controllers/auth_controller.dart';
-import 'package:ava/widgets/popup_textfield.dart';
 import 'package:get/get.dart';
 
 import '../../controllers/input_validators.dart';
-import '../../widgets/custom_appbar.dart';
+import '../../controllers/project_controller.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key}) : super(key: key);
@@ -25,10 +26,7 @@ class _AuthScreenState extends State<AuthScreen> {
     final passwordController = TextEditingController();
 
     return Scaffold(
-      appBar: customAppBar(
-        context,
-        isAuthScreen: true,
-      ),
+      appBar: authscreenCustomAppBar(context),
       body: Row(
         children: [
           isLogin
@@ -67,6 +65,7 @@ class _AuthScreenState extends State<AuthScreen> {
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
     final cnfPassController = TextEditingController();
+    final AuthController authController = Get.find();
 
     return Expanded(
         child: Stack(
@@ -75,9 +74,7 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Center(
             child: SizedBox(
               height: screenHeight(context) * 0.8,
-              width: screenWidth(context) < 1200
-                  ? screenWidth(context) * 0.5
-                  : screenWidth(context) * 0.2,
+              width: 450,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -96,22 +93,22 @@ class _AuthScreenState extends State<AuthScreen> {
                   SizedBox(
                     height: screenHeight(context) * 0.02,
                   ),
-                  popUpTextField(context,
+                  authPopUpTextField(context,
                       controller: nameController, hint: 'Name'),
                   SizedBox(
                     height: screenHeight(context) * 0.01,
                   ),
-                  popUpTextField(context,
+                  authPopUpTextField(context,
                       controller: emailController, hint: 'Email'),
                   SizedBox(
                     height: screenHeight(context) * 0.01,
                   ),
-                  popUpTextField(context,
+                  authPopUpTextField(context,
                       controller: passwordController, hint: 'Password'),
                   SizedBox(
                     height: screenHeight(context) * 0.01,
                   ),
-                  popUpTextField(context,
+                  authPopUpTextField(context,
                       controller: cnfPassController, hint: 'Confirm password'),
                   SizedBox(
                     height: screenHeight(context) * 0.05,
@@ -135,10 +132,8 @@ class _AuthScreenState extends State<AuthScreen> {
                           }
                         },
                         child: Container(
-                          width: screenWidth(context) < 1200
-                              ? screenWidth(context) * 0.2
-                              : screenWidth(context) * 0.07,
-                          height: screenHeight(context) * 0.05,
+                          width: 150,
+                          height: 70,
                           color: const Color(secondaryColor),
                           child: Center(
                             child: txt(
@@ -158,10 +153,8 @@ class _AuthScreenState extends State<AuthScreen> {
                           });
                         },
                         child: Container(
-                          width: screenWidth(context) < 1200
-                              ? screenWidth(context) * 0.2
-                              : screenWidth(context) * 0.07,
-                          height: screenHeight(context) * 0.05,
+                          width: 150,
+                          height: 70,
                           decoration: BoxDecoration(
                             border: Border.all(
                               width: 1.0,
@@ -170,9 +163,9 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                           child: Center(
                             child: txt(
-                              txt: 'Login',
-                              fontSize: 14,
-                            ),
+                                txt: 'Login',
+                                fontSize: 14,
+                                fontColor: const Color(secondaryColor)),
                           ),
                         ),
                       ),
@@ -189,12 +182,6 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
           ),
         ),
-        // Positioned.fill(
-        //     child: RotatedBox(
-        //   quarterTurns: 2,
-        //   child:
-        //       Opacity(opacity: 0.1, child: txt(txt: "A", fontSize: 1500)),
-        // ))
       ],
     ));
   }
@@ -207,9 +194,7 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Center(
             child: SizedBox(
               height: screenHeight(context) * 0.8,
-              width: screenWidth(context) < 1200
-                  ? screenWidth(context) * 0.5
-                  : screenWidth(context) * 0.2,
+              width: 450,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -227,17 +212,18 @@ class _AuthScreenState extends State<AuthScreen> {
                   SizedBox(
                     height: screenHeight(context) * 0.02,
                   ),
-                  popUpTextField(context),
+                  authPopUpTextField(
+                    context,
+                    hint: 'Email',
+                  ),
                   SizedBox(
                     height: screenHeight(context) * 0.05,
                   ),
                   Row(
                     children: [
                       Container(
-                        width: screenWidth(context) < 1200
-                            ? screenWidth(context) * 0.2
-                            : screenWidth(context) * 0.07,
-                        height: screenHeight(context) * 0.05,
+                        width: 150,
+                        height: 70,
                         color: const Color(secondaryColor),
                         child: Center(
                           child: txt(
@@ -256,10 +242,8 @@ class _AuthScreenState extends State<AuthScreen> {
                           });
                         },
                         child: Container(
-                          width: screenWidth(context) < 1200
-                              ? screenWidth(context) * 0.2
-                              : screenWidth(context) * 0.07,
-                          height: screenHeight(context) * 0.05,
+                          width: 150,
+                          height: 70,
                           decoration: BoxDecoration(
                             border: Border.all(
                               width: 1.0,
@@ -270,6 +254,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             child: txt(
                               txt: 'Back',
                               fontSize: 14,
+                              fontColor: const Color(secondaryColor),
                             ),
                           ),
                         ),
@@ -311,9 +296,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 child: Center(
                   child: SizedBox(
                     height: screenHeight(context) * 0.8,
-                    width: screenWidth(context) < 1200
-                        ? screenWidth(context) * 0.5
-                        : screenWidth(context) * 0.2,
+                    width: 450,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -331,12 +314,12 @@ class _AuthScreenState extends State<AuthScreen> {
                         SizedBox(
                           height: screenHeight(context) * 0.02,
                         ),
-                        popUpTextField(context,
+                        authPopUpTextField(context,
                             controller: emailController, hint: 'Email'),
                         SizedBox(
                           height: screenHeight(context) * 0.01,
                         ),
-                        popUpTextField(context,
+                        authPopUpTextField(context,
                             isObscure: controller.isObscure.value,
                             trailing: InkWell(
                               onTap: (() {
@@ -383,15 +366,12 @@ class _AuthScreenState extends State<AuthScreen> {
                           children: [
                             InkWell(
                               onTap: () {
-                                AuthController.instance.login(
-                                    emailController.text.trim(),
+                                controller.login(emailController.text.trim(),
                                     passwordController.text.trim());
                               },
                               child: Container(
-                                width: screenWidth(context) < 1200
-                                    ? screenWidth(context) * 0.2
-                                    : screenWidth(context) * 0.07,
-                                height: screenHeight(context) * 0.05,
+                                width: 150,
+                                height: 70,
                                 color: const Color(secondaryColor),
                                 child: Center(
                                   child: txt(
@@ -411,10 +391,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                 });
                               },
                               child: Container(
-                                width: screenWidth(context) < 1200
-                                    ? screenWidth(context) * 0.2
-                                    : screenWidth(context) * 0.07,
-                                height: screenHeight(context) * 0.05,
+                                width: 150,
+                                height: 70,
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     width: 1.0,
@@ -424,6 +402,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 child: Center(
                                   child: txt(
                                     txt: 'Signup',
+                                    fontColor: const Color(secondaryColor),
                                     fontSize: 14,
                                   ),
                                 ),
@@ -441,7 +420,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           children: [
                             txt(txt: 'OR', fontSize: 12),
                             SizedBox(
-                              width: screenWidth(context) * 0.005,
+                              width: 16,
                             ),
                             const Expanded(child: Divider())
                           ],
@@ -451,26 +430,14 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                         InkWell(
                           onTap: () {
-                            AuthController.instance.googleLogin(context);
+                            controller.googleLogin(context);
                           },
                           child: Container(
-                            width: screenWidth(context) < 1200
-                                ? screenWidth(context) * 0.5
-                                : screenWidth(context) * 0.25,
-                            height: screenHeight(context) * 0.06,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(2.0),
-                              color: projecttController.isDarkTheme.value
-                                  ? Colors.black45
-                                  : Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.24),
-                                  offset: const Offset(0, 1.0),
-                                  blurRadius: 2.0,
-                                ),
-                              ],
-                            ),
+                            width: 450,
+                            height: 70,
+                            decoration: controller.isDarkTheme.value
+                                ? darkThemeBoxDecoration
+                                : lightThemeBoxDecoration,
                             child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -479,7 +446,11 @@ class _AuthScreenState extends State<AuthScreen> {
                                   const SizedBox(
                                     width: 20,
                                   ),
-                                  txt(txt: 'Sign in with Google', fontSize: 22)
+                                  txt(
+                                    txt: 'Sign in with Google',
+                                    fontSize: 22,
+                                    fontColor: const Color(secondaryColor),
+                                  )
                                 ]),
                           ),
                         ),

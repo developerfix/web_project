@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:ava/constants/style.dart';
+import 'package:ava/controllers/project_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import '../models/issue.dart';
@@ -417,6 +419,7 @@ class GanttChartController extends ChangeNotifier {
   }
 
   void onIssueEndPan(PanType type) {
+    final ProjectController projectController = Get.find();
     for (int j = 0; j < selectedIssues.length; j++) {
       int daysInterval =
           (selectedIssues[j]!.width / (chartViewWidth / viewRangeToFitScreen!))
@@ -450,7 +453,7 @@ class GanttChartController extends ChangeNotifier {
           }
         }
         selectedIssues[j]!.toggleProcessing(notify: true);
-        projecttController.updateTaskDateFromGanttChart(
+        projectController.updateTaskDateFromGanttChart(
           taskID: selectedIssues[j]!.id!,
           startDate: selectedIssues[j]!.startTime!,
           endDate: selectedIssues[j]!.endTime!,

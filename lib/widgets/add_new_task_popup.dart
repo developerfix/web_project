@@ -1,26 +1,16 @@
+import 'package:ava/controllers/project_controller.dart';
 import 'package:ava/widgets/popup_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ava/constants/style.dart';
 import 'add_edit_task_widgets.dart';
 
-//  Row(
-//                   children: [
-//                     Spacer(),
-//                     ElevatedButton(
-//                       onPressed: () {
-//                         Get.back();
-//                       },
-//                       style: ElevatedButton.styleFrom(
-//                           backgroundColor: Colors.red),
-//                       child: Icon(
-//                         Icons.close,
-//                         color: Colors.redAccent,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-Future<dynamic> addNewTaskPopUp(BuildContext context) {
+Future<dynamic> addNewTaskPopUp(BuildContext context,
+    {required String status}) {
+  ProjectController projectController = Get.find();
+  projectController.selectedDeliverables.clear();
+  projectController.phaseValue.value = '3D Design';
+
   final GlobalKey<ScaffoldState> key = GlobalKey();
 
   DateTime startdate = DateTime.now();
@@ -270,10 +260,10 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                               if (titleController
                                                   .text.isNotEmpty) {
                                                 Get.back();
-                                                projecttController.addNewTask(
+                                                projectController.addNewTask(
                                                     taskTitle: titleController
                                                         .text,
-                                                    phase: projecttController
+                                                    phase: projectController
                                                         .phaseValue.value,
                                                     taskDescription:
                                                         descriptionController
@@ -282,7 +272,7 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                                         .text,
                                                     copilot: taskCoPilotController
                                                         .text,
-                                                    deliverables: projecttController
+                                                    deliverables: projectController
                                                         .selectedDeliverables,
                                                     startDate: startDateController
                                                             .text.isEmpty
@@ -294,30 +284,29 @@ Future<dynamic> addNewTaskPopUp(BuildContext context) {
                                                         ? '${endDate.year}/${endDate.month}/${endDate.day}'
                                                         : endDateController
                                                             .text,
-                                                    status: 'todo',
+                                                    status: status,
                                                     isDeliverableNeededForCompletion:
-                                                        projecttController
+                                                        projectController
                                                             .taskSelectedValue
                                                             .value,
-                                                    priorityLevel:
-                                                        projecttController
-                                                            .taskPrioritySelectedValue
-                                                            .value);
+                                                    priorityLevel: projectController
+                                                        .taskPrioritySelectedValue
+                                                        .value);
                                                 titleController.text = '';
                                                 descriptionController.text = '';
                                                 startDateController.text = '';
                                                 endDateController.text = '';
-                                                projecttController
+                                                projectController
                                                     .taskPilot.value = '';
-                                                projecttController
+                                                projectController
                                                     .taskCoPilot.value = '';
                                                 startdate = DateTime.now();
                                                 endDate = DateTime.now();
 
-                                                projecttController
+                                                projectController
                                                     .selectedDeliverables
                                                     .clear();
-                                                projecttController.update();
+                                                projectController.update();
                                               } else {
                                                 getErrorSnackBar(
                                                     "Please fillout the taskname");

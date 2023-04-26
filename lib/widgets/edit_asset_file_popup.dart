@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../controllers/project_controller.dart';
 
-Future<dynamic> editAssetPopUp(BuildContext context,
+Future<dynamic> editAssetFilePopUp(BuildContext context,
     {String? path, String? pathName, String? assetID}) {
   final pathController = TextEditingController();
   final pathNameController = TextEditingController();

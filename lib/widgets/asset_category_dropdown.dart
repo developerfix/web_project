@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../constants/style.dart';
+import '../controllers/auth_controller.dart';
+import '../controllers/project_controller.dart';
 
-Container dropDownButton(BuildContext context, StateSetter setState,
+Container assetCategoryDropDownButton(
+    BuildContext context, StateSetter setState,
     {String? phase}) {
+  final ProjectController projectController = Get.find();
+  final AuthController authController = Get.find();
   return Container(
     width: screenWidth(context) * 0.2,
     height: screenHeight(context) * 0.05,
-    decoration: projecttController.isDarkTheme.value
+    decoration: authController.isDarkTheme.value
         ? darkThemeBoxDecoration
         : lightThemeBoxDecoration,
     child: Center(
       child: DropdownButtonFormField(
         // itemHeight: 15,
         // menuMaxHeight: 30,
-        items: <String>['3D Design', 'Optical Design'].map((String value) {
+        items:
+            <String>['No category', 'Create new category'].map((String value) {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(value),
@@ -24,15 +31,15 @@ Container dropDownButton(BuildContext context, StateSetter setState,
 
         onChanged: (value) {
           setState(() {
-            projecttController.phaseValue.value = value.toString();
-            projecttController.update();
+            projectController.phaseValue.value = value.toString();
+            projectController.update();
           });
         },
         style: GoogleFonts.montserrat(
           textStyle: const TextStyle(
             overflow: TextOverflow.ellipsis,
             letterSpacing: 0,
-            color: Color(brownishColor),
+            color: brownishColor,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -43,14 +50,13 @@ Container dropDownButton(BuildContext context, StateSetter setState,
             textStyle: const TextStyle(
               overflow: TextOverflow.ellipsis,
               letterSpacing: 0,
-              color: Color(brownishColor),
+              color: brownishColor,
               fontWeight: FontWeight.w600,
             ),
           ),
-          hintText: phase ?? projecttController.phaseValue.value,
-          fillColor: projecttController.isDarkTheme.value
-              ? Colors.black12
-              : Colors.white,
+          hintText: phase ?? projectController.phaseValue.value,
+          fillColor:
+              authController.isDarkTheme.value ? Colors.black12 : Colors.white,
         ),
       ),
     ),

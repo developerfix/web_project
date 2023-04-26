@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:ava/widgets/shared_preferences.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:fast_cached_network_image/fast_cached_network_image.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +12,7 @@ import 'package:ava/splash.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 import 'package:responsive_framework/utils/scroll_behavior.dart';
 import 'package:firedart/firedart.dart' as firedart;
+import 'package:firebase_dart/core.dart' as firebase_dart;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'controllers/auth_controller.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -25,13 +28,24 @@ ThemeData _lightTheme =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SharedPrefs.sharedPreferencesInitialization();
 
   if (!kIsWeb) {
     firedart.Firestore.initialize("ava-project-ab57c");
     pure_dart_implementation.FirebaseDart.setup();
+    await firebase_dart.Firebase.initializeApp(
+      options: const firebase_dart.FirebaseOptions(
+          apiKey: "AIzaSyC9Jzj22llAEY9Zj1LjVMOxI8kVIFjP2VY",
+          authDomain: "ava-project-ab57c.firebaseapp.com",
+          projectId: "ava-project-ab57c",
+          storageBucket: "ava-project-ab57c.appspot.com",
+          messagingSenderId: "69104603518",
+          appId: "1:69104603518:web:4ff45ea30c6e823b1fe32f"),
+    );
   } else {
     pure_dart_implementation.FirebaseDart.setup();
   }
+  await FastCachedImageConfig.init(clearCacheAfter: const Duration(days: 15));
   await Firebase.initializeApp(
     options: const FirebaseOptions(
         apiKey: "AIzaSyC9Jzj22llAEY9Zj1LjVMOxI8kVIFjP2VY",
@@ -42,7 +56,7 @@ void main() async {
         appId: "1:69104603518:web:4ff45ea30c6e823b1fe32f"),
   );
 
-  Get.put(AuthController());
+  Get.put(AuthController(), permanent: true);
 
   runApp(const MyApp());
 
@@ -80,16 +94,15 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  ProjectController projectController = Get.put(ProjectController());
-
+  final AuthController authController = Get.find();
   _getThemeStatus() async {
     Rx<Future<bool?>> isDark = _prefs.then((SharedPreferences prefs) {
       return prefs.getBool('theme');
     }).obs;
-    projectController.isDarkTheme.value = (await isDark.value)!;
+    authController.isDarkTheme.value = (await isDark.value)!;
 
     Get.changeThemeMode(
-        projectController.isDarkTheme.value ? ThemeMode.dark : ThemeMode.light);
+        authController.isDarkTheme.value ? ThemeMode.dark : ThemeMode.light);
   }
 
   @override

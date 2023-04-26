@@ -31,8 +31,9 @@ class _ProjectMembersListState extends State<ProjectMembersList> {
       return Obx(() {
         return Scaffold(
           key: _key,
-          appBar:
-              customAppBar(context, username: profileController.user['name']),
+          appBar: customAppBar(
+            context,
+          ),
           endDrawer: const EndDrawerWidget(),
           body: projectController.isMembersUpdating.isTrue
               ? Column(
@@ -131,7 +132,8 @@ class _ProjectMembersListState extends State<ProjectMembersList> {
                                   txt(
                                     minFontSize: 18,
                                     maxLines: 1,
-                                    txt: projectController.project['lead'],
+                                    txt: projectController
+                                        .currentProject.value.lead!,
                                     fontSize: 30,
                                   ),
                                 ],
@@ -150,7 +152,8 @@ class _ProjectMembersListState extends State<ProjectMembersList> {
                                   txt(
                                     minFontSize: 18,
                                     maxLines: 1,
-                                    txt: projectController.project['lead'],
+                                    txt: projectController
+                                        .currentProject.value.lead!,
                                     fontSize: 30,
                                   ),
                                 ],
@@ -174,7 +177,8 @@ class _ProjectMembersListState extends State<ProjectMembersList> {
                                   txt(
                                     minFontSize: 18,
                                     maxLines: 1,
-                                    txt: projectController.project['copilot'],
+                                    txt: projectController
+                                        .currentProject.value.copilot!,
                                     fontSize: 30,
                                   ),
                                 ],
@@ -193,7 +197,8 @@ class _ProjectMembersListState extends State<ProjectMembersList> {
                                   txt(
                                     minFontSize: 18,
                                     maxLines: 1,
-                                    txt: projectController.project['copilot'],
+                                    txt: projectController
+                                        .currentProject.value.copilot!,
                                     fontSize: 30,
                                   ),
                                 ],

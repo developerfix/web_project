@@ -2,6 +2,7 @@ import 'package:ava/widgets/popup_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ava/constants/style.dart';
+import '../controllers/project_controller.dart';
 import 'add_edit_task_widgets.dart';
 
 Future<dynamic> editTaskPopUp(
@@ -28,7 +29,7 @@ Future<dynamic> editTaskPopUp(
   final GlobalKey<ScaffoldState> key = GlobalKey();
 
   final formKey = GlobalKey<FormState>();
-
+  final ProjectController projectController = Get.find();
   return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -36,8 +37,8 @@ Future<dynamic> editTaskPopUp(
           key: formKey,
           child: AlertDialog(
             content: SizedBox(
-              height: screenHeight(context) * 0.7,
-              width: screenWidth(context) * 0.8,
+              height: 400,
+              width: 650,
               child: LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
                 return Column(
@@ -263,16 +264,16 @@ Future<dynamic> editTaskPopUp(
                                           children: [
                                             popupButton(context, ontap: () {
                                               Get.back();
-                                              projecttController.updateTask(
+                                              projectController.updateTask(
                                                   taskID: taskID!,
-                                                  taskDeliverables: projecttController
+                                                  taskDeliverables: projectController
                                                       .selectedDeliverables,
                                                   taskTitle: titleController.text.isEmpty
                                                       ? taskTitle
                                                       : titleController.text,
-                                                  phase: projecttController.phaseValue.isEmpty
+                                                  phase: projectController.phaseValue.isEmpty
                                                       ? phase
-                                                      : projecttController
+                                                      : projectController
                                                           .phaseValue.value,
                                                   taskDescription: descriptionController.text.isEmpty
                                                       ? taskDescription
@@ -295,8 +296,8 @@ Future<dynamic> editTaskPopUp(
                                                       : endDateController.text,
                                                   status: status,
                                                   isDeliverableNeededForCompletion:
-                                                      projecttController.taskSelectedValue.value,
-                                                  priorityLevel: projecttController.taskPrioritySelectedValue.value);
+                                                      projectController.taskSelectedValue.value,
+                                                  priorityLevel: projectController.taskPrioritySelectedValue.value);
 
                                               titleController.text = '';
                                               descriptionController.text = '';
