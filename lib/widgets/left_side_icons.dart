@@ -20,6 +20,8 @@ SizedBox leftSideIcons(BuildContext context, {bool? isProjectsScreen}) {
           Get.offAll(const DepartmentsGrid());
         }, isProjectsScreen: isProjectsScreen),
         homeScreenIcon(context, 'Group 13', ontap: () {
+          print(
+              'SharedPrefs.getData(key: authController.user!.uid + lastOpenedProjectId :${SharedPrefs.getData(key: authController.user!.uid + lastOpenedProjectId)}');
           if (SharedPrefs.getData(
                   key: authController.user!.uid + lastOpenedProjectId) !=
               null) {
@@ -32,16 +34,15 @@ SizedBox leftSideIcons(BuildContext context, {bool? isProjectsScreen}) {
         homeScreenIcon(context, 'Group 12', ontap: () {
           Get.to(const DepartmentsGrid());
         }, isProjectsScreen: isProjectsScreen),
-        homeScreenIcon(context, 'comment_icon', ontap: () {
-          Get.to(const DepartmentsGrid());
-        }, isProjectsScreen: isProjectsScreen),
+        homeScreenIcon(context, 'comment_icon',
+            isProjectsScreen: isProjectsScreen),
       ]),
     ),
   );
 }
 
 Padding homeScreenIcon(BuildContext context, String icon,
-    {required Function() ontap, bool? isProjectsScreen, double? width}) {
+    {Function()? ontap, bool? isProjectsScreen, double? width}) {
   return Padding(
     padding: const EdgeInsets.all(24.0),
     child: InkWell(

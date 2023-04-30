@@ -1,4 +1,7 @@
+import 'package:ava/controllers/project_controller.dart';
+import 'package:ava/models/project.dart';
 import 'package:ava/widgets/profile_avatar.dart';
+import 'package:filesize/filesize.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,9 +14,8 @@ Padding usersMsg(BuildContext context,
     {DateTime? created,
     String? comment,
     String? type,
+    Map? files,
     String? username,
-    String? downloadUrl,
-    String? filename,
     String? nameFirstChar}) {
   var formatter = DateFormat('MM/dd/yyyy');
   final now = DateTime.now();
@@ -25,7 +27,7 @@ Padding usersMsg(BuildContext context,
   return Padding(
     padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
     child: Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         profileAvatar(
           context,
@@ -69,76 +71,233 @@ Padding usersMsg(BuildContext context,
                   ],
                 ),
               )
-            : InkWell(
-                onTap: () {
-                  downloadFile(downloadUrl, filename);
-                },
-                child: fileContinerSizedBox(
-                    context,
-                    username,
-                    formattedTime,
-                    formattedDateDay,
-                    formattedDateToday,
-                    formattedCommentDate,
-                    filename)),
+            : fileContinerSizedBox(
+                context,
+                username,
+                comment,
+                files!,
+                formattedTime,
+                formattedDateDay,
+                formattedDateToday,
+                formattedCommentDate)
       ],
     ),
   );
 }
 
-SizedBox fileContinerSizedBox(
-    BuildContext context,
-    String? username,
-    String formattedTime,
-    String formattedDateDay,
-    String formattedDateToday,
-    String formattedCommentDate,
-    String? filename) {
-  return SizedBox(
-    width: screenWidth(context) * 0.15,
-    height: screenHeight(context) * 0.08,
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Flexible(
-            child: Text.rich(
-          TextSpan(
-            children: [
-              textSpanForUserMsg(text: username),
-              textSpanForUserMsg(
-                fontWeight: FontWeight.normal,
-                text:
-                    ' $formattedTime${formattedDateDay == formattedDateToday ? '' : formattedCommentDate}\n',
-              ),
-            ],
+Flexible fileContinerSizedBox(
+  BuildContext context,
+  String? username,
+  String? comment,
+  Map files,
+  String formattedTime,
+  String formattedDateDay,
+  String formattedDateToday,
+  String formattedCommentDate,
+) {
+  return Flexible(
+      child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          textSpanForUserMsg(
+              text: username, fontSize: 22, fontColor: checkThemeColorwhite60),
+          textSpanForUserMsg(
+            fontWeight: FontWeight.normal,
+            text: '   $formattedTime',
           ),
-        )),
-        const Spacer(),
-        fileContainerForUserMsg(context, filename),
-      ],
-    ),
-  );
+          const Spacer(),
+          textSpanForUserMsg(
+            fontWeight: FontWeight.normal,
+            text: formattedDateDay == formattedDateToday
+                ? ''
+                : formattedCommentDate,
+          ),
+        ],
+      ),
+      SizedBox(
+        height: screenHeight(context) * 0.003,
+      ),
+      textSpanForUserMsg(
+        text: comment,
+        fontSize: 18,
+        fontWeight: FontWeight.normal,
+      ),
+      SizedBox(
+        height: screenHeight(context) * 0.01,
+      ),
+      fileContainerForUserMsg(context, files),
+    ],
+  ));
 }
 
-Container fileContainerForUserMsg(BuildContext context, String? filename) {
-  return Container(
-    width: screenWidth(context) * 0.1,
-    height: screenHeight(context) * 0.05,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(8.0),
-      color: const Color(secondaryColor),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.16),
-          offset: const Offset(0, 3.0),
-          blurRadius: 6.0,
-        ),
-      ],
-    ),
-    child: Center(
-      child: txt(txt: filename!, fontSize: 14, fontColor: Colors.white),
-    ),
+GetBuilder fileContainerForUserMsg(
+  BuildContext context,
+  Map files,
+) {
+  List commentFiles = [];
+  files.forEach((key, value) {
+    commentFiles.add([key, value]);
+  });
+
+  return GetBuilder<ProjectController>(
+    init: ProjectController(),
+    builder: (controller) => SizedBox(
+        child: GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 300,
+            ),
+            shrinkWrap: true,
+            itemCount: commentFiles.length,
+            itemBuilder: (context, i) {
+              // double? progress = controller.uploadProgress[commentFiles[i][0]];
+              // // print('prog: ${controller.uploadProgress[commentFiles[i][0]]}');
+              // print(
+              //     'Upload progress for $commentFiles[i][0]: ${controller.uploadProgress[commentFiles[i][0]].toStringAsFixed(2)}');
+
+              // Extract the file extension from the file name
+              String fileExtension = commentFiles[i][0].split('.').last;
+              // Define the thumbnail URL based on the file type
+              String thumbnailUrl;
+              if (fileExtension == 'jpg' ||
+                  fileExtension == 'jpeg' ||
+                  fileExtension == 'png' ||
+                  fileExtension == 'gif') {
+                thumbnailUrl = commentFiles[i][1];
+              } else if (fileExtension == 'pdf') {
+                thumbnailUrl =
+                    'https://e7.pngegg.com/pngimages/943/136/png-clipart-pdf-thumbnail-computer-icons-pdf-pdf-miscellaneous-angle-thumbnail.png';
+              } else if (fileExtension == 'doc' || fileExtension == 'docx') {
+                thumbnailUrl =
+                    'https://w7.pngwing.com/pngs/111/216/png-transparent-doc-docx-symbol-web-save-file-document-icon-word-button-thumbnail.png';
+              } else if (fileExtension == 'xls' ||
+                  fileExtension == 'xlsx' ||
+                  fileExtension == 'csv') {
+                thumbnailUrl =
+                    'https://e7.pngegg.com/pngimages/331/486/png-clipart-microsoft-excel-logo-microsoft-excel-computer-icons-xls-microsoft-angle-text-thumbnail.png';
+              } else if (fileExtension == 'mp4' ||
+                  fileExtension == 'mov' ||
+                  fileExtension == 'avi' ||
+                  fileExtension == 'wmv') {
+                thumbnailUrl =
+                    'https://w7.pngwing.com/pngs/734/1007/png-transparent-telecharger-download-button-icon-mp4-file-video-movie-web-button-internet-thumbnail.png';
+              } else {
+                thumbnailUrl =
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNNuwPA8Ec9CmcwSqWB2DAzjoN7AflV6gI_w&usqp=CAU';
+              }
+              // Display filename only if file is not an image
+              Widget fileNameWidget;
+              if (fileExtension == 'jpg' ||
+                  fileExtension == 'jpeg' ||
+                  fileExtension == 'png' ||
+                  fileExtension == 'gif') {
+                fileNameWidget = const SizedBox();
+              } else {
+                fileNameWidget = Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: txt(
+                      txt: commentFiles[i][0],
+                      fontColor: Color(secondaryColor),
+                      fontSize: 16),
+                );
+              }
+
+              // Display file size only if file is not an image
+              Widget fileSizeWidget;
+              if (fileExtension == 'jpg' ||
+                  fileExtension == 'jpeg' ||
+                  fileExtension == 'png' ||
+                  fileExtension == 'gif') {
+                fileSizeWidget = const SizedBox();
+              } else {
+                double fileSizeInBytes =
+                    double.parse(commentFiles[i][1].length.toString());
+                String fileSize = fileSizeInBytes > 0
+                    ? filesize(fileSizeInBytes.toInt())
+                    : 'Unknown size';
+                fileSizeWidget = Text(
+                  fileSize,
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                  ),
+                );
+              }
+
+              return controller.uploadProgress[commentFiles[i][0]] != null &&
+                      controller.uploadProgress[commentFiles[i][0]] >= 0 &&
+                      controller.uploadProgress[commentFiles[i][0]] < 100
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                          txt(txt: commentFiles[i][0], fontSize: 16),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Stack(
+                              children: [
+                                LinearProgressIndicator(
+                                  minHeight: 20,
+                                  backgroundColor: Color(secondaryColor),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Color(mainColor)),
+                                  value: double.parse(controller
+                                      .uploadProgress[commentFiles[i][0]]
+                                      .toString()),
+                                ),
+                                Center(
+                                  child: Text(
+                                    '${controller.uploadProgress[commentFiles[i][0]]}%',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        ])
+                  : GestureDetector(
+                      onTap: () {
+                        downloadFile(commentFiles[i][1], commentFiles[i][0]);
+                      },
+                      child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: Image.network(
+                                    thumbnailUrl,
+                                    fit: BoxFit.cover,
+                                    // loadingBuilder:
+                                    //     (context, error, stackTrace) {
+                                    //   print('error: $error');
+                                    //   return Center(
+                                    //       child:
+                                    //           const CircularProgressIndicator());
+                                    // },
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(Icons.error),
+                                  ),
+                                ),
+                              ),
+                              fileNameWidget,
+                              fileSizeWidget,
+                            ],
+                          )),
+                    );
+            })),
   );
 }
 
@@ -148,7 +307,10 @@ textSpanForUserMsg(
     Color? fontColor,
     FontWeight? fontWeight}) {
   return txt(
-      txt: text!, fontSize: fontSize ?? 14, fontColor: fontColor, maxLines: 5);
+      txt: text!,
+      fontSize: fontSize ?? 14,
+      fontColor: fontColor,
+      maxLines: 10000);
 }
 
 downloadFile(url, filename) async {

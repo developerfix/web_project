@@ -5,14 +5,20 @@ import 'package:get/get.dart';
 import '../constants/style.dart';
 import 'cached_image.dart';
 
-Obx profileAvatar(BuildContext context,
-    {double? fontSize, double? maxRadius, bool? isDrawer}) {
+Obx profileAvatar(
+  BuildContext context, {
+  double? fontSize,
+  double? maxRadius,
+  bool? isDrawer,
+  bool? isAppBar,
+}) {
   final ProfileController profileController = Get.find();
   return Obx(
     () => profileController.currentUser.value.profilePhoto != ''
         ? cachedImage(
             context,
             fontSize: fontSize,
+            isAppBar: isAppBar,
             isDrawer: isDrawer,
             maxRadius: maxRadius,
             url: profileController.currentUser.value.profilePhoto ??

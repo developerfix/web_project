@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -8,12 +9,15 @@ import 'package:ava/pages/projects_grid.dart';
 import 'package:ava/widgets/notes_section.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ava/models/project.dart';
 import 'package:ava/models/project_member.dart';
 import 'package:ava/models/task.dart' as task_model;
 import 'package:ava/pages/project_dashboard.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:path/path.dart';
 import '../constants/style.dart';
 import 'package:firebase_dart/storage.dart' as firebase_dart_storage;
 
@@ -22,10 +26,9 @@ import '../models/comment.dart';
 class ProjectController extends GetxController {
   Rx<Project> currentProject = Project().obs;
 
-  RxBool isCommentFileUpdatingBefore = false.obs;
   RxBool isSelectedDeliverablesUpdatingBefore = false.obs;
   RxBool isSelectedDeliverablesUpdatingAfter = false.obs;
-  RxBool isCommentFileUpdatingAfter = false.obs;
+
   RxBool isSearching = false.obs;
   RxBool isTasksUpdating = false.obs;
   RxBool isTaskDateUpdating = false.obs;
@@ -43,6 +46,7 @@ class ProjectController extends GetxController {
   RxList<dynamic> completedTasks = <dynamic>[].obs;
   RxList<dynamic> selectedDeliverables = <dynamic>[].obs;
   RxList<dynamic> assetFiles = <dynamic>[].obs;
+  final uploadProgress = {}.obs;
   Rx<double> progress = 0.0.obs;
   Rx<int> commentsFilter = 1.obs;
   Rx<int> taskPrioritySelectedValue = 1.obs;
@@ -717,6 +721,7 @@ class ProjectController extends GetxController {
                 pathName: pathName);
 
             assets.insert(0, asset);
+            update();
 
             firedartFirestore
                 .collection('users')
@@ -730,6 +735,7 @@ class ProjectController extends GetxController {
                 .set(asset.toJson());
           }));
         }
+
         futureGroup.close();
       } catch (e) {
         getErrorSnackBar(
@@ -760,7 +766,7 @@ class ProjectController extends GetxController {
                 type: type,
                 pathName: pathName);
             assets.insert(0, asset);
-
+            update();
             firestore
                 .collection('users')
                 .doc(member['uid'])
@@ -773,7 +779,6 @@ class ProjectController extends GetxController {
                 .set(asset.toJson());
           }));
         }
-        update();
         futureGroup.close();
       } catch (e) {
         getErrorSnackBar(
@@ -932,89 +937,109 @@ class ProjectController extends GetxController {
   }
 
   addNewCommentFile({comment, username, created, List<File>? result}) async {
-    FutureGroup futureGroup = FutureGroup();
+    uploadProgress.clear();
+    try {
+      Comment commenttt = Comment();
+      List<File> newList = [...result!];
+      commentFiles.clear();
+      Map fileNameAndDownloadUrl = {};
+      // Map fileNameAndDownloadUrlDummy = {};
+      // for (var element in result!) {
+      //   String fileName = getFileName(element.path);
+      //   fileNameAndDownloadUrlDummy[fileName] = 'element.path';
+      // }
 
-    for (var pickedfile in result!) {
-      Uint8List? file = pickedfile.readAsBytesSync();
-      String fileName = getFileName(pickedfile.path);
-      String? urlDownload;
+      Comment commentt = Comment(
+          type: 'file',
+          comment: comment,
+          createdAt: created,
+          fileNameAndDownloadUrl: fileNameAndDownloadUrl,
+          username: username);
 
-      try {
-        isCommentFileUpdatingBefore.value = true;
-        var storage =
-            firebase_dart_storage.FirebaseStorage.instanceFor(app: app);
-        var ref = storage.ref().child("files/$fileName").putData(file);
+      comments.add(commentt);
+      update();
+      List<Future<void>> uploadFutures = [];
+      for (var filee in newList) {
+        Uint8List? file = filee.readAsBytesSync();
+        String fileName = getFileName(filee.path);
+        String urlDownload = '';
 
-        ref.snapshotEvents.listen((event) {
-          isCommentFileUpdatingBefore.value = false;
-          progress.value = ((event.bytesTransferred.toDouble() /
-                  event.totalBytes.toDouble()) *
-              100);
-          if (event.state == firebase_dart_storage.TaskState.success) {
-            isCommentFileUpdatingAfter.value = true;
+        firebase_dart_storage.UploadTask uploadTask =
+            firebase_dart_storage.FirebaseStorage.instanceFor(app: app)
+                .ref()
+                .child("files/$fileName")
+                .putData(file);
 
-            event.ref.getDownloadURL().then((downloadUrl) async {
-              urlDownload = downloadUrl;
+        uploadTask.snapshotEvents
+            .listen((firebase_dart_storage.TaskSnapshot snapshot) async {
+          double progress = (snapshot.bytesTransferred / snapshot.totalBytes);
+          urlDownload = await snapshot.ref.getDownloadURL();
+          fileNameAndDownloadUrl[fileName] = urlDownload;
+          int percentage = (progress * 100).round();
 
-              comments.add(Comment(
-                  type: 'file',
-                  comment: comment,
-                  createdAt: created,
-                  downloadUrl: urlDownload,
-                  filename: event.ref.name,
-                  username: username));
-
-              if (!kIsWeb) {
-                for (var i = 0; i < projectMembers.length; i++) {
-                  futureGroup.add(firedartFirestore
-                      .collection('users')
-                      .document(projectMembers[i]['uid'])
-                      .collection('departments')
-                      .document(_departmentId.value)
-                      .collection('projects')
-                      .document(_projectId.value)
-                      .collection('comments')
-                      .add({
-                    "type": 'file',
-                    "comment": urlDownload,
-                    "username": username,
-                    'filename': event.ref.name,
-                    "createdAt": created
-                  }));
-                }
-              } else {
-                for (var i = 0; i < projectMembers.length; i++) {
-                  futureGroup.add(firestore
-                      .collection('users')
-                      .doc(projectMembers[i]['uid'])
-                      .collection('departments')
-                      .doc(_departmentId.value)
-                      .collection('projects')
-                      .doc(_projectId.value)
-                      .collection('comments')
-                      .add({
-                    "type": 'file',
-                    "comment": urlDownload,
-                    "username": username,
-                    'filename': event.ref.name,
-                    "createdAt": created
-                  }));
-                }
-              }
-              isCommentFileUpdatingAfter.value = false;
-            });
-          }
+          uploadProgress[fileName] = percentage;
+          update();
         });
-      } catch (e) {
-        isCommentFileUpdatingBefore.value = false;
-        isCommentFileUpdatingAfter.value = false;
-        //define error
-        getErrorSnackBar(
-          "Something went wrong, Please try again",
-        );
+
+        Future<void> uploadFuture =
+            uploadTask.then((firebase_dart_storage.TaskSnapshot snapshot) {
+          // Do any final processing here
+        });
+
+        uploadFutures.add(uploadFuture);
       }
+
+      await Future.wait(uploadFutures);
+
+      commenttt = Comment(
+          type: 'file',
+          comment: comment,
+          createdAt: created,
+          fileNameAndDownloadUrl: fileNameAndDownloadUrl,
+          username: username);
+
+      FutureGroup futureGroup = FutureGroup();
+      if (!kIsWeb) {
+        for (var i = 0; i < projectMembers.length; i++) {
+          futureGroup.add(firedartFirestore
+              .collection('users')
+              .document(projectMembers[i]['uid'])
+              .collection('departments')
+              .document(_departmentId.value)
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('comments')
+              .add(commenttt.toJson()));
+        }
+      } else {
+        for (var i = 0; i < projectMembers.length; i++) {
+          futureGroup.add(firestore
+              .collection('users')
+              .doc(projectMembers[i]['uid'])
+              .collection('departments')
+              .doc(_departmentId.value)
+              .collection('projects')
+              .doc(_projectId.value)
+              .collection('comments')
+              .add(commenttt.toJson()));
+        }
+      }
+      comments.indexWhere((element) {
+        if (element.comment == comment && element.createdAt == created) {
+          element = commenttt;
+        }
+        return true;
+      });
+
+      update();
+
+      futureGroup.close();
+    } catch (e) {
+      //define error
+      getErrorSnackBar(
+        "Something went wrong, Please try again",
+      );
     }
-    futureGroup.close();
   }
 
   addTaskDeliverables() async {
@@ -1129,13 +1154,16 @@ class ProjectController extends GetxController {
 
   addNewComment({comment, username, created}) async {
     FutureGroup futureGroup = FutureGroup();
-    comments.add(Comment(
+
+    Comment commentt = Comment(
         type: 'text',
         comment: comment,
         createdAt: created,
-        downloadUrl: null,
-        filename: null,
-        username: username));
+        fileNameAndDownloadUrl: null,
+        username: username);
+    comments.add(commentt);
+    update();
+
     if (!kIsWeb) {
       try {
         for (var i = 0; i < projectMembers.length; i++) {
@@ -1147,12 +1175,7 @@ class ProjectController extends GetxController {
               .collection('projects')
               .document(_projectId.value)
               .collection('comments')
-              .add({
-            "type": 'text',
-            "comment": comment,
-            "username": username,
-            "createdAt": created
-          }));
+              .add(commentt.toJson()));
         }
       } catch (e) {
         //define error
@@ -1169,12 +1192,7 @@ class ProjectController extends GetxController {
               .collection('projects')
               .doc(_projectId.value)
               .collection('comments')
-              .add({
-            "type": 'text',
-            "comment": comment,
-            "username": username,
-            "createdAt": created
-          }));
+              .add(commentt.toJson()));
         }
       } catch (e) {
         //define error

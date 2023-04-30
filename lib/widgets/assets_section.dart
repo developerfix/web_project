@@ -60,165 +60,8 @@ StatefulBuilder assetsSection(
               child: Column(
                 children: [
                   projectController.assets.isNotEmpty
-                      ? Expanded(
-                          child: ListView(
-                            children: [
-                              ListView.builder(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: noCategoriesAssets.length,
-                                  shrinkWrap: true,
-                                  itemBuilder: (context, index) {
-                                    return HoverCrossFadeWidget(
-                                      cursor: SystemMouseCursors.click,
-                                      duration:
-                                          const Duration(milliseconds: 100),
-                                      firstChild: ListTile(
-                                          onTap: () async {
-                                            await canLaunchUrl(Uri.parse(
-                                                    noCategoriesAssets[index]
-                                                        .path!))
-                                                ? await launchUrl(Uri.parse(
-                                                    noCategoriesAssets[index]
-                                                        .path!))
-                                                : null;
-                                          },
-                                          leading: Icon(Icons.link,
-                                              color: checkThemeColorwhite54,
-                                              size: 18),
-                                          title: txt(
-                                              txt: noCategoriesAssets[index]
-                                                  .pathName!,
-                                              fontSize: 14,
-                                              minFontSize: 14,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis),
-                                          trailing: Icon(Icons.more_horiz,
-                                              color: checkThemeColorwhite54,
-                                              size: 18)),
-                                      secondChild: ListTile(
-                                        onTap: () async {
-                                          await canLaunchUrl(Uri.parse(
-                                                  noCategoriesAssets[index]
-                                                      .path!))
-                                              ? await launchUrl(Uri.parse(
-                                                  noCategoriesAssets[index]
-                                                      .path!))
-                                              : null;
-                                        },
-                                        leading: const Icon(Icons.link,
-                                            color: Color(
-                                              secondaryColor,
-                                            ),
-                                            size: 18),
-                                        title: txt(
-                                            txt: noCategoriesAssets[index]
-                                                .pathName!,
-                                            fontSize: 14,
-                                            minFontSize: 14,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis),
-                                        trailing: PopupMenuButton(
-                                            onSelected: (value) async {
-                                              if (value == 1) {
-                                                noCategoriesAssets[index]
-                                                            .path! !=
-                                                        linkAssetType
-                                                    ? editAssetLinkPopUp(
-                                                        context,
-                                                        path:
-                                                            noCategoriesAssets[
-                                                                    index]
-                                                                .path!,
-                                                        pathName:
-                                                            noCategoriesAssets[
-                                                                    index]
-                                                                .pathName!,
-                                                        assetID:
-                                                            noCategoriesAssets[
-                                                                    index]
-                                                                .assetID)
-                                                    : editAssetFilePopUp(
-                                                        context);
-                                              } else {
-                                                await projectController
-                                                    .deleteProjectAsset(
-                                                        assetID:
-                                                            noCategoriesAssets[
-                                                                    index]
-                                                                .assetID);
-                                              }
-                                            },
-                                            elevation: 3.2,
-                                            shape: const RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(8.0)),
-                                            ),
-                                            itemBuilder: (context) => [
-                                                  PopupMenuItem(
-                                                    value: 1,
-                                                    child: Text(
-                                                      'Edit',
-                                                      maxLines: 1,
-                                                      style: GoogleFonts
-                                                          .montserrat(
-                                                        textStyle:
-                                                            const TextStyle(
-                                                          fontSize: 14,
-                                                          overflow: TextOverflow
-                                                              .visible,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  PopupMenuItem(
-                                                    value: 2,
-                                                    child: Text(
-                                                      'Delete',
-                                                      maxLines: 1,
-                                                      style: GoogleFonts
-                                                          .montserrat(
-                                                        textStyle:
-                                                            const TextStyle(
-                                                          fontSize: 14,
-                                                          overflow: TextOverflow
-                                                              .visible,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                            child: const Icon(Icons.more_horiz,
-                                                color: Color(
-                                                  secondaryColor,
-                                                ),
-                                                size: 18)),
-                                      ),
-                                    );
-                                  }),
-                              Expanded(
-                                child: ListView.builder(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemCount: finalCategories.length,
-                                    itemBuilder: (context, index) {
-                                      return finalCategories[index] ==
-                                              noCategory
-                                          ? Container()
-                                          : assetSectionWidget(
-                                              title: finalCategories[index],
-                                              expandedWidget: expandableWidget(
-                                                  projectController,
-                                                  finalCategories[index]));
-                                    }),
-                              )
-                            ],
-                          ),
-                        )
+                      ? assetsList(noCategoriesAssets, projectController,
+                          finalCategories)
                       : Expanded(
                           child: Center(
                           child: txt(txt: 'Add assets here', fontSize: 18),
@@ -237,6 +80,131 @@ StatefulBuilder assetsSection(
       ),
     );
   });
+}
+
+Expanded assetsList(List<Asset> noCategoriesAssets,
+    ProjectController projectController, List<dynamic> finalCategories) {
+  return Expanded(
+    child: ListView(
+      children: [
+        ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: noCategoriesAssets.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return HoverCrossFadeWidget(
+                cursor: SystemMouseCursors.click,
+                duration: const Duration(milliseconds: 100),
+                firstChild: ListTile(
+                    onTap: () async {
+                      await canLaunchUrl(
+                              Uri.parse(noCategoriesAssets[index].path!))
+                          ? await launchUrl(
+                              Uri.parse(noCategoriesAssets[index].path!))
+                          : null;
+                    },
+                    leading: Icon(Icons.link,
+                        color: checkThemeColorwhite54, size: 18),
+                    title: txt(
+                        txt: noCategoriesAssets[index].pathName!,
+                        fontSize: 14,
+                        minFontSize: 14,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                    trailing: Icon(Icons.more_horiz,
+                        color: checkThemeColorwhite54, size: 18)),
+                secondChild: ListTile(
+                  onTap: () async {
+                    await canLaunchUrl(
+                            Uri.parse(noCategoriesAssets[index].path!))
+                        ? await launchUrl(
+                            Uri.parse(noCategoriesAssets[index].path!))
+                        : null;
+                  },
+                  leading: const Icon(Icons.link,
+                      color: Color(
+                        secondaryColor,
+                      ),
+                      size: 18),
+                  title: txt(
+                      txt: noCategoriesAssets[index].pathName!,
+                      fontSize: 14,
+                      minFontSize: 14,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
+                  trailing: PopupMenuButton(
+                      onSelected: (value) async {
+                        if (value == 1) {
+                          noCategoriesAssets[index].path! != linkAssetType
+                              ? editAssetLinkPopUp(context,
+                                  path: noCategoriesAssets[index].path!,
+                                  pathName: noCategoriesAssets[index].pathName!,
+                                  assetID: noCategoriesAssets[index].assetID)
+                              : editAssetFilePopUp(context);
+                        } else {
+                          await projectController.deleteProjectAsset(
+                              assetID: noCategoriesAssets[index].assetID);
+                        }
+                      },
+                      elevation: 3.2,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      ),
+                      itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 1,
+                              child: Text(
+                                'Edit',
+                                maxLines: 1,
+                                style: GoogleFonts.montserrat(
+                                  textStyle: const TextStyle(
+                                    fontSize: 14,
+                                    overflow: TextOverflow.visible,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: 2,
+                              child: Text(
+                                'Delete',
+                                maxLines: 1,
+                                style: GoogleFonts.montserrat(
+                                  textStyle: const TextStyle(
+                                    fontSize: 14,
+                                    overflow: TextOverflow.visible,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                      child: const Icon(Icons.more_horiz,
+                          color: Color(
+                            secondaryColor,
+                          ),
+                          size: 18)),
+                ),
+              );
+            }),
+        Expanded(
+          child: ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: finalCategories.length,
+              itemBuilder: (context, index) {
+                return finalCategories[index] == noCategory
+                    ? Container()
+                    : assetSectionWidget(
+                        title: finalCategories[index],
+                        expandedWidget: expandableWidget(
+                            projectController, finalCategories[index]));
+              }),
+        )
+      ],
+    ),
+  );
 }
 
 ListView expandableWidget(

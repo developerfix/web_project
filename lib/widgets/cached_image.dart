@@ -10,10 +10,13 @@ Padding cachedImage(
   double? fontSize,
   double? maxRadius,
   bool? isDrawer,
+  bool? isAppBar,
   required String url,
 }) {
   return Padding(
-    padding: const EdgeInsets.all(8.0),
+    padding: isAppBar != null
+        ? const EdgeInsets.all(8.0)
+        : const EdgeInsets.all(0.0),
     child: ClipOval(
         child: FastCachedImage(
       url: url,

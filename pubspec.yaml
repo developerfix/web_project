@@ -32,6 +32,7 @@ dependencies:
   cloud_firestore: ^3.1.17
   cupertino_icons: ^1.0.2
   desktop_webview_auth: any
+  filesize: ^2.0.1
   file: ^6.1.4
   ffi: any
   file_picker: ^4.6.1
@@ -41,6 +42,7 @@ dependencies:
   firebase_core: ^1.18.0
   firebase_core_dart: any
   firebase_core_desktop: any
+  video_thumbnail: ^0.5.3
   firebase_storage: ^10.2.18
   firedart: ^0.9.0+1
   bitsdojo_window: any

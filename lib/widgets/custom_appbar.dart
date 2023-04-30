@@ -66,7 +66,7 @@ AppBar customAppBar(BuildContext context,
             onTap: () {
               Scaffold.of(context).openEndDrawer();
             },
-            child: profileAvatar(context),
+            child: profileAvatar(context, isAppBar: true),
           ),
         ),
       ),

@@ -39,7 +39,11 @@ Expanded dashboardMainSection(BuildContext context, BoxConstraints constraints,
                       letterSpacing: 5,
                     ),
                     txt(
-                      txt: projectController.currentProject.value.subtitle!,
+                      txt: projectController.currentProject.value.subtitle !=
+                              null
+                          ? projectController.currentProject.value.subtitle!
+                              .toUpperCase()
+                          : ''.toUpperCase(),
                       fontSize: 30,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

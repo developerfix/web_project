@@ -4,25 +4,22 @@ import 'package:firedart/firedart.dart';
 class Comment {
   String? type;
   String? comment;
-  String? downloadUrl;
+  Map? fileNameAndDownloadUrl;
   String? username;
-  String? filename;
   DateTime? createdAt;
 
   Comment(
       {this.type,
       this.comment,
-      this.downloadUrl,
+      this.fileNameAndDownloadUrl,
       this.username,
-      this.filename,
       this.createdAt});
 
   Map<String, dynamic> toJson() => {
         "type": type,
         "comment": comment,
         "username": username,
-        "downloadUrl": downloadUrl,
-        "filename": filename,
+        "fileNameAndDownloadUrl": fileNameAndDownloadUrl,
         "createdAt": createdAt
       };
 
@@ -32,8 +29,7 @@ class Comment {
         type: snapshot['type'],
         comment: snapshot['comment'],
         username: snapshot['username'],
-        downloadUrl: snapshot['downloadUrl'],
-        filename: snapshot['filename'],
+        fileNameAndDownloadUrl: snapshot['fileNameAndDownloadUrl'],
         createdAt: snapshot['createdAt']);
   }
 
@@ -43,8 +39,7 @@ class Comment {
         type: snapshot['type'],
         comment: snapshot['comment'],
         username: snapshot['username'],
-        downloadUrl: snapshot['downloadUrl'],
-        filename: snapshot['filename'],
+        fileNameAndDownloadUrl: snapshot['fileNameAndDownloadUrl'],
         createdAt: snapshot['createdAt']);
   }
 }

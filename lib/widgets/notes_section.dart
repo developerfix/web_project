@@ -45,8 +45,7 @@ Expanded notesSection(BoxConstraints constraints, BuildContext context,
               created: !kIsWeb ? DateTime.now() : Timestamp.now());
         }
       }
-      commentController.clear();
-      projectController.commentFiles.clear();
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (scrollController!.hasClients) {
           scrollController.animateTo(scrollController.position.maxScrollExtent,
@@ -134,22 +133,29 @@ Obx notBeingDraggedWidget(
     StateSetter setState,
     Future<void> Function() attachFile) {
   return Obx(
-    () => Column(children: [
-      searchTextFieldAndFilterWidget(context,
-          projectController: projectController,
-          notesSearchController: notesSearchController),
-      SizedBox(
-        height: screenHeight(context) * 0.02,
-      ),
-      notesTextWidget(constraints),
-      projectController.isSearching.isTrue
-          ? commentsSectionWidget(context, projectController, scrollController)
-          : isNotSearchingColumn(
-              constraints, projectController, scrollController, context),
-      const Spacer(),
-      commentBox(context, commentController, submitComment, setState,
-          attachFile, projectController)
-    ]),
+    () => Stack(
+      children: [
+        Column(children: [
+          searchTextFieldAndFilterWidget(context,
+              projectController: projectController,
+              notesSearchController: notesSearchController),
+          SizedBox(
+            height: screenHeight(context) * 0.02,
+          ),
+          notesTextWidget(constraints),
+          projectController.isSearching.isTrue
+              ? commentsSectionWidget(
+                  context, projectController, scrollController)
+              : isNotSearchingColumn(
+                  constraints, projectController, scrollController, context),
+        ]),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: commentBox(context, commentController, submitComment, setState,
+              attachFile, projectController),
+        )
+      ],
+    ),
   );
 }
 
@@ -324,84 +330,23 @@ Row searchNotesWidget(BuildContext context, ProjectController projectController,
 
 Obx commentsSectionWidget(BuildContext context,
     ProjectController projectController, ScrollController? scrollController) {
-  return Obx(() {
-    return SizedBox(
+  return Obx(
+    () {
+      return SizedBox(
         height: screenHeight(context) * 0.55,
         width: screenWidth(context) * 0.3,
-        child: projectController.isCommentFileUpdatingBefore.isTrue
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const LoadingIndicator(),
-                  txt(txt: 'Please wait\n File is being uploaded', fontSize: 14)
-                ],
+        child: projectController.comments.isEmpty
+            ? Center(
+                child: txt(txt: 'Add comments here', fontSize: 14),
               )
-            : projectController.progress.value != 100 &&
-                    projectController.progress.value != 0.0
-                ? Stack(
-                    children: [
-                      Positioned.fill(
-                          child: Opacity(
-                        opacity: 0.5,
-                        child: Container(color: Colors.white),
-                      )),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                                height: 30,
-                                width: 350,
-                                child: LiquidLinearProgressIndicator(
-                                    value:
-                                        projectController.progress.value / 100,
-                                    valueColor: const AlwaysStoppedAnimation(Color(
-                                        secondaryColor)), // Defaults to the current Theme's accentColor.
-                                    backgroundColor: Colors.white,
-                                    borderColor: const Color(mainColor),
-                                    borderWidth: 5.0,
-                                    borderRadius: 12.0,
-                                    direction: Axis.horizontal,
-                                    center: txt(
-                                        txt:
-                                            "${projectController.progress.value.ceil()}%",
-                                        fontSize: 18))),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: txt(
-                                  txt: 'Please wait\n File is being uploaded',
-                                  fontSize: 14),
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-                : projectController.isCommentFileUpdatingAfter.isTrue
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const LoadingIndicator(),
-                          txt(txt: 'Uploading, Almost finished', fontSize: 14)
-                        ],
-                      )
-                    : projectController.comments.isEmpty
-                        ? Center(
-                            child: txt(txt: 'Add comments here', fontSize: 14),
-                          )
-                        : projectController.searchedNote.isEmpty
-                            ? Center(
-                                child: txt(
-                                    txt: 'Please enter the desired note',
-                                    fontSize: 14),
-                              )
-                            : searchedNotesListViewBuilder(
-                                context,
-                                scrollController,
-                                projectController,
-                              ));
-  });
+            : searchedNotesListViewBuilder(
+                context,
+                scrollController,
+                projectController,
+              ),
+      );
+    },
+  );
 }
 
 String getFileType(String filePath) {
@@ -515,6 +460,7 @@ Expanded commentTextfieldWidget(
     Future<void> Function() submitComment,
     Future<void> Function() attachFile,
     ProjectController projectController) {
+  final formKey = GlobalKey<FormState>();
   return Expanded(
     flex: 2,
     child: Padding(
@@ -524,8 +470,6 @@ Expanded commentTextfieldWidget(
         onKey: (RawKeyEvent event) {
           if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
             if (event.isShiftPressed) {
-              // Add a new line character to the comment text.
-
               commentController!.value = TextEditingValue(
                 text: '${commentController.text}\n',
                 selection: TextSelection.collapsed(
@@ -533,17 +477,27 @@ Expanded commentTextfieldWidget(
                 ),
               );
             } else {
-              // Submit the comment.
-              submitComment();
+              if (formKey.currentState!.validate()) {
+                submitComment();
+                Future.delayed(const Duration(milliseconds: 50), () {
+                  String trimmedValue = commentController!.text;
+                  if (trimmedValue.length >= 5) {
+                    commentController.clear();
+                  }
+                });
+              }
             }
           }
         },
         child: Form(
+          key: formKey,
           child: TextFormField(
             maxLines: null,
+            onEditingComplete: () {},
+            textInputAction: TextInputAction.emergencyCall,
             controller: commentController,
             validator: (value) {
-              if (value!.isNotEmpty) {
+              if (value!.length < 5) {
                 return 'Comment must contain at least 5 characters';
               } else {
                 return null;
@@ -576,6 +530,12 @@ Expanded commentTextfieldWidget(
                     InkWell(
                       onTap: () {
                         submitComment();
+                        Future.delayed(const Duration(milliseconds: 50), () {
+                          String trimmedValue = commentController!.text;
+                          if (trimmedValue.length >= 5) {
+                            commentController.clear();
+                          }
+                        });
                       },
                       child: Icon(
                         Icons.send,
@@ -616,79 +576,12 @@ Column isNotSearchingColumn(
       Obx(() {
         return SizedBox(
             height: screenHeight(context) * 0.55,
-            width: screenWidth(context) * 0.3,
-            child: projectController!.isCommentFileUpdatingBefore.isTrue
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const LoadingIndicator(),
-                      txt(
-                          txt: 'Please wait\n File is being uploaded',
-                          fontSize: 14)
-                    ],
+            child: projectController!.comments.isEmpty
+                ? Center(
+                    child: txt(txt: 'Add comments here', fontSize: 14),
                   )
-                : projectController.progress.value != 100 &&
-                        projectController.progress.value != 0.0
-                    ? Stack(
-                        children: [
-                          Positioned.fill(
-                              child: Opacity(
-                            opacity: 0.5,
-                            child: Container(color: Colors.white),
-                          )),
-                          Align(
-                            alignment: Alignment.center,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                    height: 30,
-                                    width: 350,
-                                    child: LiquidLinearProgressIndicator(
-                                        value:
-                                            projectController.progress.value /
-                                                100,
-                                        valueColor:
-                                            const AlwaysStoppedAnimation(Color(
-                                                secondaryColor)), // Defaults to the current Theme's accentColor.
-                                        backgroundColor: Colors.white,
-                                        borderColor: const Color(mainColor),
-                                        borderWidth: 5.0,
-                                        borderRadius: 12.0,
-                                        direction: Axis.horizontal,
-                                        center: txt(
-                                            txt:
-                                                "${projectController.progress.value.ceil()}%",
-                                            fontSize: 18))),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: txt(
-                                      txt:
-                                          'Please wait\n File is being uploaded',
-                                      fontSize: 14),
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
-                      )
-                    : projectController.isCommentFileUpdatingAfter.isTrue
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const LoadingIndicator(),
-                              txt(
-                                  txt: 'Uploading, Almost finished',
-                                  fontSize: 14)
-                            ],
-                          )
-                        : projectController.comments.isEmpty
-                            ? Center(
-                                child:
-                                    txt(txt: 'Add comments here', fontSize: 14),
-                              )
-                            : notesListViewBuilder(
-                                context, scrollController, projectController));
+                : notesListViewBuilder(
+                    context, scrollController, projectController));
       }),
     ],
   );
@@ -710,8 +603,7 @@ ScrollConfiguration notesListViewBuilder(BuildContext context,
             String? comment = projectController.comments[i].comment;
             String? type = projectController.comments[i].type;
             String? username = projectController.comments[i].username;
-            String? filename = projectController.comments[i].filename;
-            String? downloadUrl = projectController.comments[i].downloadUrl;
+
             DateTime created = !kIsWeb
                 ? projectController.comments[i].createdAt!
                 : (projectController.comments[i].createdAt as Timestamp)
@@ -727,20 +619,19 @@ ScrollConfiguration notesListViewBuilder(BuildContext context,
               return usersMsg(context,
                   created: created,
                   username: username,
-                  filename: filename,
-                  downloadUrl: downloadUrl,
                   nameFirstChar: firstChar[0],
                   type: type,
+                  files: projectController.comments[i].fileNameAndDownloadUrl,
                   comment: comment);
             } else if (projectController.commentsFilter.value == 2) {
               return projectController.comments[i].type.toString() == 'text'
                   ? usersMsg(context,
                       created: created,
                       username: username,
-                      filename: filename,
-                      downloadUrl: downloadUrl,
                       nameFirstChar: firstChar[0],
                       type: type,
+                      files:
+                          projectController.comments[i].fileNameAndDownloadUrl,
                       comment: comment)
                   : Container();
             } else {
@@ -748,10 +639,10 @@ ScrollConfiguration notesListViewBuilder(BuildContext context,
                   ? usersMsg(context,
                       created: created,
                       username: username,
-                      filename: filename,
-                      downloadUrl: downloadUrl,
                       nameFirstChar: firstChar[0],
                       type: type,
+                      files:
+                          projectController.comments[i].fileNameAndDownloadUrl,
                       comment: comment)
                   : Container();
             }
@@ -777,9 +668,7 @@ ScrollConfiguration searchedNotesListViewBuilder(
             String comment = projectController.comments[i].comment ?? '';
             String type = projectController.comments[i].type ?? '';
             String username = projectController.comments[i].username ?? '';
-            String filename = projectController.comments[i].filename ?? '';
-            String downloadUrl =
-                projectController.comments[i].downloadUrl ?? '';
+
             var created = !kIsWeb
                 ? projectController.comments[i].createdAt
                 : (projectController.comments[i].createdAt as Timestamp)
@@ -797,11 +686,9 @@ ScrollConfiguration searchedNotesListViewBuilder(
               return Expanded(
                 child: usersMsg(context,
                     created: created,
-                    username: username,
-                    filename: filename,
-                    downloadUrl: downloadUrl,
                     nameFirstChar: firstChar[0],
                     type: type,
+                    files: projectController.comments[i].fileNameAndDownloadUrl,
                     comment: comment),
               );
             } else {
