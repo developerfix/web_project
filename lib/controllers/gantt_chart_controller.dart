@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:ava/constants/style.dart';
 import 'package:ava/controllers/project_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

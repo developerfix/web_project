@@ -419,7 +419,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         Row(
                           children: [
                             txt(txt: 'OR', fontSize: 12),
-                            SizedBox(
+                            const SizedBox(
                               width: 16,
                             ),
                             const Expanded(child: Divider())

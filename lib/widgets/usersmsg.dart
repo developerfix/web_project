@@ -153,11 +153,6 @@ GetBuilder fileContainerForUserMsg(
             shrinkWrap: true,
             itemCount: commentFiles.length,
             itemBuilder: (context, i) {
-              // double? progress = controller.uploadProgress[commentFiles[i][0]];
-              // // print('prog: ${controller.uploadProgress[commentFiles[i][0]]}');
-              // print(
-              //     'Upload progress for $commentFiles[i][0]: ${controller.uploadProgress[commentFiles[i][0]].toStringAsFixed(2)}');
-
               // Extract the file extension from the file name
               String fileExtension = commentFiles[i][0].split('.').last;
               // Define the thumbnail URL based on the file type
@@ -200,7 +195,7 @@ GetBuilder fileContainerForUserMsg(
                   padding: const EdgeInsets.only(top: 8),
                   child: txt(
                       txt: commentFiles[i][0],
-                      fontColor: Color(secondaryColor),
+                      fontColor: const Color(secondaryColor),
                       fontSize: 16),
                 );
               }
@@ -235,7 +230,7 @@ GetBuilder fileContainerForUserMsg(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                           txt(txt: commentFiles[i][0], fontSize: 16),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                           Padding(
@@ -244,9 +239,10 @@ GetBuilder fileContainerForUserMsg(
                               children: [
                                 LinearProgressIndicator(
                                   minHeight: 20,
-                                  backgroundColor: Color(secondaryColor),
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Color(mainColor)),
+                                  backgroundColor: const Color(secondaryColor),
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                          Color(mainColor)),
                                   value: double.parse(controller
                                       .uploadProgress[commentFiles[i][0]]
                                       .toString()),
@@ -254,7 +250,7 @@ GetBuilder fileContainerForUserMsg(
                                 Center(
                                   child: Text(
                                     '${controller.uploadProgress[commentFiles[i][0]]}%',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
@@ -274,21 +270,24 @@ GetBuilder fileContainerForUserMsg(
                           child: Column(
                             children: [
                               Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: Image.network(
-                                    thumbnailUrl,
-                                    fit: BoxFit.cover,
-                                    // loadingBuilder:
-                                    //     (context, error, stackTrace) {
-                                    //   print('error: $error');
-                                    //   return Center(
-                                    //       child:
-                                    //           const CircularProgressIndicator());
-                                    // },
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            const Icon(Icons.error),
+                                child: Hero(
+                                  tag: 'photo',
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    child: Image.network(
+                                      thumbnailUrl,
+                                      fit: BoxFit.cover,
+                                      // loadingBuilder:
+                                      //     (context, error, stackTrace) {
+                                      //   print('error: $error');
+                                      //   return Center(
+                                      //       child:
+                                      //           const CircularProgressIndicator());
+                                      // },
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              const Icon(Icons.error),
+                                    ),
                                   ),
                                 ),
                               ),

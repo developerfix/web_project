@@ -1,5 +1,6 @@
 import 'package:ava/controllers/project_controller.dart';
 import 'package:ava/widgets/popup_button.dart';
+import 'package:ava/widgets/task_deliverable_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ava/constants/style.dart';
@@ -244,7 +245,7 @@ Future<dynamic> addNewTaskPopUp(BuildContext context,
                                         context,
                                         constraints,
                                       ),
-                                      deliverablesWidget(context),
+                                      taskDeliverablesWidget(context),
                                       const Spacer(
                                         flex: 2,
                                       ),

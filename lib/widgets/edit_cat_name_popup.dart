@@ -8,11 +8,9 @@ import 'package:ava/widgets/popup_textfield.dart';
 import '../constants/style.dart';
 import '../controllers/auth_controller.dart';
 
-Future<dynamic> editNamePopUp(
-  BuildContext context,
-) {
+Future<dynamic> editAssetCategoryNamePopUp(BuildContext context, String title) {
   final nameController = TextEditingController();
-  final ProfileController profileController = Get.find();
+  final ProjectController projectController = Get.find();
 
   final formKey = GlobalKey<FormState>();
 
@@ -37,11 +35,11 @@ Future<dynamic> editNamePopUp(
                             child: Column(
                               children: <Widget>[
                                 txt(
-                                  txt: 'Edit name',
-                                  fontSize: 50,
+                                  txt: 'Edit Category Name',
+                                  fontSize: 40,
                                   fontColor: const Color(0XFFab9eab),
                                   font: 'Comfortaa',
-                                  letterSpacing: 6,
+                                  letterSpacing: 4,
                                   fontWeight: FontWeight.w700,
                                 ),
                                 const Padding(
@@ -53,7 +51,7 @@ Future<dynamic> editNamePopUp(
                                   child: itemRow(context,
                                       widget: popUpTextField(
                                         context,
-                                        hint: '...',
+                                        hint: "$title...",
                                         controller: nameController,
                                       ),
                                       title: 'Name'),
@@ -66,9 +64,10 @@ Future<dynamic> editNamePopUp(
                                   children: [
                                     popupButton(context, ontap: () {
                                       if (formKey.currentState!.validate()) {
-                                        profileController
-                                            .editName(nameController.text);
                                         Get.back();
+                                        projectController.editCategoryName(
+                                            newName: nameController.text,
+                                            oldCategoryName: title);
                                       }
                                     }, text: 'Edit'),
                                   ],

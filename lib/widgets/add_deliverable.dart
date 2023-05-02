@@ -1,4 +1,5 @@
 import 'package:ava/widgets/popup_button.dart';
+import 'package:ava/widgets/task_deliverable_widget.dart';
 import 'package:get/get.dart';
 import '../constants/style.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +51,7 @@ Future<dynamic> addTaskDeliverableDialog(
                     fontSize: screenWidth(context) < 800 ? 15 : 20,
                   ),
                   const Spacer(),
-                  deliverablesWidget(context),
+                  taskDeliverablesWidget(context),
                   const Spacer(),
                   Row(
                     mainAxisAlignment: screenWidth(context) < 1000

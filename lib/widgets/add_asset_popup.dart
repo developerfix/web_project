@@ -39,9 +39,15 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                             Get.back();
                             addLinkAssetPopUp(context);
                           },
-                          child: txt(
-                            txt: 'Create new Hyperlink',
-                            fontSize: 30,
+                          child: SizedBox(
+                            height: 100,
+                            width: 500,
+                            child: Center(
+                              child: txt(
+                                txt: 'Create new Hyperlink',
+                                fontSize: 30,
+                              ),
+                            ),
                           ),
                         ),
                         const Spacer(),
@@ -55,9 +61,15 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
                             Get.back();
                             addFileAssetPopUp(context);
                           },
-                          child: txt(
-                            txt: 'Upload file from Device',
-                            fontSize: 30,
+                          child: SizedBox(
+                            height: 100,
+                            width: 500,
+                            child: Center(
+                              child: txt(
+                                txt: 'Upload file from Device',
+                                fontSize: 30,
+                              ),
+                            ),
                           ),
                         ),
                         const Spacer(),

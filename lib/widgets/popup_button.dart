@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants/style.dart';
 
 InkWell popupButton(BuildContext context,
-    {required String text, required Function() ontap}) {
+    {required String text, Function()? ontap}) {
   return InkWell(
     onTap: ontap,
     child: Container(

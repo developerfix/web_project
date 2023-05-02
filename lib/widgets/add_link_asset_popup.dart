@@ -7,12 +7,14 @@ import 'package:flutter/material.dart';
 
 import '../controllers/auth_controller.dart';
 import '../controllers/project_controller.dart';
+import 'asset_catagory_widgets.dart';
 
 Future<dynamic> addLinkAssetPopUp(BuildContext context) {
   final pathController = TextEditingController();
   final pathNameController = TextEditingController();
   final categoryTitleController = TextEditingController();
   final ProjectController projectController = Get.find();
+  projectController.selectedAssetFiles.clear();
   final AuthController authController = Get.find();
   final formKey = GlobalKey<FormState>();
 
@@ -29,7 +31,7 @@ Future<dynamic> addLinkAssetPopUp(BuildContext context) {
                       (projectController.assetCategory.value == newAssetCategory
                           ? 0.6
                           : 0.5),
-                  width: screenWidth(context) * 0.5,
+                  width: 1000,
                   child: Column(
                     children: [
                       popUpCloseButton,
@@ -140,132 +142,16 @@ Future<dynamic> addLinkAssetPopUp(BuildContext context) {
                                             height:
                                                 screenHeight(context) * 0.04,
                                           ),
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width:
-                                                    screenWidth(context) * 0.15,
-                                                child: txt(
-                                                  txt: 'Category:',
-                                                  fontSize: 30,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width:
-                                                    screenWidth(context) * 0.02,
-                                              ),
-                                              Container(
-                                                width:
-                                                    screenWidth(context) * 0.2,
-                                                height: screenHeight(context) *
-                                                    0.05,
-                                                decoration: authController
-                                                        .isDarkTheme.value
-                                                    ? darkThemeBoxDecoration
-                                                    : lightThemeBoxDecoration,
-                                                child: Center(
-                                                  child:
-                                                      DropdownButtonFormField(
-                                                    // itemHeight: 15,
-                                                    // menuMaxHeight: 30,
-                                                    items: <String>[
-                                                      noCategory,
-                                                      newAssetCategory
-                                                    ].map((String value) {
-                                                      return DropdownMenuItem<
-                                                          String>(
-                                                        value: value,
-                                                        child: Text(value),
-                                                      );
-                                                    }).toList(),
-
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        projectController
-                                                                .assetCategory
-                                                                .value =
-                                                            value.toString();
-                                                        projectController
-                                                            .update();
-                                                      });
-                                                    },
-                                                    style:
-                                                        GoogleFonts.montserrat(
-                                                      textStyle:
-                                                          const TextStyle(
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        letterSpacing: 0,
-                                                        color: brownishColor,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
-                                                    ),
-                                                    decoration: InputDecoration(
-                                                      border: InputBorder.none,
-                                                      filled: true,
-                                                      hintStyle: GoogleFonts
-                                                          .montserrat(
-                                                        textStyle:
-                                                            const TextStyle(
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          letterSpacing: 0,
-                                                          color: brownishColor,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                      hintText:
-                                                          projectController
-                                                              .assetCategory
-                                                              .value,
-                                                      fillColor: authController
-                                                              .isDarkTheme.value
-                                                          ? Colors.black12
-                                                          : Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                          categoryDropDown(
+                                              context,
+                                              authController,
+                                              setState,
+                                              projectController),
                                           projectController
                                                       .assetCategory.value ==
                                                   newAssetCategory
-                                              ? Column(
-                                                  children: [
-                                                    SizedBox(
-                                                      height: screenHeight(
-                                                              context) *
-                                                          0.04,
-                                                    ),
-                                                    Row(
-                                                      children: [
-                                                        SizedBox(
-                                                          width: screenWidth(
-                                                                  context) *
-                                                              0.15,
-                                                          child: txt(
-                                                            txt:
-                                                                'New category title',
-                                                            fontSize: 30,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          width: screenWidth(
-                                                                  context) *
-                                                              0.02,
-                                                        ),
-                                                        popUpTextField(context,
-                                                            controller:
-                                                                categoryTitleController,
-                                                            hint:
-                                                                'exp: Media files'),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                )
+                                              ? newCategoryTextField(context,
+                                                  categoryTitleController)
                                               : Container(),
                                           SizedBox(
                                             height:
@@ -300,6 +186,7 @@ Future<dynamic> addLinkAssetPopUp(BuildContext context) {
                                                             .value ==
                                                         newAssetCategory
                                                     ? categoryTitleController
+                                                        .text
                                                     : projectController
                                                         .assetCategory.value);
                                       } else {

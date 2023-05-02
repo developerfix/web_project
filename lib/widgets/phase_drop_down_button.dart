@@ -11,7 +11,7 @@ Container phaseDropDownButton(BuildContext context, StateSetter setState,
   final ProjectController projectController = Get.find();
   final AuthController authController = Get.find();
   return Container(
-    width: screenWidth(context) * 0.2,
+    width: 450,
     height: screenHeight(context) * 0.05,
     decoration: authController.isDarkTheme.value
         ? darkThemeBoxDecoration

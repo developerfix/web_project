@@ -1,5 +1,6 @@
 import 'package:ava/models/asset.dart';
 import 'package:ava/widgets/edit_asset_file_popup.dart';
+import 'package:ava/widgets/edit_cat_name_popup.dart';
 import 'package:ava/widgets/plus_icon_widget.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
@@ -103,10 +104,14 @@ Expanded assetsList(List<Asset> noCategoriesAssets,
                               Uri.parse(noCategoriesAssets[index].path!))
                           : null;
                     },
-                    leading: Icon(Icons.link,
-                        color: checkThemeColorwhite54, size: 18),
+                    leading: Icon(
+                        noCategoriesAssets[index].type == linkAssetType
+                            ? Icons.link
+                            : Icons.insert_drive_file,
+                        color: checkThemeColorwhite54,
+                        size: 18),
                     title: txt(
-                        txt: noCategoriesAssets[index].pathName!,
+                        txt: noCategoriesAssets[index].pathName ?? '',
                         fontSize: 14,
                         minFontSize: 14,
                         maxLines: 1,
@@ -121,10 +126,11 @@ Expanded assetsList(List<Asset> noCategoriesAssets,
                             Uri.parse(noCategoriesAssets[index].path!))
                         : null;
                   },
-                  leading: const Icon(Icons.link,
-                      color: Color(
-                        secondaryColor,
-                      ),
+                  leading: Icon(
+                      noCategoriesAssets[index].type == linkAssetType
+                          ? Icons.link
+                          : Icons.insert_drive_file,
+                      color: checkThemeColorwhite54,
                       size: 18),
                   title: txt(
                       txt: noCategoriesAssets[index].pathName!,
@@ -135,12 +141,19 @@ Expanded assetsList(List<Asset> noCategoriesAssets,
                   trailing: PopupMenuButton(
                       onSelected: (value) async {
                         if (value == 1) {
-                          noCategoriesAssets[index].path! != linkAssetType
+                          noCategoriesAssets[index].type! == linkAssetType
                               ? editAssetLinkPopUp(context,
                                   path: noCategoriesAssets[index].path!,
+                                  category:
+                                      noCategoriesAssets[index].assetCategory,
                                   pathName: noCategoriesAssets[index].pathName!,
                                   assetID: noCategoriesAssets[index].assetID)
-                              : editAssetFilePopUp(context);
+                              : editAssetFilePopUp(context,
+                                  path: noCategoriesAssets[index].path!,
+                                  category:
+                                      noCategoriesAssets[index].assetCategory,
+                                  pathName: noCategoriesAssets[index].pathName!,
+                                  assetID: noCategoriesAssets[index].assetID);
                         } else {
                           await projectController.deleteProjectAsset(
                               assetID: noCategoriesAssets[index].assetID);
@@ -235,8 +248,12 @@ ListView expandableWidget(
                           ? await launchUrl(Uri.parse(path))
                           : null;
                     },
-                    leading: Icon(Icons.link,
-                        color: checkThemeColorwhite54, size: 18),
+                    leading: Icon(
+                        type == linkAssetType
+                            ? Icons.link
+                            : Icons.insert_drive_file,
+                        color: checkThemeColorwhite54,
+                        size: 18),
                     title: txt(
                         txt: pathName,
                         fontSize: 14,
@@ -251,10 +268,11 @@ ListView expandableWidget(
                         ? await launchUrl(Uri.parse(path))
                         : null;
                   },
-                  leading: const Icon(Icons.link,
-                      color: Color(
-                        secondaryColor,
-                      ),
+                  leading: Icon(
+                      type == linkAssetType
+                          ? Icons.link
+                          : Icons.insert_drive_file,
+                      color: checkThemeColorwhite54,
                       size: 18),
                   title: txt(
                       txt: pathName,
@@ -269,8 +287,13 @@ ListView expandableWidget(
                               ? editAssetLinkPopUp(context,
                                   path: path,
                                   pathName: pathName,
+                                  category: cat,
                                   assetID: assetID)
-                              : editAssetFilePopUp(context);
+                              : editAssetFilePopUp(context,
+                                  path: path,
+                                  category: cat,
+                                  pathName: pathName,
+                                  assetID: assetID);
                         } else {
                           await projectController.deleteProjectAsset(
                               assetID: projectController.assets[i].assetID);
@@ -355,6 +378,15 @@ ExpandableNotifier assetSectionWidget({
                             ),
                             GestureDetector(
                                 onTap: () {
+                                  editAssetCategoryNamePopUp(context, title);
+                                },
+                                child: Icon(
+                                  Icons.edit,
+                                  size: 16,
+                                  color: checkThemeColorwhite54,
+                                )),
+                            GestureDetector(
+                                onTap: () {
                                   controller.toggle();
                                 },
                                 child: Icon(
@@ -383,6 +415,15 @@ ExpandableNotifier assetSectionWidget({
                                   fontColor: checkThemeColorwhite54),
                             ),
                             const Spacer(),
+                            GestureDetector(
+                                onTap: () {
+                                  editAssetCategoryNamePopUp(context, title);
+                                },
+                                child: Icon(
+                                  Icons.edit,
+                                  size: 16,
+                                  color: checkThemeColorwhite54,
+                                )),
                             GestureDetector(
                                 onTap: () {
                                   controller.toggle();

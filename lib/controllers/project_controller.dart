@@ -9,15 +9,12 @@ import 'package:ava/pages/projects_grid.dart';
 import 'package:ava/widgets/notes_section.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ava/models/project.dart';
 import 'package:ava/models/project_member.dart';
 import 'package:ava/models/task.dart' as task_model;
 import 'package:ava/pages/project_dashboard.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:path/path.dart';
 import '../constants/style.dart';
 import 'package:firebase_dart/storage.dart' as firebase_dart_storage;
 
@@ -39,19 +36,22 @@ class ProjectController extends GetxController {
   RxList<Comment> comments = <Comment>[].obs;
   RxList<File> commentFiles = <File>[].obs;
   RxList<Asset> assets = <Asset>[].obs;
+  RxList<String> assetsCategories = <String>[].obs;
   RxList<dynamic> users = <dynamic>[].obs;
   RxList<dynamic> projectMembers = <dynamic>[].obs;
   RxList<dynamic> toDoTasks = <dynamic>[].obs;
   RxList<dynamic> inProgressTasks = <dynamic>[].obs;
   RxList<dynamic> completedTasks = <dynamic>[].obs;
   RxList<dynamic> selectedDeliverables = <dynamic>[].obs;
-  RxList<dynamic> assetFiles = <dynamic>[].obs;
+  RxList<dynamic> selectedAssetFiles = <dynamic>[].obs;
   final uploadProgress = {}.obs;
+  final selectedAssetFilesUploadProgress = {}.obs;
   Rx<double> progress = 0.0.obs;
   Rx<int> commentsFilter = 1.obs;
   Rx<int> taskPrioritySelectedValue = 1.obs;
   Rx<int> taskSelectedValue = 1.obs;
   Rx<double> deliverableUplaodingProgress = 0.0.obs;
+  Rx<double> assetFileUplaodingProgress = 0.0.obs;
   Rx<String> phaseValue = "".obs;
   Rx<int> iconCodeValue = 0xe1a3.obs;
   Rx<String> assetCategory = "".obs;
@@ -82,7 +82,9 @@ class ProjectController extends GetxController {
   }
 
   getProjectAssets() async {
+    List<String> tempCats = [];
     assets.clear();
+    assetsCategories.clear();
     if (!kIsWeb) {
       var projectAssets = await firedartFirestore
           .collection('users')
@@ -113,6 +115,17 @@ class ProjectController extends GetxController {
       for (var asset in projectAssets.docs) {
         assets.add((Asset.fromQuerySnap(asset)));
       }
+    }
+    for (var asset in assets) {
+      tempCats.add(asset.assetCategory!);
+    }
+
+    assetsCategories.value = [
+      ...{...tempCats}
+    ];
+    assetsCategories.add(newAssetCategory);
+    if (!assetsCategories.contains(noCategory)) {
+      assetsCategories.add(noCategory);
     }
   }
 
@@ -169,6 +182,44 @@ class ProjectController extends GetxController {
           users.add((user.data() as dynamic));
         }
       });
+    }
+  }
+
+  editCategoryName(
+      {required String newName, required String oldCategoryName}) async {
+    List<Asset> listOfAssets = [];
+    for (var asset in assets) {
+      if (asset.assetCategory == oldCategoryName) {
+        listOfAssets.add(asset);
+        asset.assetCategory = newName;
+      }
+    }
+    update();
+
+    for (var asset in listOfAssets) {
+      if (!kIsWeb) {
+        await firedartFirestore
+            .collection('users')
+            .document(_uid.value)
+            .collection('departments')
+            .document(_departmentId.value)
+            .collection('projects')
+            .document(_projectId.value)
+            .collection('assets')
+            .document(asset.assetID!)
+            .update({'assetCategory': newName});
+      } else {
+        await firestore
+            .collection('users')
+            .doc(_uid.value)
+            .collection('departments')
+            .doc(_departmentId.value)
+            .collection('projects')
+            .doc(_projectId.value)
+            .collection('assets')
+            .doc(asset.assetID!)
+            .update({'assetCategory': newName});
+      }
     }
   }
 
@@ -694,10 +745,12 @@ class ProjectController extends GetxController {
   void addNewAsset({type, path, pathName, assetCategoryTitle}) async {
     FutureGroup futureGroup = FutureGroup();
     String assetID = '';
+    if (!assetsCategories.contains(assetCategoryTitle)) {
+      assetsCategories.add(assetCategoryTitle);
+    }
 
     if (!kIsWeb) {
       try {
-        update();
         for (var member in projectMembers) {
           futureGroup.add(firedartFirestore
               .collection('users')
@@ -790,7 +843,9 @@ class ProjectController extends GetxController {
 
   void editAsset({type, path, pathName, assetID, assetCategoryTitle}) async {
     FutureGroup futureGroup = FutureGroup();
-
+    if (!assetsCategories.contains(assetCategoryTitle)) {
+      assetsCategories.add(assetCategoryTitle);
+    }
     assets.removeWhere((element) => element.assetID == assetID);
     Asset asset = Asset(
         assetCategory: assetCategoryTitle,
@@ -943,11 +998,6 @@ class ProjectController extends GetxController {
       List<File> newList = [...result!];
       commentFiles.clear();
       Map fileNameAndDownloadUrl = {};
-      // Map fileNameAndDownloadUrlDummy = {};
-      // for (var element in result!) {
-      //   String fileName = getFileName(element.path);
-      //   fileNameAndDownloadUrlDummy[fileName] = 'element.path';
-      // }
 
       Comment commentt = Comment(
           type: 'file',
@@ -978,6 +1028,7 @@ class ProjectController extends GetxController {
           int percentage = (progress * 100).round();
 
           uploadProgress[fileName] = percentage;
+
           update();
         });
 
@@ -1060,7 +1111,8 @@ class ProjectController extends GetxController {
           isSelectedDeliverablesUpdatingBefore.value = true;
           var storage =
               firebase_dart_storage.FirebaseStorage.instanceFor(app: app);
-          var ref = storage.ref().child("files/$key").putData(value!);
+          var ref =
+              storage.ref().child("taskDeliverables/$key").putData(value!);
 
           ref.snapshotEvents.listen((event) {
             isSelectedDeliverablesUpdatingBefore.value = false;
@@ -1098,6 +1150,7 @@ class ProjectController extends GetxController {
   }
 
   addFileInAsset() async {
+    // selectedAssetFilesUploadProgress.clear();
     FilePickerResult? result = await FilePicker.platform
         .pickFiles(withData: true, allowMultiple: true);
 
@@ -1112,35 +1165,34 @@ class ProjectController extends GetxController {
         String? urlDownload;
 
         try {
-          isSelectedDeliverablesUpdatingBefore.value = true;
-          var storage =
-              firebase_dart_storage.FirebaseStorage.instanceFor(app: app);
-          var ref = storage.ref().child("assetfiles/$key").putData(value!);
+          firebase_dart_storage.UploadTask uploadTask =
+              firebase_dart_storage.FirebaseStorage.instanceFor(app: app)
+                  .ref()
+                  .child("assetFiles/$key")
+                  .putData(value!);
+          selectedAssetFiles.add({
+            "urlDownload": urlDownload,
+            "filename": key,
+          });
 
-          ref.snapshotEvents.listen((event) {
-            isSelectedDeliverablesUpdatingBefore.value = false;
-            deliverableUplaodingProgress.value =
-                ((event.bytesTransferred.toDouble() /
-                        event.totalBytes.toDouble()) *
-                    100);
-            if (event.state == firebase_dart_storage.TaskState.success) {
-              isSelectedDeliverablesUpdatingAfter.value = true;
+          uploadTask.snapshotEvents
+              .listen((firebase_dart_storage.TaskSnapshot snapshot) async {
+            double assetFileUplaodingProgress =
+                (snapshot.bytesTransferred / snapshot.totalBytes);
+            urlDownload = await snapshot.ref.getDownloadURL();
 
-              event.ref.getDownloadURL().then((downloadUrl) async {
-                urlDownload = downloadUrl;
+            int percentage = (assetFileUplaodingProgress * 100).round();
 
-                assetFiles.add({
-                  "urlDownload": urlDownload,
-                  "filename": event.ref.name,
-                });
-
-                isSelectedDeliverablesUpdatingAfter.value = false;
-              });
+            selectedAssetFilesUploadProgress[key] = percentage;
+            for (var element in selectedAssetFiles) {
+              if (element['filename'] == key) {
+                element['urlDownload'] = urlDownload;
+              }
             }
+
+            update();
           });
         } catch (e) {
-          isSelectedDeliverablesUpdatingBefore.value = false;
-          isSelectedDeliverablesUpdatingAfter.value = false;
           //define error
           getErrorSnackBar(
             "Something went wrong, Please try again",
