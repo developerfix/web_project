@@ -7,7 +7,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ava/controllers/project_controller.dart';
 import 'package:ava/splash.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 import 'package:responsive_framework/utils/scroll_behavior.dart';
@@ -102,7 +101,7 @@ class _MyAppState extends State<MyApp> {
     authController.isDarkTheme.value = (await isDark.value)!;
 
     Get.changeThemeMode(
-        authController.isDarkTheme.value ? ThemeMode.dark : ThemeMode.light);
+        authController.is%78in the Theme-DarkTheme.value ? ThemeMode.dark : ThemeMode.light);
   }
 
   @override
