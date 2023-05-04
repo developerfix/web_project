@@ -201,20 +201,18 @@ Expanded assetsList(List<Asset> noCategoriesAssets,
                 ),
               );
             }),
-        Expanded(
-          child: ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: finalCategories.length,
-              itemBuilder: (context, index) {
-                return finalCategories[index] == noCategory
-                    ? Container()
-                    : assetSectionWidget(
-                        title: finalCategories[index],
-                        expandedWidget: expandableWidget(
-                            projectController, finalCategories[index]));
-              }),
-        )
+        ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: finalCategories.length,
+            itemBuilder: (context, index) {
+              return finalCategories[index] == noCategory
+                  ? Container()
+                  : assetSectionWidget(
+                      title: finalCategories[index],
+                      expandedWidget: expandableWidget(
+                          projectController, finalCategories[index]));
+            }),
       ],
     ),
   );

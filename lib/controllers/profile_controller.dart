@@ -8,11 +8,9 @@ import 'package:path/path.dart';
 
 import '../constants/style.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:firebase_dart/core.dart' as firebase_dart;
 import '../models/department.dart';
 import '../models/project.dart';
 import '../models/user.dart';
-import 'auth_controller.dart';
 
 class ProfileController extends GetxController {
   Rx<User> currentUser = User().obs;

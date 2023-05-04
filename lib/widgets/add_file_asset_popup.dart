@@ -1,9 +1,7 @@
 import 'package:ava/controllers/auth_controller.dart';
 import 'package:ava/controllers/project_controller.dart';
 import 'package:ava/widgets/popup_button.dart';
-import 'package:ava/widgets/popup_textfield.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../constants/style.dart';
 import 'package:flutter/material.dart';
 

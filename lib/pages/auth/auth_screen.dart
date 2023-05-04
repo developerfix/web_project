@@ -7,7 +7,6 @@ import 'package:ava/controllers/auth_controller.dart';
 import 'package:get/get.dart';
 
 import '../../controllers/input_validators.dart';
-import '../../controllers/project_controller.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key}) : super(key: key);
@@ -65,7 +64,6 @@ class _AuthScreenState extends State<AuthScreen> {
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
     final cnfPassController = TextEditingController();
-    final AuthController authController = Get.find();
 
     return Expanded(
         child: Stack(

@@ -69,9 +69,9 @@ GetBuilder assetFilesWidget(
                                               LinearProgressIndicator(
                                                 minHeight: 20,
                                                 backgroundColor:
-                                                    Color(secondaryColor),
+                                                    const Color(secondaryColor),
                                                 valueColor:
-                                                    AlwaysStoppedAnimation<
+                                                    const AlwaysStoppedAnimation<
                                                             Color>(
                                                         Color(mainColor)),
                                                 value: double.parse(controller
@@ -84,7 +84,7 @@ GetBuilder assetFilesWidget(
                                               Center(
                                                 child: Text(
                                                   '${controller.selectedAssetFilesUploadProgress[controller.selectedAssetFiles[index]['filename']]}%',
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 16,
@@ -141,7 +141,7 @@ Row uploadButton(ProjectController controller) {
             style: ButtonStyle(
               backgroundColor:
                   MaterialStateProperty.all(const Color(secondaryColor)),
-              minimumSize: MaterialStateProperty.all(Size(300, 80)),
+              minimumSize: MaterialStateProperty.all(const Size(300, 80)),
             ),
             onPressed: () {
               controller.addFileInAsset();

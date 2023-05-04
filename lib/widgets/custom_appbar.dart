@@ -1,4 +1,3 @@
-import 'package:ava/controllers/profile_controller.dart';
 import 'package:ava/widgets/profile_avatar.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';

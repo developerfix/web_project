@@ -1,5 +1,4 @@
 import 'package:ava/controllers/project_controller.dart';
-import 'package:ava/models/project.dart';
 import 'package:ava/widgets/profile_avatar.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/foundation.dart';
@@ -270,24 +269,21 @@ GetBuilder fileContainerForUserMsg(
                           child: Column(
                             children: [
                               Expanded(
-                                child: Hero(
-                                  tag: 'photo',
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: Image.network(
-                                      thumbnailUrl,
-                                      fit: BoxFit.cover,
-                                      // loadingBuilder:
-                                      //     (context, error, stackTrace) {
-                                      //   print('error: $error');
-                                      //   return Center(
-                                      //       child:
-                                      //           const CircularProgressIndicator());
-                                      // },
-                                      errorBuilder:
-                                          (context, error, stackTrace) =>
-                                              const Icon(Icons.error),
-                                    ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: Image.network(
+                                    thumbnailUrl,
+                                    fit: BoxFit.cover,
+                                    // loadingBuilder:
+                                    //     (context, error, stackTrace) {
+                                    //   print('error: $error');
+                                    //   return Center(
+                                    //       child:
+                                    //           const CircularProgressIndicator());
+                                    // },
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(Icons.error),
                                   ),
                                 ),
                               ),
@@ -306,7 +302,7 @@ textSpanForUserMsg(
     Color? fontColor,
     FontWeight? fontWeight}) {
   return txt(
-      txt: text!,
+      txt: text ?? '',
       fontSize: fontSize ?? 14,
       fontColor: fontColor,
       maxLines: 10000);

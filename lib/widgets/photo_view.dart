@@ -106,8 +106,6 @@ class TestContent extends StatelessWidget {
                 imageProvider: NetworkImage(url),
                 enableRotation: true,
                 filterQuality: FilterQuality.high,
-                heroAttributes:
-                    const photoview.PhotoViewHeroAttributes(tag: 'photo'),
                 gestureDetectorBehavior: HitTestBehavior.deferToChild,
               ),
             ),

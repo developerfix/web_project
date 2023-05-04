@@ -1,6 +1,5 @@
 import 'package:ava/controllers/auth_controller.dart';
 import 'package:ava/pages/departments_grid.dart';
-import 'package:ava/pages/projects_grid.dart';
 import 'package:ava/widgets/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -20,19 +19,17 @@ SizedBox leftSideIcons(BuildContext context, {bool? isProjectsScreen}) {
           Get.offAll(const DepartmentsGrid());
         }, isProjectsScreen: isProjectsScreen),
         homeScreenIcon(context, 'Group 13', ontap: () {
-          print(
-              'SharedPrefs.getData(key: authController.user!.uid + lastOpenedProjectId :${SharedPrefs.getData(key: authController.user!.uid + lastOpenedProjectId)}');
           if (SharedPrefs.getData(
                   key: authController.user!.uid + lastOpenedProjectId) !=
               null) {
-            Get.to(ProjectDashboard(
-              projectId: SharedPrefs.getData(
-                  key: authController.user!.uid + lastOpenedProjectId),
-            ));
+            Get.to(() => ProjectDashboard(
+                  projectId: SharedPrefs.getData(
+                      key: authController.user!.uid + lastOpenedProjectId),
+                ));
           }
         }, isProjectsScreen: isProjectsScreen),
         homeScreenIcon(context, 'Group 12', ontap: () {
-          Get.to(const DepartmentsGrid());
+          Get.to(() => const DepartmentsGrid());
         }, isProjectsScreen: isProjectsScreen),
         homeScreenIcon(context, 'comment_icon',
             isProjectsScreen: isProjectsScreen),

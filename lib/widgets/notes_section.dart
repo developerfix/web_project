@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:ava/controllers/project_controller.dart';
 import 'package:ava/widgets/usersmsg.dart';
 import 'package:mime/mime.dart';
@@ -20,14 +19,13 @@ import '../controllers/auth_controller.dart';
 import '../controllers/profile_controller.dart';
 import 'loading_indicator.dart';
 
+final formKey = GlobalKey<FormState>();
 bool isBeingDragged = false;
 Expanded notesSection(BoxConstraints constraints, BuildContext context,
     {ScrollController? scrollController,
     required ProjectController projectController,
     ProfileController? profileController,
     TextEditingController? commentController}) {
-  final notesSearchController = TextEditingController();
-
   submitComment() async {
     String trimmedValue = commentController!.text.trim();
     if (trimmedValue.length >= 5) {
@@ -99,7 +97,6 @@ Expanded notesSection(BoxConstraints constraints, BuildContext context,
                           ? isBeingDraggedWidget(
                               context,
                               projectController,
-                              notesSearchController,
                               constraints,
                               scrollController,
                               commentController,
@@ -109,7 +106,6 @@ Expanded notesSection(BoxConstraints constraints, BuildContext context,
                           : notBeingDraggedWidget(
                               context,
                               projectController,
-                              notesSearchController,
                               constraints,
                               scrollController,
                               commentController,
@@ -125,7 +121,6 @@ Expanded notesSection(BoxConstraints constraints, BuildContext context,
 Obx notBeingDraggedWidget(
     BuildContext context,
     ProjectController projectController,
-    TextEditingController notesSearchController,
     BoxConstraints constraints,
     ScrollController? scrollController,
     TextEditingController? commentController,
@@ -136,9 +131,10 @@ Obx notBeingDraggedWidget(
     () => Stack(
       children: [
         Column(children: [
-          searchTextFieldAndFilterWidget(context,
-              projectController: projectController,
-              notesSearchController: notesSearchController),
+          searchTextFieldAndFilterWidget(
+            context,
+            projectController: projectController,
+          ),
           SizedBox(
             height: screenHeight(context) * 0.02,
           ),
@@ -175,7 +171,6 @@ Widget notesTextWidget(BoxConstraints constraints) {
 Stack isBeingDraggedWidget(
     BuildContext context,
     ProjectController? projectController,
-    TextEditingController notesSearchController,
     BoxConstraints constraints,
     ScrollController? scrollController,
     TextEditingController? commentController,
@@ -186,9 +181,10 @@ Stack isBeingDraggedWidget(
   return Stack(
     children: [
       Column(children: [
-        searchTextFieldAndFilterWidget(context,
-            projectController: projectController,
-            notesSearchController: notesSearchController),
+        searchTextFieldAndFilterWidget(
+          context,
+          projectController: projectController,
+        ),
         SizedBox(
           height: screenHeight(context) * 0.02,
         ),
@@ -209,14 +205,15 @@ Stack isBeingDraggedWidget(
   );
 }
 
-Row searchTextFieldAndFilterWidget(BuildContext context,
-    {ProjectController? projectController,
-    ScrollController? scrollController,
-    required TextEditingController notesSearchController}) {
+Row searchTextFieldAndFilterWidget(
+  BuildContext context, {
+  ProjectController? projectController,
+  ScrollController? scrollController,
+}) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.end,
     children: [
-      searchNotesWidget(context, projectController!, notesSearchController),
+      searchNotesWidget(context, projectController!),
       filterButton(projectController, scrollController),
     ],
   );
@@ -263,8 +260,10 @@ PopupMenuButton<int> filterButton(
       ));
 }
 
-Row searchNotesWidget(BuildContext context, ProjectController projectController,
-    TextEditingController notesSearchController) {
+Row searchNotesWidget(
+  BuildContext context,
+  ProjectController projectController,
+) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.end,
     children: [
@@ -281,7 +280,6 @@ Row searchNotesWidget(BuildContext context, ProjectController projectController,
               }
             }),
             maxLines: 1,
-            controller: notesSearchController,
             decoration: InputDecoration(
               hintStyle: GoogleFonts.montserrat(
                 textStyle: TextStyle(
@@ -304,24 +302,10 @@ Row searchNotesWidget(BuildContext context, ProjectController projectController,
           )),
       SizedBox(
         height: screenHeight(context) * 0.017,
-        child: InkWell(
-          onTap: () {
-            projectController.isSearching.value = false;
-            projectController.searchedNote.value = '';
-            notesSearchController.text = '';
-            projectController.update();
-          },
-          child: projectController.isSearching.value
-              ? Icon(
-                  Icons.search,
-                  size: 26,
-                  color: checkThemeColorwhite54,
-                )
-              : Icon(
-                  Icons.search,
-                  size: 26,
-                  color: checkThemeColorwhite54,
-                ),
+        child: Icon(
+          Icons.search,
+          size: 26,
+          color: checkThemeColorwhite54,
         ),
       ),
     ],
@@ -460,7 +444,6 @@ Expanded commentTextfieldWidget(
     Future<void> Function() submitComment,
     Future<void> Function() attachFile,
     ProjectController projectController) {
-  final formKey = GlobalKey<FormState>();
   return Expanded(
     flex: 2,
     child: Padding(
@@ -493,8 +476,6 @@ Expanded commentTextfieldWidget(
           key: formKey,
           child: TextFormField(
             maxLines: null,
-            onEditingComplete: () {},
-            textInputAction: TextInputAction.emergencyCall,
             controller: commentController,
             validator: (value) {
               if (value!.length < 5) {
@@ -529,13 +510,15 @@ Expanded commentTextfieldWidget(
                     }),
                     InkWell(
                       onTap: () {
-                        submitComment();
-                        Future.delayed(const Duration(milliseconds: 50), () {
-                          String trimmedValue = commentController!.text;
-                          if (trimmedValue.length >= 5) {
-                            commentController.clear();
-                          }
-                        });
+                        if (formKey.currentState!.validate()) {
+                          submitComment();
+                          Future.delayed(const Duration(milliseconds: 50), () {
+                            String trimmedValue = commentController!.text;
+                            if (trimmedValue.length >= 5) {
+                              commentController.clear();
+                            }
+                          });
+                        }
                       },
                       child: Icon(
                         Icons.send,
@@ -683,14 +666,12 @@ ScrollConfiguration searchedNotesListViewBuilder(
                 projectController.searchedNote.value.toLowerCase();
             String lowerCaseComment = comment.toLowerCase();
             if (lowerCaseComment.contains(lowerCaseSearchedNote)) {
-              return Expanded(
-                child: usersMsg(context,
-                    created: created,
-                    nameFirstChar: firstChar[0],
-                    type: type,
-                    files: projectController.comments[i].fileNameAndDownloadUrl,
-                    comment: comment),
-              );
+              return usersMsg(context,
+                  created: created,
+                  nameFirstChar: firstChar[0],
+                  type: type,
+                  files: projectController.comments[i].fileNameAndDownloadUrl,
+                  comment: comment);
             } else {
               return Container();
             }

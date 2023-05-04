@@ -12,7 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/style.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/project_controller.dart';
-import 'cached_image.dart';
 
 class EndDrawerWidget extends StatefulWidget {
   const EndDrawerWidget({

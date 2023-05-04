@@ -1,7 +1,6 @@
 import 'package:ava/pages/projects_grid.dart';
 import 'package:ava/widgets/create_department_popup.dart';
 import 'package:ava/widgets/plus_icon_widget.dart';
-import 'package:ava/widgets/shared_preferences.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -212,10 +211,10 @@ class _DepartmentsGridState extends State<DepartmentsGrid> {
                         },
                         child: GestureDetector(
                           onTap: () {
-                            Get.to(ProjectsGrid(
-                              departmentId: profileController
-                                  .departments[i].departmentId!,
-                            ));
+                            Get.to(() => ProjectsGrid(
+                                  departmentId: profileController
+                                      .departments[i].departmentId!,
+                                ));
                           },
                           child: isHovering
                               ? departmentBox(context,
@@ -310,10 +309,10 @@ class _DepartmentsGridState extends State<DepartmentsGrid> {
                           },
                           child: GestureDetector(
                             onTap: () {
-                              Get.to(ProjectsGrid(
-                                departmentId: profileController
-                                    .departments[i].departmentId!,
-                              ));
+                              Get.to(() => ProjectsGrid(
+                                    departmentId: profileController
+                                        .departments[i].departmentId!,
+                                  ));
                             },
                             child: isHovering
                                 ? departmentBox(context,

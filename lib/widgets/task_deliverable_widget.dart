@@ -1,7 +1,6 @@
 import 'package:ava/constants/style.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
 import '../controllers/project_controller.dart';
 import 'loading_indicator.dart';
@@ -41,7 +40,8 @@ StatefulBuilder taskDeliverablesWidget(
                                   fontSize: 14)
                             ],
                           )
-                        : projectController.deliverableUplaodingProgress.value !=
+                        : projectController
+                                        .deliverableUplaodingProgress.value !=
                                     100 &&
                                 projectController
                                         .deliverableUplaodingProgress.value !=
@@ -49,22 +49,17 @@ StatefulBuilder taskDeliverablesWidget(
                             ? SizedBox(
                                 height: 40,
                                 width: 350,
-                                child: LiquidLinearProgressIndicator(
-                                    value: projectController
-                                            .deliverableUplaodingProgress
-                                            .value /
-                                        100,
-                                    valueColor: const AlwaysStoppedAnimation(Color(
-                                        secondaryColor)), // Defaults to the current Theme's accentColor.
-                                    backgroundColor: Colors.white,
-                                    borderColor: const Color(mainColor),
-                                    borderWidth: 5.0,
-                                    borderRadius: 12.0,
-                                    direction: Axis.horizontal,
-                                    center: txt(
-                                        txt:
-                                            "${projectController.deliverableUplaodingProgress.value.ceil()}%",
-                                        fontSize: 18)))
+                                child: LinearProgressIndicator(
+                                  minHeight: 20,
+                                  backgroundColor: const Color(secondaryColor),
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                          Color(mainColor)),
+                                  value: projectController
+                                          .deliverableUplaodingProgress.value /
+                                      100,
+                                ),
+                              )
                             : projectController
                                     .isSelectedDeliverablesUpdatingAfter.isTrue
                                 ? Column(

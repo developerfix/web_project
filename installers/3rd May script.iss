@@ -3,14 +3,14 @@
 
 #define MyAppName "Ava"
 #define MyAppVersion "1.0"
-#define MyAppPublisher "AvaApp, Inc."
-#define MyAppURL "https://www.avaapp.com/"
+#define MyAppPublisher "Ava, Inc."
+#define MyAppURL "https://www.ava.com/"
 #define MyAppExeName "Ava.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{E8AC26A3-3AB2-47DD-96CA-97FB00B869FD}
+AppId={{309AC79D-49F3-400F-B66B-2CD48CFFC27B}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -23,7 +23,7 @@ DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputDir=C:\Users\DELL\Desktop\Ava\installers
-OutputBaseFilename=Ava
+OutputBaseFilename=Ava setup
 SetupIconFile=C:\Users\DELL\Documents\ava_logo.ico
 Compression=lzma
 SolidCompression=yes
@@ -37,7 +37,15 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "C:\Users\DELL\Desktop\Ava\build\windows\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\DELL\Desktop\Ava\build\windows\runner\Release\Ava.exp"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\DELL\Desktop\Ava\build\windows\runner\Release\Ava.lib"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\DELL\Desktop\Ava\build\windows\runner\Release\bitsdojo_window_windows_plugin.lib"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\DELL\Desktop\Ava\build\windows\runner\Release\desktop_drop_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\DELL\Desktop\Ava\build\windows\runner\Release\desktop_webview_auth_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\DELL\Desktop\Ava\build\windows\runner\Release\file_saver_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\DELL\Desktop\Ava\build\windows\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\DELL\Desktop\Ava\build\windows\runner\Release\url_launcher_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\DELL\Desktop\Ava\build\windows\runner\Release\WebView2Loader.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\DELL\Desktop\Ava\build\windows\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
