@@ -1,9 +1,7 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,18 +19,18 @@ import 'loading_indicator.dart';
 
 final formKey = GlobalKey<FormState>();
 bool isBeingDragged = false;
-Expanded notesSection(BoxConstraints constraints, BuildContext context,
+Widget notesSection(BoxConstraints constraints, BuildContext context,
     {ScrollController? scrollController,
     required ProjectController projectController,
     ProfileController? profileController,
-    TextEditingController? commentController}) {
+    required TextEditingController commentController}) {
   submitComment() async {
-    String trimmedValue = commentController!.text.trim();
+    String trimmedValue = commentController.text.trim();
     if (trimmedValue.length >= 5) {
       if (projectController.commentFiles.isNotEmpty) {
         await projectController.addNewCommentFile(
             username: profileController!.currentUser.value.name,
-            created: !kIsWeb ? DateTime.now() : Timestamp.now(),
+            created: DateTime.now(),
             comment: commentController.text,
             result: projectController.commentFiles);
       } else {
@@ -40,7 +38,7 @@ Expanded notesSection(BoxConstraints constraints, BuildContext context,
           await projectController.addNewComment(
               comment: commentController.text,
               username: profileController!.currentUser.value.name,
-              created: !kIsWeb ? DateTime.now() : Timestamp.now());
+              created: DateTime.now());
         }
       }
 
@@ -63,59 +61,79 @@ Expanded notesSection(BoxConstraints constraints, BuildContext context,
     }
   }
 
-  return Expanded(
-    flex: 2,
-    child: GetBuilder<ProfileController>(
-        init: ProfileController(),
-        builder: (controller) {
-          if (controller.currentUser.value.name!.isEmpty) {
-            return const LoadingIndicator();
-          } else {
-            return StatefulBuilder(builder: (context, setState) {
-              return DropTarget(
-                  onDragDone: (detail) {
-                    setState(() {
-                      projectController.commentFiles.addAll(
-                          detail.files.map((xFile) => File(xFile.path)));
-                    });
-                  },
-                  onDragEntered: (detail) {
-                    setState(() {
-                      isBeingDragged = true;
-                    });
-                  },
-                  onDragExited: (detail) {
-                    setState(() {
-                      isBeingDragged = false;
-                    });
-                  },
-                  child: Padding(
-                      padding: constraints.maxWidth < 800
-                          ? const EdgeInsets.all(16.0)
-                          : const EdgeInsets.fromLTRB(50, 30, 30, 80),
-                      child: isBeingDragged
-                          ? isBeingDraggedWidget(
-                              context,
-                              projectController,
-                              constraints,
-                              scrollController,
-                              commentController,
-                              submitComment,
-                              setState,
-                              attachFile)
-                          : notBeingDraggedWidget(
-                              context,
-                              projectController,
-                              constraints,
-                              scrollController,
-                              commentController,
-                              submitComment,
-                              setState,
-                              attachFile)));
-            });
-          }
-        }),
-  );
+  return screenWidth(context) > 1500
+      ? Expanded(
+          flex: 2,
+          child: notesWidget(projectController, constraints, scrollController,
+              commentController, submitComment, attachFile))
+      : SizedBox(
+          width: 500,
+          child: Drawer(
+              child: notesWidget(
+                  projectController,
+                  constraints,
+                  scrollController,
+                  commentController,
+                  submitComment,
+                  attachFile)),
+        );
+}
+
+GetBuilder<ProfileController> notesWidget(
+    ProjectController projectController,
+    BoxConstraints constraints,
+    ScrollController? scrollController,
+    TextEditingController? commentController,
+    Future<void> Function() submitComment,
+    Future<void> Function() attachFile) {
+  return GetBuilder<ProfileController>(
+      init: ProfileController(),
+      builder: (controller) {
+        if (controller.currentUser.value.name!.isEmpty) {
+          return const LoadingIndicator();
+        } else {
+          return StatefulBuilder(builder: (context, setState) {
+            return DropTarget(
+                onDragDone: (detail) {
+                  setState(() {
+                    projectController.commentFiles
+                        .addAll(detail.files.map((xFile) => File(xFile.path)));
+                  });
+                },
+                onDragEntered: (detail) {
+                  setState(() {
+                    isBeingDragged = true;
+                  });
+                },
+                onDragExited: (detail) {
+                  setState(() {
+                    isBeingDragged = false;
+                  });
+                },
+                child: Padding(
+                    padding: const EdgeInsets.fromLTRB(50, 30, 30, 80),
+                    child: isBeingDragged
+                        ? isBeingDraggedWidget(
+                            context,
+                            projectController,
+                            constraints,
+                            scrollController,
+                            commentController,
+                            submitComment,
+                            setState,
+                            attachFile)
+                        : notBeingDraggedWidget(
+                            context,
+                            projectController,
+                            constraints,
+                            scrollController,
+                            commentController,
+                            submitComment,
+                            setState,
+                            attachFile)));
+          });
+        }
+      });
 }
 
 Obx notBeingDraggedWidget(
@@ -177,7 +195,7 @@ Stack isBeingDraggedWidget(
     Future<void> Function() submitComment,
     StateSetter setState,
     Future<void> Function() attachFile) {
-  final AuthController authController = Get.find();
+  final AuthController authController = Get.find<AuthController>();
   return Stack(
     children: [
       Column(children: [
@@ -213,7 +231,11 @@ Row searchTextFieldAndFilterWidget(
   return Row(
     crossAxisAlignment: CrossAxisAlignment.end,
     children: [
-      searchNotesWidget(context, projectController!),
+      Expanded(child: searchNotesWidget(context, projectController!)),
+      const Icon(
+        Icons.search,
+        size: 26,
+      ),
       filterButton(projectController, scrollController),
     ],
   );
@@ -222,93 +244,62 @@ Row searchTextFieldAndFilterWidget(
 PopupMenuButton<int> filterButton(
     ProjectController projectController, ScrollController? scrollController) {
   return PopupMenuButton(
-      tooltip: 'Filter notes',
-      onSelected: (value) async {
-        if (value == 1) {
-          projectController.commentsFilter.value = 1;
-          projectController.update();
-          scrollController?.animateTo(scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut);
-        } else if (value == 2) {
-          projectController.commentsFilter.value = 2;
-          projectController.update();
-        } else {
-          projectController.commentsFilter.value = 3;
-          projectController.update();
-          scrollController?.animateTo(scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut);
-        }
-      },
-      elevation: 3.2,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-      ),
-      itemBuilder: (context) => [
-            PopupMenuItem(value: 1, child: popText('All notes')),
-            PopupMenuItem(value: 2, child: popText('Text only')),
-            PopupMenuItem(value: 3, child: popText('Media only')),
-          ],
-      child: SizedBox(
-        height: Get.height * 0.017,
-        child: Icon(
-          Icons.filter_alt_outlined,
-          size: 26,
-          color: checkThemeColorwhite54,
-        ),
-      ));
+    tooltip: 'Filter notes',
+    onSelected: (value) async {
+      if (value == 1) {
+        projectController.commentsFilter.value = 1;
+        projectController.update();
+        scrollController?.animateTo(scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+      } else if (value == 2) {
+        projectController.commentsFilter.value = 2;
+        projectController.update();
+      } else {
+        projectController.commentsFilter.value = 3;
+        projectController.update();
+        scrollController?.animateTo(scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+      }
+    },
+    elevation: 3.2,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+    ),
+    itemBuilder: (context) => [
+      PopupMenuItem(value: 1, child: popText('All notes')),
+      PopupMenuItem(value: 2, child: popText('Text only')),
+      PopupMenuItem(value: 3, child: popText('Media only')),
+    ],
+    child: const Icon(
+      Icons.filter_alt_outlined,
+      size: 26,
+    ),
+  );
 }
 
-Row searchNotesWidget(
+TextField searchNotesWidget(
   BuildContext context,
   ProjectController projectController,
 ) {
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.end,
-    children: [
-      SizedBox(
-          width: screenWidth(context) * 0.17,
-          child: TextField(
-            cursorColor: checkThemeColorwhite54,
-            onChanged: ((value) {
-              if (value.isNotEmpty) {
-                projectController.isSearching.value = true;
-                projectController.searchedNote.value = value;
-              } else {
-                projectController.isSearching.value = false;
-              }
-            }),
-            maxLines: 1,
-            decoration: InputDecoration(
-              hintStyle: GoogleFonts.montserrat(
-                textStyle: TextStyle(
-                  overflow: TextOverflow.visible,
-                  letterSpacing: 0,
-                  color: checkThemeColorwhite54,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: checkThemeColorwhite54),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: checkThemeColorwhite54),
-              ),
-              border: UnderlineInputBorder(
-                borderSide: BorderSide(color: checkThemeColorwhite54),
-              ),
-            ),
-          )),
-      SizedBox(
-        height: screenHeight(context) * 0.017,
-        child: Icon(
-          Icons.search,
-          size: 26,
-          color: checkThemeColorwhite54,
+  return TextField(
+    onChanged: ((value) {
+      if (value.isNotEmpty) {
+        projectController.isSearching.value = true;
+        projectController.searchedNote.value = value;
+      } else {
+        projectController.isSearching.value = false;
+      }
+    }),
+    maxLines: 1,
+    decoration: InputDecoration(
+      hintStyle: GoogleFonts.montserrat(
+        textStyle: const TextStyle(
+          overflow: TextOverflow.visible,
+          letterSpacing: 0,
+          fontWeight: FontWeight.w600,
         ),
       ),
-    ],
+    ),
   );
 }
 
@@ -360,10 +351,10 @@ Obx commentBox(
     StateSetter setState,
     Future<void> Function() attachFile,
     ProjectController projectController) {
-  final AuthController authController = Get.find();
+  final AuthController authController = Get.find<AuthController>();
   return Obx(() {
     return Container(
-      width: screenWidth(context) * 0.2,
+      // width: screenWidth(context) * 0.2,
       height: screenHeight(context) * 0.2,
       decoration: authController.isDarkTheme.value
           ? darkThemeBoxDecoration
@@ -485,13 +476,15 @@ Expanded commentTextfieldWidget(
               }
             },
             style: GoogleFonts.montserrat(
-              textStyle: TextStyle(
+              textStyle: const TextStyle(
                   overflow: TextOverflow.visible,
-                  color: checkThemeColorwhite54,
                   fontWeight: FontWeight.normal,
                   fontSize: 14),
             ),
             decoration: InputDecoration(
+              // enabledBorder: InputBorder.none,
+              // disabledBorder: InputBorder.none,
+              // focusedBorder: InputBorder.none,
               suffixIcon: SizedBox(
                 width: 50,
                 child: Row(
@@ -502,9 +495,8 @@ Expanded commentTextfieldWidget(
                         onTap: () {
                           attachFile();
                         },
-                        child: Icon(
+                        child: const Icon(
                           Icons.attach_file,
-                          color: checkThemeColorwhite54,
                         ),
                       );
                     }),
@@ -520,9 +512,8 @@ Expanded commentTextfieldWidget(
                           });
                         }
                       },
-                      child: Icon(
+                      child: const Icon(
                         Icons.send,
-                        color: checkThemeColorwhite54,
                       ),
                     ),
                   ],
@@ -531,10 +522,9 @@ Expanded commentTextfieldWidget(
               border: InputBorder.none,
               hintText: 'Add Comment...',
               hintStyle: GoogleFonts.montserrat(
-                textStyle: TextStyle(
+                textStyle: const TextStyle(
                   overflow: TextOverflow.visible,
                   letterSpacing: 0,
-                  color: checkThemeColorwhite54,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -587,10 +577,7 @@ ScrollConfiguration notesListViewBuilder(BuildContext context,
             String? type = projectController.comments[i].type;
             String? username = projectController.comments[i].username;
 
-            DateTime created = !kIsWeb
-                ? projectController.comments[i].createdAt!
-                : (projectController.comments[i].createdAt as Timestamp)
-                    .toDate();
+            DateTime created = projectController.comments[i].createdAt!;
 
             String firstChar = '';
 
@@ -652,10 +639,7 @@ ScrollConfiguration searchedNotesListViewBuilder(
             String type = projectController.comments[i].type ?? '';
             String username = projectController.comments[i].username ?? '';
 
-            var created = !kIsWeb
-                ? projectController.comments[i].createdAt
-                : (projectController.comments[i].createdAt as Timestamp)
-                    .toDate();
+            var created = projectController.comments[i].createdAt;
 
             String firstChar = '';
 

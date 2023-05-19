@@ -418,7 +418,7 @@ class GanttChartController extends ChangeNotifier {
   }
 
   void onIssueEndPan(PanType type) {
-    final ProjectController projectController = Get.find();
+    final ProjectController projectController = Get.find<ProjectController>();
     for (int j = 0; j < selectedIssues.length; j++) {
       int daysInterval =
           (selectedIssues[j]!.width / (chartViewWidth / viewRangeToFitScreen!))

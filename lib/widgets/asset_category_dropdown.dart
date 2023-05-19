@@ -9,8 +9,8 @@ import '../controllers/project_controller.dart';
 Container assetCategoryDropDownButton(
     BuildContext context, StateSetter setState,
     {String? phase}) {
-  final ProjectController projectController = Get.find();
-  final AuthController authController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
+  final AuthController authController = Get.find<AuthController>();
   return Container(
     width: screenWidth(context) * 0.2,
     height: screenHeight(context) * 0.05,

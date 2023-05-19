@@ -1,3 +1,5 @@
+import 'package:ava/constants/style.dart';
+import 'package:ava/controllers/auth_controller.dart';
 import 'package:ava/controllers/department_controller.dart';
 import 'package:ava/models/project.dart';
 import 'package:ava/widgets/custom_appbar.dart';
@@ -15,17 +17,23 @@ import '../widgets/notes_section.dart';
 
 class ProjectDashboard extends StatefulWidget {
   final String projectId;
-  const ProjectDashboard({Key? key, required this.projectId}) : super(key: key);
+
+  const ProjectDashboard({
+    Key? key,
+    required this.projectId,
+  }) : super(key: key);
 
   @override
   State<ProjectDashboard> createState() => _ProjectDashboardState();
 }
 
 class _ProjectDashboardState extends State<ProjectDashboard> {
-  final ProjectController projectController = Get.find();
-  final ProfileController profileController = Get.find();
-  final DepartmentController departmentController = Get.find();
-  final GlobalKey<ScaffoldState> _key = GlobalKey();
+  final ProjectController projectController = Get.find<ProjectController>();
+  final ProfileController profileController = Get.find<ProfileController>();
+  final AuthController authController = Get.find<AuthController>();
+  final _uid = AuthController.instance.user!.uid;
+  final DepartmentController departmentController =
+      Get.find<DepartmentController>();
   final commentController = TextEditingController();
   final ScrollController _scrollController = ScrollController(
     initialScrollOffset: 0.0,
@@ -36,7 +44,10 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   void initState() {
     super.initState();
 
-    projectController.updateProject(widget.projectId);
+    projectController.updateProject(
+        projectId: widget.projectId,
+        departmentId: departmentController.currentDepartment.value.departmentId,
+        uid: _uid);
   }
 
   @override
@@ -59,17 +70,23 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
             } else {
               return Obx(() {
                 return Scaffold(
-                    key: _key,
+                    key: scaffoldAssetsDrawerKey,
                     drawerEnableOpenDragGesture: false,
                     appBar: customAppBar(context,
                         pageName:
                             '${departmentController.currentDepartment.value.title} - ${projectController.currentProject.value.title}',
                         isNeedAppbar: false),
                     drawer: assetsSection(context),
-                    endDrawer: const EndDrawerWidget(),
+                    endDrawer: profileController.isNotesDrawer.value
+                        ? notesSection(constraints, context,
+                            commentController: commentController,
+                            profileController: profileController,
+                            projectController: projectController,
+                            scrollController: _scrollController)
+                        : const EndDrawerWidget(),
                     body: Row(
                       children: [
-                        leftSideIcons(context),
+                        leftSideIcons(context, isMainProjectsScreen: true),
                         constraints.maxWidth > 1800
                             ? assetsSection(
                                 context,

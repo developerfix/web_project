@@ -8,7 +8,7 @@ import 'loading_indicator.dart';
 StatefulBuilder taskDeliverablesWidget(
   BuildContext context,
 ) {
-  final ProjectController projectController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
   return StatefulBuilder(builder: (context, setState) {
     return Obx(() {
       return Container(

@@ -57,11 +57,12 @@ class AuthController extends GetxController {
           email: email, password: password);
 
       model.User user = model.User(
-        name: name,
-        email: email,
-        uid: cred.user!.uid,
-        profilePhoto: '',
-      );
+          name: name,
+          email: email,
+          uid: cred.user!.uid,
+          profilePhoto: '',
+          lastOpenedProjectId: '',
+          lastOpenedDocumentId: '');
       if (!kIsWeb) {
         await firedart.Firestore.instance
             .collection('users')
@@ -88,7 +89,7 @@ class AuthController extends GetxController {
       isLoging = true;
       update();
       await _auth.signInWithEmailAndPassword(email: email, password: password);
-      getSuccessSnackBar("Successfully logged in as ${_user.value!.email}");
+      getSuccessSnackBar("Successfully logged In");
     } on FirebaseAuthException {
       //define error
       getErrorSnackBar(
@@ -131,11 +132,12 @@ class AuthController extends GetxController {
           User? registereduser = userCredential.user;
 
           model.User user = model.User(
-            name: registereduser!.displayName,
-            email: registereduser.email,
-            uid: registereduser.uid,
-            profilePhoto: registereduser.photoURL,
-          );
+              name: registereduser!.displayName,
+              email: registereduser.email,
+              uid: registereduser.uid,
+              profilePhoto: registereduser.photoURL,
+              lastOpenedProjectId: '',
+              lastOpenedDocumentId: '');
 
           await firedartFirestore
               .collection('users')
@@ -172,11 +174,12 @@ class AuthController extends GetxController {
           User? registereduser = userCredential.user;
 
           model.User user = model.User(
-            name: registereduser!.displayName,
-            email: registereduser.email,
-            uid: registereduser.uid,
-            profilePhoto: registereduser.photoURL,
-          );
+              name: registereduser!.displayName,
+              email: registereduser.email,
+              uid: registereduser.uid,
+              profilePhoto: registereduser.photoURL,
+              lastOpenedProjectId: '',
+              lastOpenedDocumentId: '');
 
           await firestore
               .collection('users')

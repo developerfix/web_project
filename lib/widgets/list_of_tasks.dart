@@ -87,7 +87,7 @@ GestureDetector collapsedWidgetKanbanTask(
     String endDate,
     String pilot,
     String phase) {
-  final AuthController authController = Get.find();
+  final AuthController authController = Get.find<AuthController>();
   return GestureDetector(
     onTap: () {
       controller.toggle();
@@ -209,7 +209,7 @@ GestureDetector expandedWidgetKanbanTask(
     String taskDescription,
     List<dynamic> taskDeliverables,
     {List<dynamic>? requiredDeliverables}) {
-  final AuthController authController = Get.find();
+  final AuthController authController = Get.find<AuthController>();
   return GestureDetector(
     onTap: () {
       controller.toggle();

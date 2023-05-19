@@ -16,7 +16,7 @@ InkWell plusIconWidget(BuildContext context,
         child: Icon(
           Icons.add,
           size: 50,
-          color: color ?? checkThemeColorwhite54,
+          color: color,
         ),
       ),
     ),

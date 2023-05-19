@@ -12,7 +12,7 @@ Future<dynamic> editNamePopUp(
   BuildContext context,
 ) {
   final nameController = TextEditingController();
-  final ProfileController profileController = Get.find();
+  final ProfileController profileController = Get.find<ProfileController>();
 
   final formKey = GlobalKey<FormState>();
 
@@ -88,7 +88,7 @@ Future<dynamic> editNamePopUp(
 
 Row itemRow(BuildContext context,
     {required Widget widget, required String title}) {
-  final AuthController authController = Get.find();
+  final AuthController authController = Get.find<AuthController>();
   return Row(
     children: [
       txt(

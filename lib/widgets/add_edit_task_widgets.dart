@@ -10,8 +10,8 @@ import 'phase_drop_down_button.dart';
 
 Container dateSelectorBox(BuildContext context,
     {required TextEditingController controller, required var date}) {
-  // final ProjectController projectController = Get.find();
-  final AuthController authController = Get.find();
+  // final ProjectController projectController = Get.find<ProjectController>();
+  final AuthController authController = Get.find<AuthController>();
   return Container(
     width: screenWidth(context) * 0.2,
     height: screenHeight(context) * 0.05,
@@ -58,7 +58,7 @@ SizedBox deliverableQuestionBox(
   BuildContext context,
   BoxConstraints constraints,
 ) {
-  final ProjectController projectController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
   return SizedBox(
       height: screenHeight(context) * 0.1,
       width: constraints.maxWidth < 800
@@ -108,7 +108,7 @@ SizedBox priorityBox(
   BoxConstraints constraints,
   // {required int prioritySelectedValue}
 ) {
-  final ProjectController projectController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
   return SizedBox(
       height: screenHeight(context) * 0.2,
       width: constraints.maxWidth < 800
@@ -205,7 +205,7 @@ StatefulBuilder priorityWidget(
 Container copilotWidget(BuildContext context,
     {required TextEditingController taskCoPilotController,
     String? oldPilotorCopilot}) {
-  final ProjectController projectController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
   return Container(
     child: screenWidth(context) < 800
         ? Column(
@@ -253,7 +253,7 @@ Container copilotWidget(BuildContext context,
 Container pilotWidget(BuildContext context,
     {required TextEditingController taskPilotController,
     String? oldPilotorCopilot}) {
-  final ProjectController projectController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
   return Container(
     child: screenWidth(context) < 800
         ? Column(

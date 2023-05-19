@@ -19,12 +19,41 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_dart/implementation/pure_dart.dart'
     as pure_dart_implementation;
 
-ThemeData _darkTheme =
-    ThemeData(brightness: Brightness.dark, primarySwatch: Colors.brown);
+const Color customColor = Color(0xff707070);
 
-ThemeData _lightTheme =
-    ThemeData(brightness: Brightness.light, primarySwatch: Colors.brown);
+final MaterialColor customSwatch = MaterialColor(
+  customColor.value,
+  <int, Color>{
+    50: customColor.withOpacity(0.1),
+    100: customColor.withOpacity(0.2),
+    200: customColor.withOpacity(0.3),
+    300: customColor.withOpacity(0.4),
+    400: customColor.withOpacity(0.5),
+    500: customColor.withOpacity(0.6),
+    600: customColor.withOpacity(0.7),
+    700: customColor.withOpacity(0.8),
+    800: customColor.withOpacity(0.9),
+    900: customColor.withOpacity(1),
+  },
+);
 
+ThemeData _darkTheme = ThemeData(
+  brightness: Brightness.dark,
+  primarySwatch: customSwatch,
+  iconTheme: const IconThemeData(color: Colors.white60),
+  textTheme: const TextTheme(
+    bodyMedium: TextStyle(color: Colors.white60),
+  ),
+);
+
+ThemeData _lightTheme = ThemeData(
+  brightness: Brightness.light,
+  primarySwatch: customSwatch,
+  iconTheme: const IconThemeData(color: Color(0xff707070)),
+  textTheme: const TextTheme(
+    bodyMedium: TextStyle(color: Color(0xff707070)),
+  ),
+);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPrefs.sharedPreferencesInitialization();
@@ -93,29 +122,36 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  final AuthController authController = Get.find();
+
   _getThemeStatus() async {
+    final AuthController authController = Get.find<AuthController>();
     Rx<Future<bool?>> isDark = _prefs.then((SharedPreferences prefs) {
       return prefs.getBool('theme');
     }).obs;
     authController.isDarkTheme.value = (await isDark.value)!;
 
     Get.changeThemeMode(
-        authController.is%78in the Theme-DarkTheme.value ? ThemeMode.dark : ThemeMode.light);
+        authController.isDarkTheme.value ? ThemeMode.dark : ThemeMode.light);
   }
 
   @override
   void initState() {
     super.initState();
-    _getThemeStatus();
+    if (!kIsWeb) {
+      _getThemeStatus();
+    }
   }
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+        key: const Key('MyAppKey'),
         theme: _lightTheme,
         darkTheme: _darkTheme,
+        navigatorKey: Get.nestedKey(0), // provide navigation context
+        initialRoute: '/',
+        // onGenerateRoute: Get.routeTree,
         themeMode: ThemeMode.system,
         defaultTransition: Transition.fadeIn,
         transitionDuration: const Duration(milliseconds: 300),

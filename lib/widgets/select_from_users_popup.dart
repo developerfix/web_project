@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../controllers/project_controller.dart';
 
 Future<dynamic> selectFromUsersPopup(BuildContext context, {String? title}) {
-  final ProjectController projectController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
   return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -36,33 +36,19 @@ Future<dynamic> selectFromUsersPopup(BuildContext context, {String? title}) {
                               itemCount: projectController.users.length,
                               itemBuilder: (context, i) {
                                 String username =
-                                    projectController.users[i]['name'];
-                                return screenWidth(context) < 600
-                                    ? InkWell(
-                                        onTap: () {
-                                          Get.back(result: username);
-                                        },
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 20),
-                                          child: txt(
-                                              txt: username,
-                                              fontSize: 14,
-                                              overflow: TextOverflow.ellipsis),
-                                        ),
-                                      )
-                                    : ListTile(
-                                        leading: const Icon(
-                                          Icons.person,
-                                        ),
-                                        title: txt(
-                                            txt: username,
-                                            fontSize: 14,
-                                            overflow: TextOverflow.ellipsis),
-                                        onTap: () {
-                                          Get.back(result: username);
-                                        },
-                                      );
+                                    projectController.users[i].name!;
+                                return ListTile(
+                                  leading: const Icon(
+                                    Icons.person,
+                                  ),
+                                  title: txt(
+                                      txt: username,
+                                      fontSize: 14,
+                                      overflow: TextOverflow.ellipsis),
+                                  onTap: () {
+                                    Get.back(result: username);
+                                  },
+                                );
                               });
                         }),
                       ),

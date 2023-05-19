@@ -12,9 +12,9 @@ Future<dynamic> addLinkAssetPopUp(BuildContext context) {
   final pathController = TextEditingController();
   final pathNameController = TextEditingController();
   final categoryTitleController = TextEditingController();
-  final ProjectController projectController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
   projectController.selectedAssetFiles.clear();
-  final AuthController authController = Get.find();
+  final AuthController authController = Get.find<AuthController>();
   final formKey = GlobalKey<FormState>();
 
   return showDialog(
@@ -36,14 +36,12 @@ Future<dynamic> addLinkAssetPopUp(BuildContext context) {
                       popUpCloseButton,
                       Expanded(
                         child: Padding(
-                          padding: screenWidth(context) < 800
-                              ? const EdgeInsets.all(8.0)
-                              : const EdgeInsets.all(20.0),
+                          padding: const EdgeInsets.all(20.0),
                           child: Column(children: <Widget>[
                             txt(
                               txt: 'ADD HYPERLINK',
                               font: 'comfortaa',
-                              fontSize: screenWidth(context) < 800 ? 20 : 40,
+                              fontSize: 40,
                               letterSpacing: 6,
                               fontWeight: FontWeight.w700,
                             ),
@@ -51,113 +49,65 @@ Future<dynamic> addLinkAssetPopUp(BuildContext context) {
                             Column(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                screenWidth(context) < 1200
-                                    ? Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            width: screenWidth(context) * 0.15,
-                                            child: txt(
-                                              txt: 'URL Path:',
-                                              fontSize: 30,
-                                            ),
+                                Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: screenWidth(context) * 0.15,
+                                          child: txt(
+                                            minFontSize: 18,
+                                            maxLines: 1,
+                                            txt: 'URL Path:',
+                                            fontSize: 30,
                                           ),
-                                          SizedBox(
-                                            width: screenWidth(context) * 0.02,
+                                        ),
+                                        SizedBox(
+                                          width: screenWidth(context) * 0.02,
+                                        ),
+                                        popUpTextField(context,
+                                            controller: pathController,
+                                            hint:
+                                                'https://www.youtube.com/channel/UCYfdidRxbB8Qhf0Nx7ioOYw'),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: screenHeight(context) * 0.04,
+                                    ),
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: screenWidth(context) * 0.15,
+                                          child: txt(
+                                            minFontSize: 18,
+                                            maxLines: 1,
+                                            txt: 'Suggested name for URL:',
+                                            fontSize: 30,
                                           ),
-                                          popUpTextField(context,
-                                              controller: pathController,
-                                              hint:
-                                                  'https://www.youtube.com/channel/UCYfdidRxbB8Qhf0Nx7ioOYw'),
-                                          SizedBox(
-                                            width: screenWidth(context) * 0.03,
-                                          ),
-                                          SizedBox(
-                                            width: screenWidth(context) * 0.15,
-                                            child: txt(
-                                              txt: 'Suggested name for URL:',
-                                              fontSize: 30,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: screenWidth(context) * 0.02,
-                                          ),
-                                          popUpTextField(context,
-                                              controller: pathController,
-                                              hint:
-                                                  'exp: Youtube news section'),
-                                        ],
-                                      )
-                                    : Column(
-                                        children: [
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width:
-                                                    screenWidth(context) * 0.15,
-                                                child: txt(
-                                                  txt: 'URL Path:',
-                                                  fontSize: 30,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width:
-                                                    screenWidth(context) * 0.02,
-                                              ),
-                                              popUpTextField(context,
-                                                  controller: pathController,
-                                                  hint:
-                                                      'https://www.youtube.com/channel/UCYfdidRxbB8Qhf0Nx7ioOYw'),
-                                            ],
-                                          ),
-                                          SizedBox(
-                                            height:
-                                                screenHeight(context) * 0.04,
-                                          ),
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width:
-                                                    screenWidth(context) * 0.15,
-                                                child: txt(
-                                                  txt:
-                                                      'Suggested name for URL:',
-                                                  fontSize: 30,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width:
-                                                    screenWidth(context) * 0.02,
-                                              ),
-                                              popUpTextField(context,
-                                                  controller:
-                                                      pathNameController,
-                                                  hint:
-                                                      'exp: Youtube news section'),
-                                            ],
-                                          ),
-                                          SizedBox(
-                                            height:
-                                                screenHeight(context) * 0.04,
-                                          ),
-                                          categoryDropDown(
-                                              context,
-                                              authController,
-                                              setState,
-                                              projectController),
-                                          projectController
-                                                      .assetCategory.value ==
-                                                  newAssetCategory
-                                              ? newCategoryTextField(context,
-                                                  categoryTitleController)
-                                              : Container(),
-                                          SizedBox(
-                                            height:
-                                                screenHeight(context) * 0.04,
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                        SizedBox(
+                                          width: screenWidth(context) * 0.02,
+                                        ),
+                                        popUpTextField(context,
+                                            controller: pathNameController,
+                                            hint: 'exp: Youtube news section'),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: screenHeight(context) * 0.04,
+                                    ),
+                                    categoryDropDown(context, authController,
+                                        setState, projectController),
+                                    projectController.assetCategory.value ==
+                                            newAssetCategory
+                                        ? newCategoryTextField(
+                                            context, categoryTitleController)
+                                        : Container(),
+                                    SizedBox(
+                                      height: screenHeight(context) * 0.04,
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
                             const Spacer(),
@@ -180,14 +130,16 @@ Future<dynamic> addLinkAssetPopUp(BuildContext context) {
                                             type: linkAssetType,
                                             pathName:
                                                 pathNameController.text.trim(),
-                                            assetCategoryTitle:
-                                                projectController.assetCategory
-                                                            .value ==
-                                                        newAssetCategory
-                                                    ? categoryTitleController
-                                                        .text
-                                                    : projectController
-                                                        .assetCategory.value);
+                                            assetCategoryTitle: projectController
+                                                        .assetCategory.value ==
+                                                    newAssetCategory
+                                                ? (categoryTitleController
+                                                        .text.isEmpty
+                                                    ? 'Category'
+                                                    : categoryTitleController
+                                                        .text)
+                                                : projectController
+                                                    .assetCategory.value);
                                       } else {
                                         getErrorSnackBar(
                                             'Please enter a valid url path');
@@ -207,14 +159,16 @@ Future<dynamic> addLinkAssetPopUp(BuildContext context) {
                                             type: linkAssetType,
                                             pathName:
                                                 pathNameController.text.trim(),
-                                            assetCategoryTitle:
-                                                projectController.assetCategory
-                                                            .value ==
-                                                        newAssetCategory
-                                                    ? categoryTitleController
-                                                        .text
-                                                    : projectController
-                                                        .assetCategory.value);
+                                            assetCategoryTitle: projectController
+                                                        .assetCategory.value ==
+                                                    newAssetCategory
+                                                ? (categoryTitleController
+                                                        .text.isEmpty
+                                                    ? 'Category'
+                                                    : categoryTitleController
+                                                        .text)
+                                                : projectController
+                                                    .assetCategory.value);
                                       } else {
                                         getErrorSnackBar(
                                             'Please enter a valid url path');

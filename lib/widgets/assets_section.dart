@@ -16,7 +16,7 @@ import 'add_asset_popup.dart';
 StatefulBuilder assetsSection(
   BuildContext context,
 ) {
-  final ProjectController projectController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
   return StatefulBuilder(builder: (context, setState) {
     List categories = [];
     List finalCategories = [];
@@ -31,56 +31,69 @@ StatefulBuilder assetsSection(
     }
     finalCategories = categories.toSet().toList();
 
-    return SizedBox(
-      width: screenWidth(context) * 0.13,
-      child: Column(
-        children: <Widget>[
-          SizedBox(
-            height: screenHeight(context) * 0.12,
-            child: Column(
-              children: [
-                Expanded(
-                  child: Center(
-                    child: txt(
-                      txt: "ASSETS",
-                      font: 'comfortaa',
-                      fontSize: 30.0,
-                      letterSpacing: 5,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                const Divider()
-              ],
+    return screenWidth(context) > 1800
+        ? SizedBox(
+            width: 320,
+            child: assetWidget(context, projectController, noCategoriesAssets,
+                finalCategories))
+        : SizedBox(
+            width: 400,
+            child: Drawer(
+              child: assetWidget(context, projectController, noCategoriesAssets,
+                  finalCategories),
             ),
-          ),
-          SizedBox(
-            height: screenHeight(context) * 0.77,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Column(
-                children: [
-                  projectController.assets.isNotEmpty
-                      ? assetsList(noCategoriesAssets, projectController,
-                          finalCategories)
-                      : Expanded(
-                          child: Center(
-                          child: txt(txt: 'Add assets here', fontSize: 18),
-                        )),
-                  plusIconWidget(context, ontap: () {
-                    addAssetPopUp(context).then((value) {
-                      projectController.assetCategory.value = noCategory;
-                      projectController.update();
-                    });
-                  }),
-                ],
+          );
+  });
+}
+
+Column assetWidget(BuildContext context, ProjectController projectController,
+    List<Asset> noCategoriesAssets, List<dynamic> finalCategories) {
+  return Column(
+    children: <Widget>[
+      SizedBox(
+        height: screenHeight(context) * 0.12,
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: txt(
+                  txt: "ASSETS",
+                  font: 'comfortaa',
+                  fontSize: 30.0,
+                  letterSpacing: 5,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
-          ),
-        ],
+            const Divider()
+          ],
+        ),
       ),
-    );
-  });
+      SizedBox(
+        height: screenHeight(context) * 0.77,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: Column(
+            children: [
+              projectController.assets.isNotEmpty
+                  ? assetsList(
+                      noCategoriesAssets, projectController, finalCategories)
+                  : Expanded(
+                      child: Center(
+                      child: txt(txt: 'Add assets here', fontSize: 18),
+                    )),
+              plusIconWidget(context, ontap: () {
+                addAssetPopUp(context).then((value) {
+                  projectController.assetCategory.value = noCategory;
+                  projectController.update();
+                });
+              }),
+            ],
+          ),
+        ),
+      ),
+    ],
+  );
 }
 
 Expanded assetsList(List<Asset> noCategoriesAssets,
@@ -108,7 +121,6 @@ Expanded assetsList(List<Asset> noCategoriesAssets,
                         noCategoriesAssets[index].type == linkAssetType
                             ? Icons.link
                             : Icons.insert_drive_file,
-                        color: checkThemeColorwhite54,
                         size: 18),
                     title: txt(
                         txt: noCategoriesAssets[index].pathName ?? '',
@@ -116,8 +128,7 @@ Expanded assetsList(List<Asset> noCategoriesAssets,
                         minFontSize: 14,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis),
-                    trailing: Icon(Icons.more_horiz,
-                        color: checkThemeColorwhite54, size: 18)),
+                    trailing: const Icon(Icons.more_horiz, size: 18)),
                 secondChild: ListTile(
                   onTap: () async {
                     await canLaunchUrl(
@@ -130,7 +141,6 @@ Expanded assetsList(List<Asset> noCategoriesAssets,
                       noCategoriesAssets[index].type == linkAssetType
                           ? Icons.link
                           : Icons.insert_drive_file,
-                      color: checkThemeColorwhite54,
                       size: 18),
                   title: txt(
                       txt: noCategoriesAssets[index].pathName!,
@@ -250,7 +260,6 @@ ListView expandableWidget(
                         type == linkAssetType
                             ? Icons.link
                             : Icons.insert_drive_file,
-                        color: checkThemeColorwhite54,
                         size: 18),
                     title: txt(
                         txt: pathName,
@@ -258,8 +267,7 @@ ListView expandableWidget(
                         minFontSize: 14,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis),
-                    trailing: Icon(Icons.more_horiz,
-                        color: checkThemeColorwhite54, size: 18)),
+                    trailing: const Icon(Icons.more_horiz, size: 18)),
                 secondChild: ListTile(
                   onTap: () async {
                     await canLaunchUrl(Uri.parse(path))
@@ -270,7 +278,6 @@ ListView expandableWidget(
                       type == linkAssetType
                           ? Icons.link
                           : Icons.insert_drive_file,
-                      color: checkThemeColorwhite54,
                       size: 18),
                   title: txt(
                       txt: pathName,
@@ -367,29 +374,27 @@ ExpandableNotifier assetSectionWidget({
                           children: [
                             Expanded(
                               child: txt(
-                                  txt: title,
-                                  fontSize: 14,
-                                  minFontSize: 14,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  fontColor: checkThemeColorwhite54),
+                                txt: title,
+                                fontSize: 14,
+                                minFontSize: 14,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                             GestureDetector(
                                 onTap: () {
                                   editAssetCategoryNamePopUp(context, title);
                                 },
-                                child: Icon(
+                                child: const Icon(
                                   Icons.edit,
                                   size: 16,
-                                  color: checkThemeColorwhite54,
                                 )),
                             GestureDetector(
                                 onTap: () {
                                   controller.toggle();
                                 },
-                                child: Icon(
+                                child: const Icon(
                                   Icons.keyboard_arrow_down,
-                                  color: checkThemeColorwhite54,
                                 )),
                           ],
                         ),
@@ -405,29 +410,29 @@ ExpandableNotifier assetSectionWidget({
                           children: [
                             Expanded(
                               child: txt(
-                                  txt: title,
-                                  fontSize: 14,
-                                  minFontSize: 14,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  fontColor: checkThemeColorwhite54),
+                                txt: title,
+                                fontSize: 14,
+                                minFontSize: 14,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                             const Spacer(),
                             GestureDetector(
                                 onTap: () {
                                   editAssetCategoryNamePopUp(context, title);
                                 },
-                                child: Icon(
+                                child: const Icon(
                                   Icons.edit,
                                   size: 16,
-                                  color: checkThemeColorwhite54,
                                 )),
                             GestureDetector(
                                 onTap: () {
                                   controller.toggle();
                                 },
-                                child: Icon(Icons.keyboard_arrow_up,
-                                    color: checkThemeColorwhite54)),
+                                child: const Icon(
+                                  Icons.keyboard_arrow_up,
+                                )),
                           ],
                         ),
                         const Divider(),

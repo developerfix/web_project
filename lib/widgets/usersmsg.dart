@@ -4,6 +4,7 @@ import 'package:filesize/filesize.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:ava/widgets/photo_view.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -43,9 +44,9 @@ Padding usersMsg(BuildContext context,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         textSpanForUserMsg(
-                            text: username,
-                            fontSize: 22,
-                            fontColor: checkThemeColorwhite60),
+                          text: username,
+                          fontSize: 22,
+                        ),
                         textSpanForUserMsg(
                           fontWeight: FontWeight.normal,
                           text: '   $formattedTime',
@@ -102,7 +103,9 @@ Flexible fileContinerSizedBox(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           textSpanForUserMsg(
-              text: username, fontSize: 22, fontColor: checkThemeColorwhite60),
+            text: username,
+            fontSize: 22,
+          ),
           textSpanForUserMsg(
             fontWeight: FontWeight.normal,
             text: '   $formattedTime',
@@ -301,11 +304,16 @@ textSpanForUserMsg(
     double? fontSize,
     Color? fontColor,
     FontWeight? fontWeight}) {
-  return txt(
-      txt: text ?? '',
-      fontSize: fontSize ?? 14,
-      fontColor: fontColor,
-      maxLines: 10000);
+  return SelectableText(
+    text ?? '',
+    style: GoogleFonts.montserrat(
+      textStyle: TextStyle(
+        fontSize: fontSize ?? 14,
+        overflow: TextOverflow.ellipsis,
+        fontWeight: FontWeight.normal,
+      ),
+    ),
+  );
 }
 
 downloadFile(url, filename) async {
@@ -337,25 +345,4 @@ downloadFile(url, filename) async {
         ? await launchUrl(Uri.parse(url))
         : null;
   }
-
-// if (!kIsWeb) {
-  //   String? res = await FilePicker.platform.saveFile(
-  //     fileName: filename.split('.').first,
-  //   );
-
-  //   if (res != null) {
-  //     var dio = Dio();
-
-  //     var ext = filename.split('.').last;
-
-  //     String fullPath = "$res.$ext";
-  //     await dio.download(url, fullPath);
-  //   }
-  // } else {
-  // await canLaunchUrl(Uri.parse(url)) ? await launchUrl(Uri.parse(url)) : null;
-  // html.window.open(
-  //   url,
-  //   filename,
-  // );
-  // }
 }

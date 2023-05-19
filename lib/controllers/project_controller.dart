@@ -3,9 +3,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:async/async.dart';
+import 'package:ava/controllers/department_controller.dart';
+import 'package:ava/controllers/profile_controller.dart';
 import 'package:ava/models/asset.dart';
-import 'package:ava/models/department.dart';
-import 'package:ava/pages/projects_grid.dart';
 import 'package:ava/widgets/notes_section.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
@@ -19,6 +19,7 @@ import '../constants/style.dart';
 import 'package:firebase_dart/storage.dart' as firebase_dart_storage;
 
 import '../models/comment.dart';
+import '../models/user.dart';
 
 class ProjectController extends GetxController {
   Rx<Project> currentProject = Project().obs;
@@ -32,12 +33,21 @@ class ProjectController extends GetxController {
   RxBool isMembersUpdating = false.obs;
 
   RxBool isRecentProjectsListAtTop = true.obs;
-
+//
+  Rx<String> searchedProject = "".obs;
+  RxBool isSearchingProject = false.obs;
+  RxList<Project> searchedProjects = <Project>[].obs;
+  RxList<String> searchedProjectsCategories = <String>[].obs;
+  //comment
   RxList<Comment> comments = <Comment>[].obs;
   RxList<File> commentFiles = <File>[].obs;
+  //asset
   RxList<Asset> assets = <Asset>[].obs;
   RxList<String> assetsCategories = <String>[].obs;
-  RxList<dynamic> users = <dynamic>[].obs;
+  Rx<String> assetCategory = "".obs;
+
+  //
+  RxList<User> users = <User>[].obs;
   RxList<dynamic> projectMembers = <dynamic>[].obs;
   RxList<dynamic> toDoTasks = <dynamic>[].obs;
   RxList<dynamic> inProgressTasks = <dynamic>[].obs;
@@ -54,31 +64,62 @@ class ProjectController extends GetxController {
   Rx<double> assetFileUplaodingProgress = 0.0.obs;
   Rx<String> phaseValue = "".obs;
   Rx<int> iconCodeValue = 0xe1a3.obs;
-  Rx<String> assetCategory = "".obs;
+
   Rx<String> searchedNote = "".obs;
   Rx<String> taskPilot = "".obs;
   Rx<String> taskCoPilot = "".obs;
-  Rx<String> projectPilot = "".obs;
-  Rx<String> projectCoPilot = "".obs;
-  final Rx<String> _uid = "".obs;
+
+  final Rx<String> uuid = "".obs;
   final Rx<String> _projectId = "".obs;
-  final Rx<String> _departmentId = "".obs;
+  final Rx<String> deepartmentId = "".obs;
   // ignore: prefer_typing_uninitialized_variables
   var app;
 
-  updateUsers({
+  updateProject({
+    String? projectId,
     String? uid,
     String? departmentId,
   }) {
-    _uid.value = uid!;
-    _departmentId.value = departmentId!;
-    getUsers();
-  }
-
-  updateProject(String? projectId) {
     _projectId.value = projectId!;
+    uuid.value = uid!;
+    deepartmentId.value = departmentId!;
 
     getProjectData();
+  }
+
+  getSearchedProjectsCategories() async {
+    final ProfileController profileController = Get.find<ProfileController>();
+
+    searchedProjectsCategories.clear();
+
+    for (var proj in profileController.departmentProjects) {
+      String lowerCaseSearchedProject = searchedProject.value.toLowerCase();
+      String lowerCaseProject = proj.title!.toLowerCase();
+      if (lowerCaseProject.contains(lowerCaseSearchedProject)) {
+        searchedProjectsCategories.add(proj.category!);
+      }
+    }
+    searchedProjectsCategories.value =
+        searchedProjectsCategories.toSet().toList();
+  }
+
+  getSearchedProjects(String category) async {
+    final ProfileController profileController = Get.find<ProfileController>();
+
+    searchedProjects.clear();
+
+    for (var proj in profileController.departmentProjects) {
+      String lowerCaseSearchedProject = searchedProject.value.toLowerCase();
+      String lowerCaseProject = proj.title!.toLowerCase();
+
+      if (lowerCaseProject.contains(lowerCaseSearchedProject)) {
+        for (var element in profileController.departmentProjects) {
+          if (element.title == proj.title && element.category == category) {
+            searchedProjects.add(proj);
+          }
+        }
+      }
+    }
   }
 
   getProjectAssets() async {
@@ -88,9 +129,9 @@ class ProjectController extends GetxController {
     if (!kIsWeb) {
       var projectAssets = await firedartFirestore
           .collection('users')
-          .document(_uid.value)
+          .document(uuid.value)
           .collection('departments')
-          .document(_departmentId.value)
+          .document(deepartmentId.value)
           .collection('projects')
           .document(_projectId.value)
           .collection('assets')
@@ -103,9 +144,9 @@ class ProjectController extends GetxController {
     } else {
       QuerySnapshot projectAssets = await firestore
           .collection('users')
-          .doc(_uid.value)
+          .doc(uuid.value)
           .collection('departments')
-          .doc(_departmentId.value)
+          .doc(deepartmentId.value)
           .collection('projects')
           .doc(_projectId.value)
           .collection('assets')
@@ -129,14 +170,24 @@ class ProjectController extends GetxController {
     }
   }
 
+  getProfileUrlFromUID(String uid) {
+    String profileUrl = '';
+    for (var user in users) {
+      if (user.uid == uid) {
+        profileUrl = user.profilePhoto!;
+      }
+    }
+    return profileUrl;
+  }
+
   getProjectMembers() async {
     projectMembers.clear();
     if (!kIsWeb) {
       await firedartFirestore
           .collection('users')
-          .document(_uid.value)
+          .document(uuid.value)
           .collection('departments')
-          .document(_departmentId.value)
+          .document(deepartmentId.value)
           .collection('projects')
           .document(_projectId.value)
           .collection('members')
@@ -149,9 +200,9 @@ class ProjectController extends GetxController {
     } else {
       await firestore
           .collection('users')
-          .doc(_uid.value)
+          .doc(uuid.value)
           .collection('departments')
-          .doc(_departmentId.value)
+          .doc(deepartmentId.value)
           .collection('projects')
           .doc(_projectId.value)
           .collection('members')
@@ -171,7 +222,7 @@ class ProjectController extends GetxController {
       var fetchedUsers = await firedartFirestore.collection('users').get();
 
       for (var user in fetchedUsers) {
-        users.add(user);
+        users.add(User.fromDoc(user));
       }
     } else {
       await firestore
@@ -179,7 +230,7 @@ class ProjectController extends GetxController {
           .get()
           .then((QuerySnapshot querySnapshot) {
         for (var user in querySnapshot.docs) {
-          users.add((user.data() as dynamic));
+          users.add(User.fromDocumentSnapshot(user));
         }
       });
     }
@@ -200,9 +251,9 @@ class ProjectController extends GetxController {
       if (!kIsWeb) {
         await firedartFirestore
             .collection('users')
-            .document(_uid.value)
+            .document(uuid.value)
             .collection('departments')
-            .document(_departmentId.value)
+            .document(deepartmentId.value)
             .collection('projects')
             .document(_projectId.value)
             .collection('assets')
@@ -211,9 +262,9 @@ class ProjectController extends GetxController {
       } else {
         await firestore
             .collection('users')
-            .doc(_uid.value)
+            .doc(uuid.value)
             .collection('departments')
-            .doc(_departmentId.value)
+            .doc(deepartmentId.value)
             .collection('projects')
             .doc(_projectId.value)
             .collection('assets')
@@ -233,7 +284,7 @@ class ProjectController extends GetxController {
             .collection('users')
             .document(projectMembers[i]['uid'])
             .collection('departments')
-            .document(_departmentId.value)
+            .document(deepartmentId.value)
             .collection('projects')
             .document(_projectId.value)
             .collection('assets')
@@ -246,7 +297,7 @@ class ProjectController extends GetxController {
             .collection('users')
             .doc(projectMembers[i]['uid'])
             .collection('departments')
-            .doc(_departmentId.value)
+            .doc(deepartmentId.value)
             .collection('projects')
             .doc(_projectId.value)
             .collection('assets')
@@ -273,7 +324,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(projectMembers[i]['uid'])
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
@@ -286,7 +337,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(projectMembers[i]['uid'])
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -344,7 +395,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(projectMembers[i]['uid'])
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
@@ -357,7 +408,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(projectMembers[i]['uid'])
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -416,7 +467,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(projectMembers[i]['uid'])
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
@@ -429,7 +480,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(projectMembers[i]['uid'])
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -488,7 +539,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(projectMembers[i]['uid'])
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
@@ -501,7 +552,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(projectMembers[i]['uid'])
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -522,9 +573,9 @@ class ProjectController extends GetxController {
     if (!kIsWeb) {
       await firedartFirestore
           .collection('users')
-          .document(_uid.value)
+          .document(uuid.value)
           .collection('departments')
-          .document(_departmentId.value)
+          .document(deepartmentId.value)
           .collection('projects')
           .document(_projectId.value)
           .get()
@@ -541,9 +592,9 @@ class ProjectController extends GetxController {
     } else {
       await firestore
           .collection('users')
-          .doc(_uid.value)
+          .doc(uuid.value)
           .collection('departments')
-          .doc(_departmentId.value)
+          .doc(deepartmentId.value)
           .collection('projects')
           .doc(_projectId.value)
           .get()
@@ -560,21 +611,60 @@ class ProjectController extends GetxController {
     }
   }
 
+  void updateProjectLastOpenedParameter({
+    dynamic lastOpened,
+    required String projectId,
+    required String uid,
+    required String deepartmentId,
+  }) async {
+    if (!kIsWeb) {
+      await firedartFirestore
+          .collection('users')
+          .document(uid)
+          .collection('departments')
+          .document(deepartmentId)
+          .collection('projects')
+          .document(projectId)
+          .update({'lastOpened': lastOpened}).then((value) async {
+        Get.to(() => ProjectDashboard(
+              projectId: projectId,
+            ));
+      });
+    } else {
+      await firestore
+          .collection('users')
+          .doc(uid)
+          .collection('departments')
+          .doc(deepartmentId)
+          .collection('projects')
+          .doc(projectId)
+          .update({'lastOpened': lastOpened}).then((value) async {
+        Get.to(() => ProjectDashboard(
+              projectId: projectId,
+            ));
+      });
+    }
+  }
+
   void newProject({
     String? title,
     String? subtitle,
+    dynamic lastOpened,
     String? uid,
     String? username,
-    String? pilot,
-    String? copilot,
     String? catergory,
-    List<ProjectMember>? initialProjectMembers,
   }) async {
+    final DepartmentController departmentController =
+        Get.find<DepartmentController>();
+    ProfileController profileController = Get.find<ProfileController>();
     FutureGroup futureGroup = FutureGroup();
     String projectId = '';
     Project project = Project(
-        copilot: copilot,
-        lead: pilot,
+        copilot: '',
+        lead: '',
+        leadID: '',
+        copilotID: '',
+        lastOpened: lastOpened,
         projectId: projectId,
         subtitle: subtitle,
         category: catergory,
@@ -586,40 +676,44 @@ class ProjectController extends GetxController {
             .collection('users')
             .document('$uid')
             .collection('departments')
-            .document(_departmentId.value)
+            .document(
+                departmentController.currentDepartment.value.departmentId!)
             .collection('projects')
             .add(project.toJson())
             .then((value) async {
-          projectId = value.id;
+          project.projectId = value.id;
+
+          profileController.departmentProjects.add(project);
+          profileController.update();
+
+          Get.back();
+
           await firedartFirestore
               .collection('users')
               .document('$uid')
               .collection('departments')
-              .document(_departmentId.value)
+              .document(
+                  departmentController.currentDepartment.value.departmentId!)
               .collection('projects')
               .document(value.id)
               .update({'projectId': value.id}).then((value) async {
-            for (var projectMember in initialProjectMembers!) {
-              futureGroup.add(firedartFirestore
-                  .collection('users')
-                  .document('$uid')
-                  .collection('departments')
-                  .document(_departmentId.value)
-                  .collection('projects')
-                  .document(projectId)
-                  .collection('members')
-                  .document('${projectMember.uid}')
-                  .set({
-                "uid": projectMember.uid,
-                'username': projectMember.username
-              }));
-            }
-            futureGroup.close();
-
-            Get.to(() => ProjectDashboard(projectId: projectId));
+            futureGroup.add(firedartFirestore
+                .collection('users')
+                .document('$uid')
+                .collection('departments')
+                .document(
+                    departmentController.currentDepartment.value.departmentId!)
+                .collection('projects')
+                .document(project.projectId!)
+                .collection('members')
+                .document(profileController.currentUser.value.uid!)
+                .set({
+              "uid": profileController.currentUser.value.uid,
+              'username': profileController.currentUser.value.name
+            }));
           });
         });
-
+        futureGroup.close();
         getSuccessSnackBar("Project created successfully");
       } catch (e) {
         //define error
@@ -634,39 +728,41 @@ class ProjectController extends GetxController {
             .collection('users')
             .doc(uid)
             .collection('departments')
-            .doc(_departmentId.value)
+            .doc(departmentController.currentDepartment.value.departmentId!)
             .collection('projects')
             .add(project.toJson())
             .then((value) async {
-          projectId = value.id;
+          project.projectId = value.id;
+
+          profileController.departmentProjects.add(project);
+          profileController.update();
+
+          Get.back();
+
           await firestore
               .collection('users')
               .doc(uid)
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(departmentController.currentDepartment.value.departmentId!)
               .collection('projects')
               .doc(value.id)
               .update({'projectId': value.id}).then((value) async {
-            for (var projectMember in initialProjectMembers!) {
-              futureGroup.add(firestore
-                  .collection('users')
-                  .doc('$uid')
-                  .collection('departments')
-                  .doc(_departmentId.value)
-                  .collection('projects')
-                  .doc(projectId)
-                  .collection('members')
-                  .doc('${projectMember.uid}')
-                  .set({
-                "uid": projectMember.uid,
-                'username': projectMember.username
-              }));
-            }
-            futureGroup.close();
-            Get.to(() => ProjectDashboard(projectId: projectId));
+            futureGroup.add(firestore
+                .collection('users')
+                .doc('$uid')
+                .collection('departments')
+                .doc(departmentController.currentDepartment.value.departmentId!)
+                .collection('projects')
+                .doc(project.projectId!)
+                .collection('members')
+                .doc(profileController.currentUser.value.uid!)
+                .set({
+              "uid": profileController.currentUser.value.uid,
+              'username': profileController.currentUser.value.name
+            }));
           });
         });
-
+        futureGroup.close();
         getSuccessSnackBar("Project created successfully");
       } catch (e) {
         //define error
@@ -677,68 +773,67 @@ class ProjectController extends GetxController {
     }
   }
 
-  void newDepartment({
-    String? title,
-    String? uid,
+  void updatingPilotCopilot({
+    String? pilot,
+    String? copilot,
+    List<ProjectMember>? projectMembers,
   }) async {
-    String departmentId = '';
-    Department department = Department(
-        departmentId: departmentId,
-        title: title,
-        iconCode: iconCodeValue.value);
-
+    FutureGroup futureGroup = FutureGroup();
+    Get.back();
     if (!kIsWeb) {
       try {
-        await firedartFirestore
-            .collection('users')
-            .document('$uid')
-            .collection('departments')
-            .add(department.toJson())
-            .then((value) async {
-          departmentId = value.id;
-          await firedartFirestore
+        for (var projectMember in projectMembers!) {
+          futureGroup.add(firedartFirestore
               .collection('users')
-              .document('$uid')
+              .document('${projectMember.uid}')
               .collection('departments')
-              .document(value.id)
-              .update({'departmentId': value.id}).then((value) async {
-            Get.to(() => ProjectsGrid(departmentId: departmentId));
-          });
-        });
+              .document(deepartmentId.value)
+              .collection('projects')
+              .document(_projectId.value)
+              .collection('members')
+              .document('${projectMember.uid}')
+              .set({
+            "uid": projectMember.uid,
+            'username': projectMember.username
+          }));
+        }
+        futureGroup.close();
 
-        getSuccessSnackBar("Department created successfully");
+        getSuccessSnackBar("Members updated successfully");
       } catch (e) {
         //define error
+
         getErrorSnackBar(
           "Something went wrong, Please try again",
         );
       }
     } else {
-      try {
-        await firestore
-            .collection('users')
-            .doc(uid)
-            .collection('departments')
-            .add(department.toJson())
-            .then((value) async {
-          departmentId = value.id;
-          await firestore
-              .collection('users')
-              .doc(uid)
-              .collection('departments')
-              .doc(value.id)
-              .update({'departmentId': value.id}).then((value) async {
-            Get.to(() => ProjectsGrid(departmentId: departmentId));
-          });
-        });
+      // try {
 
-        getSuccessSnackBar("Department created successfully");
-      } catch (e) {
-        //define error
-        getErrorSnackBar(
-          "Something went wrong, Please try again",
-        );
-      }
+      //       for (var projectMember in initialProjectMembers!) {
+      //         futureGroup.add(firestore
+      //             .collection('users')
+      //             .doc('$uid')
+      //             .collection('departments')
+      //             .doc(deepartmentId.value)
+      //             .collection('projects')
+      //             .doc(projectId)
+      //             .collection('members')
+      //             .doc('${projectMember.uid}')
+      //             .set({
+      //           "uid": projectMember.uid,
+      //           'username': projectMember.username
+      //         }));
+      //       }
+      //       futureGroup.close();
+
+      //    getSuccessSnackBar("Members updated successfully");
+      // } catch (e) {
+      //   //define error
+      //   getErrorSnackBar(
+      //     "Something went wrong, Please try again",
+      //   );
+      // }
     }
   }
 
@@ -756,7 +851,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(member['uid'])
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('assets')
@@ -780,7 +875,7 @@ class ProjectController extends GetxController {
                 .collection('users')
                 .document(member['uid'])
                 .collection('departments')
-                .document(_departmentId.value)
+                .document(deepartmentId.value)
                 .collection('projects')
                 .document(_projectId.value)
                 .collection('assets')
@@ -802,7 +897,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(member['uid'])
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('assets')
@@ -824,7 +919,7 @@ class ProjectController extends GetxController {
                 .collection('users')
                 .doc(member['uid'])
                 .collection('departments')
-                .doc(_departmentId.value)
+                .doc(deepartmentId.value)
                 .collection('projects')
                 .doc(_projectId.value)
                 .collection('assets')
@@ -865,7 +960,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(member['uid'])
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('assets')
@@ -886,7 +981,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(member['uid'])
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('assets')
@@ -908,9 +1003,9 @@ class ProjectController extends GetxController {
     if (!kIsWeb) {
       var projectComments = await firedartFirestore
           .collection('users')
-          .document(_uid.value)
+          .document(uuid.value)
           .collection('departments')
-          .document(_departmentId.value)
+          .document(deepartmentId.value)
           .collection('projects')
           .document(_projectId.value)
           .collection('comments')
@@ -925,9 +1020,9 @@ class ProjectController extends GetxController {
     } else {
       QuerySnapshot projectComments = await firestore
           .collection('users')
-          .doc(_uid.value)
+          .doc(uuid.value)
           .collection('departments')
-          .doc(_departmentId.value)
+          .doc(deepartmentId.value)
           .collection('projects')
           .doc(_projectId.value)
           .collection('comments')
@@ -949,9 +1044,9 @@ class ProjectController extends GetxController {
     if (!kIsWeb) {
       var projectTasks = await firedartFirestore
           .collection('users')
-          .document(_uid.value)
+          .document(uuid.value)
           .collection('departments')
-          .document(_departmentId.value)
+          .document(deepartmentId.value)
           .collection('projects')
           .document(_projectId.value)
           .collection('tasks')
@@ -969,9 +1064,9 @@ class ProjectController extends GetxController {
     } else {
       QuerySnapshot projectTasks = await firestore
           .collection('users')
-          .doc(_uid.value)
+          .doc(uuid.value)
           .collection('departments')
-          .doc(_departmentId.value)
+          .doc(deepartmentId.value)
           .collection('projects')
           .doc(_projectId.value)
           .collection('tasks')
@@ -1056,7 +1151,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(projectMembers[i]['uid'])
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('comments')
@@ -1068,7 +1163,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(projectMembers[i]['uid'])
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('comments')
@@ -1223,7 +1318,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(projectMembers[i]['uid'])
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('comments')
@@ -1241,6 +1336,8 @@ class ProjectController extends GetxController {
           futureGroup.add(firestore
               .collection('users')
               .doc(projectMembers[i]['uid'])
+              .collection('departments')
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('comments')
@@ -1294,7 +1391,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(projectMembers[i]['uid'])
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
@@ -1315,7 +1412,7 @@ class ProjectController extends GetxController {
                 status: status,
                 deliverables: deliverablesList,
                 priorityLevel: priorityLevel);
-            if (projectMembers[i]['uid'] == _uid.value) {
+            if (projectMembers[i]['uid'] == uuid.value) {
               if (status == todo) {
                 toDoTasks.add(updatedTaskWithID.toJson());
               } else if (status == inProgress) {
@@ -1328,7 +1425,7 @@ class ProjectController extends GetxController {
                 .collection('users')
                 .document(projectMembers[i]['uid'])
                 .collection('departments')
-                .document(_departmentId.value)
+                .document(deepartmentId.value)
                 .collection('projects')
                 .document(_projectId.value)
                 .collection('tasks')
@@ -1342,7 +1439,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(projectMembers[i]['uid'])
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -1363,7 +1460,7 @@ class ProjectController extends GetxController {
                 status: status,
                 deliverables: deliverablesList,
                 priorityLevel: priorityLevel);
-            if (projectMembers[i]['uid'] == _uid.value) {
+            if (projectMembers[i]['uid'] == uuid.value) {
               if (status == todo) {
                 toDoTasks.add(updatedTaskWithID.toJson());
               } else if (status == inProgress) {
@@ -1377,7 +1474,7 @@ class ProjectController extends GetxController {
                 .collection('users')
                 .doc(projectMembers[i]['uid'])
                 .collection('departments')
-                .doc(_departmentId.value)
+                .doc(deepartmentId.value)
                 .collection('projects')
                 .doc(_projectId.value)
                 .collection('tasks')
@@ -1413,7 +1510,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(projectMembers[i]['uid'])
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
@@ -1426,7 +1523,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(projectMembers[i]['uid'])
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -1494,7 +1591,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(projectMembers[i]['uid'])
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
@@ -1504,7 +1601,7 @@ class ProjectController extends GetxController {
                 .collection('users')
                 .document(projectMembers[i]['uid'])
                 .collection('departments')
-                .document(_departmentId.value)
+                .document(deepartmentId.value)
                 .collection('projects')
                 .document(_projectId.value)
                 .collection('tasks')
@@ -1518,7 +1615,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(projectMembers[i]['uid'])
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -1530,7 +1627,7 @@ class ProjectController extends GetxController {
                     .collection('users')
                     .doc(projectMembers[i]['uid'])
                     .collection('departments')
-                    .doc(_departmentId.value)
+                    .doc(deepartmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('tasks')
@@ -1570,7 +1667,7 @@ class ProjectController extends GetxController {
                   .collection('users')
                   .document(projectMembers[i]['uid'])
                   .collection('departments')
-                  .document(_departmentId.value)
+                  .document(deepartmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .collection('tasks')
@@ -1581,7 +1678,7 @@ class ProjectController extends GetxController {
                       .collection('users')
                       .document(projectMembers[i]['uid'])
                       .collection('departments')
-                      .document(_departmentId.value)
+                      .document(deepartmentId.value)
                       .collection('projects')
                       .document(_projectId.value)
                       .collection('tasks')
@@ -1603,7 +1700,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(projectMembers[i]['uid'])
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -1616,7 +1713,7 @@ class ProjectController extends GetxController {
                       .collection('users')
                       .doc(projectMembers[i]['uid'])
                       .collection('departments')
-                      .doc(_departmentId.value)
+                      .doc(deepartmentId.value)
                       .collection('projects')
                       .doc(_projectId.value)
                       .collection('tasks')
@@ -1646,10 +1743,6 @@ class ProjectController extends GetxController {
   }
 
   manageProjectMembers({
-    String? lead,
-    String? copilot,
-    String? title,
-    String? subtitle,
     List<ProjectMember>? members,
     List<ProjectMember>? removedMembers,
   }) async {
@@ -1665,7 +1758,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(removedMembers[i].uid!)
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .delete());
@@ -1674,7 +1767,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(removedMembers[i].uid!)
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('assets')
@@ -1688,7 +1781,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(removedMembers[i].uid!)
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('comments')
@@ -1702,7 +1795,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(removedMembers[i].uid!)
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('members')
@@ -1716,7 +1809,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .document(removedMembers[i].uid!)
               .collection('departments')
-              .document(_departmentId.value)
+              .document(deepartmentId.value)
               .collection('projects')
               .document(_projectId.value)
               .collection('tasks')
@@ -1730,9 +1823,9 @@ class ProjectController extends GetxController {
 
         await firedartFirestore
             .collection('users')
-            .document(_uid.value)
+            .document(uuid.value)
             .collection('departments')
-            .document(_departmentId.value)
+            .document(deepartmentId.value)
             .collection('projects')
             .document(_projectId.value)
             .collection('members')
@@ -1750,13 +1843,15 @@ class ProjectController extends GetxController {
                   .collection('users')
                   .document(members[i].uid!)
                   .collection('departments')
-                  .document(_departmentId.value)
+                  .document(deepartmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .update(
                 {
-                  'copilot': copilot,
-                  'lead': lead,
+                  'copilot': currentProject.value.copilot,
+                  'lead': currentProject.value.lead,
+                  'copilotID': currentProject.value.copilotID,
+                  'leadID': currentProject.value.leadID,
                 },
               ),
             );
@@ -1768,7 +1863,7 @@ class ProjectController extends GetxController {
                     .collection('users')
                     .document(members[i].uid!)
                     .collection('departments')
-                    .document(_departmentId.value)
+                    .document(deepartmentId.value)
                     .collection('projects')
                     .document(_projectId.value)
                     .collection('members')
@@ -1785,7 +1880,7 @@ class ProjectController extends GetxController {
                   .collection('users')
                   .document(members[i].uid!)
                   .collection('departments')
-                  .document(_departmentId.value)
+                  .document(deepartmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .collection('members')
@@ -1793,28 +1888,21 @@ class ProjectController extends GetxController {
                   .delete());
             }
           } else {
-            Project project = Project(
-                copilot: copilot,
-                lead: lead,
-                projectId: _projectId.value,
-                subtitle: subtitle,
-                title: title);
-
             futureGroup.add(firedartFirestore
                 .collection('users')
                 .document(members[i].uid!)
                 .collection('departments')
-                .document(_departmentId.value)
+                .document(deepartmentId.value)
                 .collection('projects')
                 .document(_projectId.value)
-                .set(project.toJson()));
+                .set(currentProject.value.toJson()));
 
             for (var member in members) {
               futureGroup.add(firedartFirestore
                   .collection('users')
                   .document(members[i].uid!)
                   .collection('departments')
-                  .document(_departmentId.value)
+                  .document(deepartmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .collection('members')
@@ -1829,7 +1917,7 @@ class ProjectController extends GetxController {
                   .collection('users')
                   .document(members[i].uid!)
                   .collection('departments')
-                  .document(_departmentId.value)
+                  .document(deepartmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .collection('assets')
@@ -1841,7 +1929,7 @@ class ProjectController extends GetxController {
                   .collection('users')
                   .document(members[i].uid!)
                   .collection('departments')
-                  .document(_departmentId.value)
+                  .document(deepartmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .collection('comments')
@@ -1855,7 +1943,7 @@ class ProjectController extends GetxController {
                   .collection('users')
                   .document(members[i].uid!)
                   .collection('departments')
-                  .document(_departmentId.value)
+                  .document(deepartmentId.value)
                   .collection('projects')
                   .document(_projectId.value)
                   .collection('tasks')
@@ -1896,7 +1984,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(removedMembers[i].uid)
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .delete());
@@ -1905,7 +1993,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(removedMembers[i].uid)
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('assets')
@@ -1919,7 +2007,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(removedMembers[i].uid)
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('comments')
@@ -1933,7 +2021,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(removedMembers[i].uid)
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('members')
@@ -1947,7 +2035,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(removedMembers[i].uid)
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .collection('tasks')
@@ -1964,7 +2052,7 @@ class ProjectController extends GetxController {
               .collection('users')
               .doc(members[i].uid)
               .collection('departments')
-              .doc(_departmentId.value)
+              .doc(deepartmentId.value)
               .collection('projects')
               .doc(_projectId.value)
               .get()
@@ -1975,13 +2063,15 @@ class ProjectController extends GetxController {
                     .collection('users')
                     .doc(members[i].uid)
                     .collection('departments')
-                    .doc(_departmentId.value)
+                    .doc(deepartmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .update(
                   {
-                    'copilot': copilot,
-                    'lead': lead,
+                    'copilot': currentProject.value.copilot,
+                    'lead': currentProject.value.lead,
+                    'copilotID': currentProject.value.copilotID,
+                    'leadID': currentProject.value.leadID,
                   },
                 ),
               );
@@ -1991,7 +2081,7 @@ class ProjectController extends GetxController {
                     .collection('users')
                     .doc(members[i].uid)
                     .collection('departments')
-                    .doc(_departmentId.value)
+                    .doc(deepartmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('members')
@@ -2004,7 +2094,7 @@ class ProjectController extends GetxController {
                         .collection('users')
                         .doc(members[i].uid)
                         .collection('departments')
-                        .doc(_departmentId.value)
+                        .doc(deepartmentId.value)
                         .collection('projects')
                         .doc(_projectId.value)
                         .collection('members')
@@ -2022,7 +2112,7 @@ class ProjectController extends GetxController {
                     .collection('users')
                     .doc(members[i].uid)
                     .collection('departments')
-                    .doc(_departmentId.value)
+                    .doc(deepartmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('members')
@@ -2030,28 +2120,21 @@ class ProjectController extends GetxController {
                     .delete());
               }
             } else {
-              Project project = Project(
-                  copilot: copilot,
-                  lead: lead,
-                  projectId: _projectId.value,
-                  subtitle: subtitle,
-                  title: title);
-
               futureGroup.add(firestore
                   .collection('users')
                   .doc(members[i].uid)
                   .collection('departments')
-                  .doc(_departmentId.value)
+                  .doc(deepartmentId.value)
                   .collection('projects')
                   .doc(_projectId.value)
-                  .set(project.toJson()));
+                  .set(currentProject.value.toJson()));
 
               for (var member in members) {
                 futureGroup.add(firestore
                     .collection('users')
                     .doc(members[i].uid)
                     .collection('departments')
-                    .doc(_departmentId.value)
+                    .doc(deepartmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('members')
@@ -2066,7 +2149,7 @@ class ProjectController extends GetxController {
                     .collection('users')
                     .doc(members[i].uid)
                     .collection('departments')
-                    .doc(_departmentId.value)
+                    .doc(deepartmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('assets')
@@ -2078,7 +2161,7 @@ class ProjectController extends GetxController {
                     .collection('users')
                     .doc(members[i].uid)
                     .collection('departments')
-                    .doc(_departmentId.value)
+                    .doc(deepartmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('comments')
@@ -2092,7 +2175,7 @@ class ProjectController extends GetxController {
                     .collection('users')
                     .doc(members[i].uid)
                     .collection('departments')
-                    .doc(_departmentId.value)
+                    .doc(deepartmentId.value)
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('tasks')

@@ -11,8 +11,8 @@ Container selectMember(BuildContext context,
     String? pilotOrCopilotValue,
     String? oldPilotorCopilot,
     required TextEditingController controller}) {
-  final ProjectController projectController = Get.find();
-  final AuthController authController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
+  final AuthController authController = Get.find<AuthController>();
 
   return Container(
     width: screenWidth(context) * 0.2,

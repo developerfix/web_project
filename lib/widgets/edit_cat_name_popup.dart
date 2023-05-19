@@ -9,7 +9,7 @@ import '../controllers/auth_controller.dart';
 
 Future<dynamic> editAssetCategoryNamePopUp(BuildContext context, String title) {
   final nameController = TextEditingController();
-  final ProjectController projectController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
 
   final formKey = GlobalKey<FormState>();
 
@@ -86,7 +86,7 @@ Future<dynamic> editAssetCategoryNamePopUp(BuildContext context, String title) {
 
 Row itemRow(BuildContext context,
     {required Widget widget, required String title}) {
-  final AuthController authController = Get.find();
+  final AuthController authController = Get.find<AuthController>();
   return Row(
     children: [
       txt(

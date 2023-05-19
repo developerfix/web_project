@@ -12,16 +12,16 @@ import '../../widgets/custom_drawer.dart';
 import 'gantt_chart.dart';
 import 'github_api.dart';
 
-class Timeline extends StatefulWidget {
-  const Timeline({Key? key}) : super(key: key);
+class Timelinee extends StatefulWidget {
+  const Timelinee({super.key});
 
   @override
-  State<Timeline> createState() => _TimelineState();
+  State<Timelinee> createState() => _TimelineeState();
 }
 
-class _TimelineState extends State<Timeline> with TickerProviderStateMixin {
-  final ProjectController projectController = Get.find();
-  final ProfileController profileController = Get.find();
+class _TimelineeState extends State<Timelinee> with TickerProviderStateMixin {
+  final ProjectController projectController = Get.find<ProjectController>();
+  final ProfileController profileController = Get.find<ProfileController>();
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   List<Issue> tasksList = [];
 

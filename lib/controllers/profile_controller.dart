@@ -17,12 +17,15 @@ class ProfileController extends GetxController {
 
   RxBool isFetchingProjects = false.obs;
   RxBool isProfileUploading = false.obs;
-  Rx<double> profilePhotoUploadProgress = 0.0.obs;
   RxBool isFetchingDepartments = false.obs;
-  RxBool isProfilePhotoUpdating = false.obs;
-  RxList<Department> departments = <Department>[].obs;
-  RxList<Project> departmentProjects = <Project>[].obs;
+  RxBool isNotesDrawer = false.obs;
 
+  RxList<Department> departments = <Department>[].obs;
+
+  RxList<Project> departmentProjects = <Project>[].obs;
+  //projectCategories
+  RxList<String> projectCategories = <String>[].obs;
+  Rx<String> projectCategory = "".obs;
   final Rx<String> _uid = "".obs;
   // ignore: prefer_typing_uninitialized_variables
   var app;
@@ -50,6 +53,26 @@ class ProfileController extends GetxController {
     }
   }
 
+  updateLastOpenedProject(
+    String projectId,
+    String departmentId,
+  ) async {
+    currentUser.value.lastOpenedProjectId = projectId;
+    currentUser.value.lastOpenedDocumentId = departmentId;
+    update();
+    if (!kIsWeb) {
+      await firedartFirestore.collection('users').document(_uid.value).update({
+        'lastOpenedProjectId': projectId,
+        'lastOpenedDocumentId': departmentId
+      });
+    } else {
+      await firestore.collection('users').doc(_uid.value).update({
+        'lastOpenedProjectId': projectId,
+        'lastOpenedDocumentId': departmentId
+      });
+    }
+  }
+
   String getFileName(String filePath) {
     return basename(filePath);
   }
@@ -58,21 +81,17 @@ class ProfileController extends GetxController {
     isProfileUploading.value = true;
     Uint8List? file = result!.readAsBytesSync();
     String fileName = getFileName(result.path);
-    String? urlDownload;
 
     try {
       var storage = firebase_dart_storage.FirebaseStorage.instanceFor(app: app);
-      var ref = storage.ref().child("files/$fileName").putData(file);
+      var ref = storage.ref().child("profilePhotos/$fileName").putData(file);
 
       ref.snapshotEvents.listen((event) {
-        profilePhotoUploadProgress.value =
-            ((event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) *
-                100);
         if (event.state == firebase_dart_storage.TaskState.success) {
           event.ref.getDownloadURL().then((downloadUrl) async {
-            urlDownload = downloadUrl;
-
-            currentUser.value.profilePhoto = urlDownload;
+            isProfileUploading.value = false;
+            currentUser.value.profilePhoto = downloadUrl;
+            update();
 
             if (!kIsWeb) {
               firedartFirestore
@@ -94,7 +113,6 @@ class ProfileController extends GetxController {
         "Something went wrong, Please try again",
       );
     }
-    isProfileUploading.value = false;
   }
 
   getUserData() async {
@@ -106,15 +124,12 @@ class ProfileController extends GetxController {
           .then((value) {
         currentUser.value = User.fromDoc(value);
       });
-
-      update();
     } else {
       await firestore.collection('users').doc(_uid.value).get().then((value) {
         currentUser.value = User.fromDocumentSnapshot(value);
       });
-
-      update();
     }
+    update();
   }
 
   getDepartments() async {
@@ -126,6 +141,9 @@ class ProfileController extends GetxController {
           .collection('users')
           .document(_uid.value)
           .collection('departments')
+          .orderBy(
+            'createdAt',
+          )
           .get();
 
       for (var document in documents) {
@@ -136,6 +154,9 @@ class ProfileController extends GetxController {
           .collection('users')
           .doc(_uid.value)
           .collection('departments')
+          .orderBy(
+            'createdAt',
+          )
           .get()
           .then((QuerySnapshot querySnapshot) {
         for (var department in querySnapshot.docs) {
@@ -151,6 +172,9 @@ class ProfileController extends GetxController {
     isFetchingProjects.value = true;
     departmentProjects.clear();
 
+    List<String> tempCats = [];
+    projectCategories.clear();
+
     if (!kIsWeb) {
       var documents = await firedartFirestore
           .collection('users')
@@ -158,6 +182,9 @@ class ProfileController extends GetxController {
           .collection('departments')
           .document(departmentId)
           .collection('projects')
+          .orderBy(
+            'lastOpened',
+          )
           .get();
 
       for (var document in documents) {
@@ -170,6 +197,9 @@ class ProfileController extends GetxController {
           .collection('departments')
           .doc(departmentId)
           .collection('projects')
+          .orderBy(
+            'lastOpened',
+          )
           .get()
           .then((QuerySnapshot querySnapshot) {
         for (var project in querySnapshot.docs) {
@@ -179,5 +209,20 @@ class ProfileController extends GetxController {
     }
 
     isFetchingProjects.value = false;
+
+    for (var projcategory in departmentProjects) {
+      tempCats.add(projcategory.category!);
+    }
+    projectCategories.value = [
+      ...{...tempCats}
+    ];
+
+    projectCategories.add(newProjectCategory);
+    if (!projectCategories.contains(designCategory)) {
+      projectCategories.add(designCategory);
+    }
+    if (!projectCategories.contains(opticalCategory)) {
+      projectCategories.add(opticalCategory);
+    }
   }
 }

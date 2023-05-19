@@ -79,13 +79,21 @@ dependencies:
   fading_edge_scrollview: ^3.0.0
   desktop_drop: ^0.4.1
   mime: ^1.0.4
+  pasteboard: ^0.2.0
   
-
+msix_config:
+  display_name: Ava App
+  publisher_display_name: Ava
+  identity_name: company.suite.Ava
+  msix_version: 1.0.0.1
+  logo_path: C:\Users\DELL\Documents\ava_logo.png
+  capabilities: internetClient
 
 dev_dependencies:
   flutter_lints: ^2.0.0
   flutter_test:
     sdk: flutter
+  msix: ^3.11.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

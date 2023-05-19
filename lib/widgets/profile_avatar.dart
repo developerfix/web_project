@@ -5,24 +5,26 @@ import 'package:get/get.dart';
 import '../constants/style.dart';
 import 'cached_image.dart';
 
-Obx profileAvatar(
+GetBuilder<ProfileController> profileAvatar(
   BuildContext context, {
   double? fontSize,
   double? maxRadius,
   bool? isDrawer,
   bool? isAppBar,
 }) {
-  final ProfileController profileController = Get.find();
-  return Obx(
-    () => profileController.currentUser.value.profilePhoto != ''
+  return GetBuilder<ProfileController>(
+    init: ProfileController(),
+    builder: (controller) => controller.currentUser.value.profilePhoto !=
+                null &&
+            controller.currentUser.value.profilePhoto!.isNotEmpty
         ? cachedImage(
             context,
             fontSize: fontSize,
+            isUploading: controller.isProfileUploading.value,
             isAppBar: isAppBar,
             isDrawer: isDrawer,
             maxRadius: maxRadius,
-            url: profileController.currentUser.value.profilePhoto ??
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdvd0bRebMPnsU2r46Hb_BGsRcoS687MMqug&usqp=CAU',
+            url: controller.currentUser.value.profilePhoto!,
           )
         : CircleAvatar(
             backgroundColor: isDrawer != null
@@ -31,8 +33,7 @@ Obx profileAvatar(
             maxRadius: maxRadius ?? 20,
             child: Center(
               child: txt(
-                  txt: profileController.currentUser.value.name?[0]
-                          .toUpperCase() ??
+                  txt: controller.currentUser.value.name?[0].toUpperCase() ??
                       'U',
                   fontSize: fontSize ?? 20,
                   fontColor: Colors.white),

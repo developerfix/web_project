@@ -14,23 +14,27 @@ const int secondaryColor = 0xff958890;
 const Color brownishColor = Color(0xff707070);
 
 //sharedPreferences Keys
-const String lastOpenedProjectId = 'lastOpenedProjectId';
-Color checkThemeColorwhite54 =
-    // authController.isDarkTheme.value ?
-    Colors.white54;
-//  : brownishColor;
-Color checkThemeColorwhite60 =
-    // authController.isDarkTheme.value ?
-    Colors.white60;
-//  : brownishColor;
+
 const int darkgreyishColor = 0xff304869;
 //status
 const String todo = 'todo';
 const String inProgress = 'inProgress';
 const String completed = 'completed';
-//assetCategory
+//drawer Keys
+const String notesDrawerKey = 'notesDrawerKey';
+final GlobalKey<ScaffoldState> scaffoldNotesDrawerKey =
+    GlobalKey<ScaffoldState>();
+final GlobalKey<ScaffoldState> scaffoldAssetsDrawerKey =
+    GlobalKey<ScaffoldState>();
+
+const String assetsDrawerKey = 'assetsDrawerKey';
+//assetCategories
 const String newAssetCategory = 'Create new category';
 const String noCategory = 'No category';
+//projectCategories
+const String newProjectCategory = 'Create new category';
+const String designCategory = '3D design';
+const String opticalCategory = 'Optical Design';
 //assetType
 const String linkAssetType = 'linkAssetType';
 const String fileAssetType = 'fileAssetType';
@@ -129,7 +133,7 @@ Widget txt(
               textStyle: TextStyle(
                 overflow: overflow ?? TextOverflow.ellipsis,
                 letterSpacing: letterSpacing ?? 0,
-                color: fontColor ?? checkThemeColorwhite54,
+                color: fontColor,
                 fontWeight: fontWeight ?? FontWeight.w600,
               ),
             )
@@ -137,7 +141,7 @@ Widget txt(
               textStyle: TextStyle(
                 overflow: overflow ?? TextOverflow.visible,
                 letterSpacing: letterSpacing ?? 0,
-                color: fontColor ?? checkThemeColorwhite54,
+                color: fontColor,
                 fontWeight: fontWeight ?? FontWeight.w600,
               ),
             ),
@@ -150,10 +154,9 @@ Text popText(String status) {
     status,
     maxLines: 1,
     style: GoogleFonts.montserrat(
-      textStyle: TextStyle(
+      textStyle: const TextStyle(
         fontSize: 14,
         overflow: TextOverflow.visible,
-        color: checkThemeColorwhite54,
         fontWeight: FontWeight.w600,
       ),
     ),
@@ -162,11 +165,13 @@ Text popText(String status) {
 
 getErrorSnackBar(String message) {
   Get.snackbar(
+    'Error',
     message,
-    '',
+    maxWidth: 600,
     snackPosition: SnackPosition.BOTTOM,
-    backgroundColor: Colors.red.shade100,
-    colorText: Colors.black38,
+    backgroundColor: const Color(0xffF44336),
+    titleText: txt(txt: 'Error', fontSize: 24, fontColor: Colors.white),
+    messageText: txt(txt: message, fontSize: 22, fontColor: Colors.white),
     borderRadius: 10,
     margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
   );
@@ -175,10 +180,12 @@ getErrorSnackBar(String message) {
 getSuccessSnackBar(String message) {
   Get.snackbar(
     message,
-    '',
+    'Success',
+    maxWidth: 600,
     snackPosition: SnackPosition.BOTTOM,
-    backgroundColor: const Color(0xffCBCBCB),
-    colorText: Colors.white,
+    backgroundColor: const Color(0xff4CAF50),
+    titleText: txt(txt: 'Success', fontSize: 24, fontColor: Colors.white),
+    messageText: txt(txt: message, fontSize: 22, fontColor: Colors.white),
     borderRadius: 10,
     margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
   );

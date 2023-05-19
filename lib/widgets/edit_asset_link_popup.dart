@@ -20,8 +20,8 @@ Future<dynamic> editAssetLinkPopUp(
   final categoryTitleController = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
-  final ProjectController projectController = Get.find();
-  final AuthController authController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
+  final AuthController authController = Get.find<AuthController>();
   return showDialog(
       context: context,
       builder: (BuildContext context) {

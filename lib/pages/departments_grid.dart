@@ -46,8 +46,6 @@ class _DepartmentsGridState extends State<DepartmentsGrid> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       profileController.updateUserData(_uid);
       profileController.getDepartments();
-
-      // executes after build
     });
   }
 
@@ -281,49 +279,41 @@ class _DepartmentsGridState extends State<DepartmentsGrid> {
                       mainAxisExtent: 150,
                       mainAxisSpacing: 0),
                   shrinkWrap: true,
-                  itemCount: profileController.departments.length,
+                  itemCount: departmentController.searchedDepartments.length,
                   itemBuilder: (context, i) {
                     bool isHovering = false;
                     String departmentTitle =
-                        profileController.departments[i].title!;
+                        departmentController.searchedDepartments[i].title!;
 
                     int departmentIconCode =
-                        profileController.departments[i].iconCode!;
+                        departmentController.searchedDepartments[i].iconCode!;
 
-                    String lowerCaseSearchedDepartment = departmentController
-                        .searchedDepartment.value
-                        .toLowerCase();
-                    String lowerCaseDepartment = departmentTitle.toLowerCase();
-                    if (lowerCaseDepartment
-                        .contains(lowerCaseSearchedDepartment)) {
-                      return MouseRegion(
-                          onEnter: (event) {
-                            setState(() {
-                              isHovering = true;
-                            });
+                    return MouseRegion(
+                        onEnter: (event) {
+                          setState(() {
+                            isHovering = true;
+                          });
+                        },
+                        onExit: (event) {
+                          setState(() {
+                            isHovering = false;
+                          });
+                        },
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.to(() => ProjectsGrid(
+                                  departmentId: profileController
+                                      .departments[i].departmentId!,
+                                ));
                           },
-                          onExit: (event) {
-                            setState(() {
-                              isHovering = false;
-                            });
-                          },
-                          child: GestureDetector(
-                            onTap: () {
-                              Get.to(() => ProjectsGrid(
-                                    departmentId: profileController
-                                        .departments[i].departmentId!,
-                                  ));
-                            },
-                            child: isHovering
-                                ? departmentBox(context,
-                                    text: departmentTitle,
-                                    iconCode: departmentIconCode)
-                                : departmentBox(context,
-                                    text: departmentTitle,
-                                    iconCode: departmentIconCode),
-                          ));
-                    }
-                    return null;
+                          child: isHovering
+                              ? departmentBox(context,
+                                  text: departmentTitle,
+                                  iconCode: departmentIconCode)
+                              : departmentBox(context,
+                                  text: departmentTitle,
+                                  iconCode: departmentIconCode),
+                        ));
                   },
                 ),
               ),
@@ -347,28 +337,29 @@ class _DepartmentsGridState extends State<DepartmentsGrid> {
                 if (value.isNotEmpty) {
                   departmentController.isSearchingDepartment.value = true;
                   departmentController.searchedDepartment.value = value;
+                  departmentController.getSearchedDepartments();
                 } else {
                   departmentController.isSearchingDepartment.value = false;
                   departmentController.searchedDepartment.value = '';
                 }
                 departmentController.update();
               },
-              decoration: InputDecoration(
-                hintStyle: GoogleFonts.montserrat(
-                  textStyle: const TextStyle(
-                    overflow: TextOverflow.visible,
-                    letterSpacing: 2,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: GoogleFonts.montserrat(
+                textStyle: const TextStyle(
+                  overflow: TextOverflow.visible,
+                  letterSpacing: 2,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
                 ),
-                enabledBorder: const UnderlineInputBorder(
+              ),
+              decoration: const InputDecoration(
+                enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.white),
                 ),
-                focusedBorder: const UnderlineInputBorder(
+                focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.white),
                 ),
-                border: const UnderlineInputBorder(
+                border: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.white),
                 ),
               ),

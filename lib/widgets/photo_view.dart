@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:context_menus/context_menus.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart' as photoview;
-
+// ignore: depend_on_referenced_packages
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 class PhotoView extends StatefulWidget {
@@ -50,6 +54,15 @@ class TestContent extends StatelessWidget {
       : super(key: key);
   final String filename;
   final String url;
+  Future<Uint8List> getImageBytes(String imageUrl) async {
+    final response = await http.get(Uri.parse(imageUrl));
+    if (response.statusCode == 200) {
+      final bytes = response.bodyBytes;
+      return base64Decode(base64.encode(bytes));
+    } else {
+      throw Exception('Failed to load image: ${response.statusCode}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,16 +90,6 @@ class TestContent extends StatelessWidget {
               contextMenu: GenericContextMenu(
                 buttonConfigs: [
                   ContextMenuButtonConfig("Download", onPressed: () async {
-                    // http.Response response = await http.get(Uri.parse(url));
-                    // final bytes = response.bodyBytes;
-                    // String base64Image = base64UrlEncode(bytes);
-                    // final data = base64Decode(base64Image);
-                    // Pasteboard.writeImage(data);
-
-                    // // final kImageBase64 = await networkImageToBase64(url);
-                    // // final data = base64Decode(kImageBase64!);
-                    // // Pasteboard.writeImage(bytes);
-
                     String? res = await FilePicker.platform.saveFile(
                       fileName: filename.split('.').first,
                     );
@@ -99,7 +102,27 @@ class TestContent extends StatelessWidget {
                       String fullPath = "$res.$ext";
                       await dio.download(url, fullPath);
                     }
-                  })
+                  }),
+                  // ContextMenuButtonConfig("Copy to clipboard",
+                  //     onPressed: () async {
+                  //   try {
+                  //     Pasteboard.writeImage(await getImageBytes(url));
+                  //   } catch (e) {
+                  //     print('erorr: $e');
+                  //   }
+
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     SnackBar(
+                  //       content:
+                  //           Center(child: const Text("Copied to Clipboard")),
+                  //       behavior: SnackBarBehavior.floating,
+                  //       width: 280, // adjust the width as needed
+                  //       shape: RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.circular(8),
+                  //       ),
+                  //     ),
+                  //   );
+                  // })
                 ],
               ),
               child: photoview.PhotoView(

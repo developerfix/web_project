@@ -8,7 +8,7 @@ import 'add_edit_task_widgets.dart';
 
 Future<dynamic> addNewTaskPopUp(BuildContext context,
     {required String status}) {
-  ProjectController projectController = Get.find();
+  ProjectController projectController = Get.find<ProjectController>();
   projectController.selectedDeliverables.clear();
   projectController.phaseValue.value = '3D Design';
 

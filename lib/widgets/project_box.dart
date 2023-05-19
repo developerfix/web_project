@@ -1,30 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:hovering/hovering.dart';
+import 'package:intl/intl.dart';
 
 import '../constants/style.dart';
 
-HoverContainer projectBox(BuildContext context, {String? text}) {
-  return HoverContainer(
-    hoverWidth: 250,
-    decoration: BoxDecoration(
-      color: const Color(secondaryColor).withOpacity(0.5),
-      borderRadius: BorderRadius.circular(12.0),
-    ),
-    hoverDecoration: BoxDecoration(
-        color: const Color(secondaryColor),
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: null),
-    child: Center(
-        child: txt(
-            txt: text!,
-            textAlign: TextAlign.center,
-            fontSize: 30.0,
-            maxLines: 3,
-            minFontSize: 24,
-            letterSpacing: 2,
-            overflow: TextOverflow.ellipsis,
-            fontColor: Colors.white)),
-  );
+Tooltip projectBox(
+  BuildContext context, {
+  required String text,
+  required DateTime dateTime,
+}) {
+  final dateFormat = DateFormat('MMM d, y');
+  final timeFormat = DateFormat('h:mm a');
+  String date = dateFormat.format(dateTime);
+  String time = timeFormat.format(dateTime);
+  return Tooltip(
+      message: 'last opened: $date and at $time',
+      child: HoverContainer(
+        hoverWidth: 250,
+        decoration: BoxDecoration(
+          color: const Color(secondaryColor).withOpacity(0.5),
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        hoverDecoration: BoxDecoration(
+            color: const Color(secondaryColor),
+            borderRadius: BorderRadius.circular(12.0),
+            boxShadow: null),
+        child: Center(
+            child: txt(
+                txt: text,
+                textAlign: TextAlign.center,
+                fontSize: 30.0,
+                maxLines: 3,
+                minFontSize: 24,
+                letterSpacing: 2,
+                overflow: TextOverflow.ellipsis,
+                fontColor: Colors.white)),
+      ));
 }
 
 HoverContainer hoveredProjectBox(BuildContext context, {String? text}) {

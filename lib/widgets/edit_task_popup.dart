@@ -30,7 +30,7 @@ Future<dynamic> editTaskPopUp(
   final GlobalKey<ScaffoldState> key = GlobalKey();
 
   final formKey = GlobalKey<FormState>();
-  final ProjectController projectController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
   return showDialog(
       context: context,
       builder: (BuildContext context) {

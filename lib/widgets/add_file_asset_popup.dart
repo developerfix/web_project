@@ -10,9 +10,9 @@ import 'asset_files_widget.dart';
 
 Future<dynamic> addFileAssetPopUp(BuildContext context) {
   final formKey = GlobalKey<FormState>();
-  final ProjectController projectController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
   final categoryTitleController = TextEditingController();
-  final AuthController authController = Get.find();
+  final AuthController authController = Get.find<AuthController>();
   projectController.selectedAssetFiles.clear();
 
   return showDialog(

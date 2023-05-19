@@ -6,12 +6,16 @@ class User {
   String? profilePhoto;
   String? email;
   String? uid;
+  String? lastOpenedProjectId;
+  String? lastOpenedDocumentId;
 
   User({
     this.name,
     this.email,
     this.uid,
     this.profilePhoto,
+    this.lastOpenedProjectId,
+    this.lastOpenedDocumentId,
   });
 
   Map<String, dynamic> toJson() => {
@@ -19,6 +23,8 @@ class User {
         "profilePhoto": profilePhoto,
         "email": email,
         "uid": uid,
+        "lastOpenedProjectId": lastOpenedProjectId,
+        "lastOpenedDocumentId": lastOpenedDocumentId,
       };
 
   static User fromDocumentSnapshot(DocumentSnapshot snap) {
@@ -28,6 +34,8 @@ class User {
       profilePhoto: snapshot['profilePhoto'],
       uid: snapshot['uid'],
       name: snapshot['name'],
+      lastOpenedProjectId: snapshot['lastOpenedProjectId'],
+      lastOpenedDocumentId: snapshot['lastOpenedDocumentId'],
     );
   }
 
@@ -38,6 +46,20 @@ class User {
       profilePhoto: snapshot['profilePhoto'],
       uid: snapshot['uid'],
       name: snapshot['name'],
+      lastOpenedProjectId: snapshot['lastOpenedProjectId'],
+      lastOpenedDocumentId: snapshot['lastOpenedDocumentId'],
+    );
+  }
+
+  static User fromQuerySnap(QueryDocumentSnapshot snap) {
+    var snapshot = snap;
+    return User(
+      email: snapshot['email'],
+      profilePhoto: snapshot['profilePhoto'],
+      uid: snapshot['uid'],
+      name: snapshot['name'],
+      lastOpenedProjectId: snapshot['lastOpenedProjectId'],
+      lastOpenedDocumentId: snapshot['lastOpenedDocumentId'],
     );
   }
 }

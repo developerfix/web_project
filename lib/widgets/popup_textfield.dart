@@ -12,7 +12,7 @@ Container popUpTextField(BuildContext context,
     int? isObscure,
     Widget? trailing,
     int? maxLines}) {
-  final AuthController authController = Get.find();
+  final AuthController authController = Get.find<AuthController>();
   bool isObscurePlus = isObscure == 1 ? true : false;
   return Container(
     width: 450,

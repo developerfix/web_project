@@ -1,5 +1,4 @@
 import 'package:ava/widgets/plus_icon_widget.dart';
-import 'package:ava/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ava/controllers/profile_controller.dart';
@@ -7,6 +6,8 @@ import 'package:ava/controllers/project_controller.dart';
 
 import '../constants/style.dart';
 import '../controllers/auth_controller.dart';
+import '../pages/project_members.dart';
+import 'cached_image.dart';
 import 'list_of_tasks.dart';
 import 'loading_indicator.dart';
 
@@ -56,33 +57,170 @@ Expanded dashboardMainSection(BuildContext context, BoxConstraints constraints,
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  txt(
-                    txt: 'PROJECT MEMBERS',
-                    fontSize: 20,
-                    minFontSize: 8,
-                    letterSpacing: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(
-                    height: screenHeight(context) * 0.005,
-                  ),
-                  Row(
-                    children: [
-                      profileAvatar(
-                        context,
-                        // user: nameFirstChar!.capitalize.toString(),
-                        // fontSize: 14,
-                        // maxRadius: 18
-                      ),
-                      SizedBox(
-                        width: screenWidth(context) * 0.005,
-                      ),
-                      profileAvatar(context,
-                          // user: nameFirstChar!.capitalize.toString(),
-                          fontSize: 14,
-                          maxRadius: 18),
-                    ],
-                  )
+                  projectController.currentProject.value.lead == '' &&
+                          projectController.currentProject.value.copilot == ''
+                      ? Container()
+                      : Column(
+                          children: [
+                            txt(
+                              txt: 'PROJECT MEMBERS',
+                              fontSize: 20,
+                              minFontSize: 8,
+                              letterSpacing: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            )
+                          ],
+                        ),
+                  projectController.currentProject.value.lead == '' &&
+                          projectController.currentProject.value.copilot == ''
+                      ? ElevatedButton(
+                          onPressed: () {
+                            Get.to(() => const ProjectMembersList());
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.zero, // Remove default padding
+
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ), // Set border radius to 8.0
+                            backgroundColor: const Color(
+                                secondaryColor), // Set button color to secondaryColor
+                            elevation: 6.0, // Set button elevation to 6.0
+                            shadowColor: Colors.black
+                                .withOpacity(0.16), // Set shadow color
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              children: [
+                                txt(
+                                    txt: 'ADD PROJECT MEMBERS',
+                                    font: 'comfortaa',
+                                    fontWeight: FontWeight.bold,
+                                    fontColor: Colors.white,
+                                    fontSize: 18),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                const Icon(Icons.group_add),
+                              ],
+                            ),
+                          ),
+                        )
+                      : Row(
+                          children: [
+                            projectController.currentProject.value.lead !=
+                                        null &&
+                                    projectController
+                                            .currentProject.value.leadID !=
+                                        null &&
+                                    projectController.currentProject.value
+                                        .leadID!.isNotEmpty &&
+                                    projectController.currentProject.value.lead!
+                                        .isNotEmpty &&
+                                    projectController.getProfileUrlFromUID(
+                                            projectController.currentProject
+                                                .value.leadID!) !=
+                                        ''
+                                ? cachedImage(
+                                    context,
+                                    fontSize: 16,
+                                    isUploading: false,
+                                    isAppBar: false,
+                                    isDrawer: false,
+                                    maxRadius: 20,
+                                    url: projectController.getProfileUrlFromUID(
+                                        projectController
+                                            .currentProject.value.leadID!),
+                                  )
+                                : CircleAvatar(
+                                    backgroundColor:
+                                        const Color(secondaryColor),
+                                    maxRadius: 20,
+                                    child: Center(
+                                      child: txt(
+                                          txt: projectController.currentProject
+                                                          .value.lead !=
+                                                      null &&
+                                                  projectController
+                                                      .currentProject
+                                                      .value
+                                                      .lead!
+                                                      .isNotEmpty
+                                              ? projectController
+                                                  .currentProject.value.lead![0]
+                                                  .toUpperCase()
+                                              : 'U',
+                                          fontSize: 16,
+                                          fontColor: Colors.white),
+                                    ),
+                                  ),
+                            SizedBox(
+                              width: screenWidth(context) * 0.005,
+                            ),
+                            projectController.currentProject.value.copilot !=
+                                        null &&
+                                    projectController
+                                            .currentProject.value.copilotID !=
+                                        null &&
+                                    projectController.currentProject.value.copilotID!
+                                        .isNotEmpty &&
+                                    projectController.currentProject.value
+                                        .copilot!.isNotEmpty &&
+                                    projectController.getProfileUrlFromUID(
+                                            projectController.currentProject
+                                                .value.copilotID!) !=
+                                        ''
+                                ? cachedImage(
+                                    context,
+                                    fontSize: 16,
+                                    isUploading: false,
+                                    isAppBar: false,
+                                    isDrawer: false,
+                                    maxRadius: 20,
+                                    url: projectController.getProfileUrlFromUID(
+                                        projectController
+                                            .currentProject.value.copilotID!),
+                                  )
+                                : CircleAvatar(
+                                    backgroundColor:
+                                        const Color(secondaryColor),
+                                    maxRadius: 20,
+                                    child: Center(
+                                      child: txt(
+                                          txt: projectController.currentProject
+                                                          .value.copilot !=
+                                                      null &&
+                                                  projectController
+                                                      .currentProject
+                                                      .value
+                                                      .copilot!
+                                                      .isNotEmpty
+                                              ? projectController.currentProject
+                                                  .value.copilot![0]
+                                                  .toUpperCase()
+                                              : 'U',
+                                          fontSize: 16,
+                                          fontColor: Colors.white),
+                                    ),
+                                  ),
+                            SizedBox(
+                              width: screenWidth(context) * 0.005,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                Get.to(() => const ProjectMembersList());
+                              },
+                              child: const Icon(
+                                Icons.group_add,
+                                size: 50,
+                              ),
+                            )
+                          ],
+                        )
                 ],
               ),
 
@@ -168,7 +306,7 @@ Expanded dashboardMainSection(BuildContext context, BoxConstraints constraints,
 
 Column completedKanbanList(
     BuildContext context, ProjectController projectController) {
-  final AuthController authController = Get.find();
+  final AuthController authController = Get.find<AuthController>();
   return Column(
     children: [
       statusContainer(context, 'COMPLETED'),
@@ -285,7 +423,7 @@ Column completedKanbanList(
 
 Column inprogressKanbanList(
     BuildContext context, ProjectController projectController) {
-  final AuthController authController = Get.find();
+  final AuthController authController = Get.find<AuthController>();
   return Column(
     children: [
       statusContainer(context, 'IN PROGRESS'),
@@ -394,7 +532,7 @@ Column inprogressKanbanList(
 
 Column todoKanbanList(
     BuildContext context, ProjectController projectController) {
-  final AuthController authController = Get.find();
+  final AuthController authController = Get.find<AuthController>();
   return Column(
     children: [
       statusContainer(context, 'TO DO'),

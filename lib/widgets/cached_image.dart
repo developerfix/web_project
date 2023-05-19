@@ -5,8 +5,7 @@ import '../constants/style.dart';
 
 Padding cachedImage(
   BuildContext context, {
-  double? height,
-  double? width,
+  required bool isUploading,
   double? fontSize,
   double? maxRadius,
   bool? isDrawer,
@@ -18,29 +17,42 @@ Padding cachedImage(
         ? const EdgeInsets.all(8.0)
         : const EdgeInsets.all(0.0),
     child: ClipOval(
-        child: FastCachedImage(
-      url: url,
-      fit: BoxFit.fill,
-      width: isDrawer != null ? 90 : 40,
-      height: isDrawer != null ? 90 : null,
-      fadeInDuration: const Duration(seconds: 1),
-      errorBuilder: (context, exception, stacktrace) {
-        return Text(stacktrace.toString());
-      },
-      loadingBuilder: (context, progress) {
-        return CircleAvatar(
-          backgroundColor: isDrawer != null
-              ? const Color(mainColor)
-              : const Color(secondaryColor),
-          child: Center(
-            child: CircularProgressIndicator(
-              color: isDrawer != null
-                  ? const Color(mainColor)
-                  : const Color(secondaryColor),
-            ),
-          ),
-        );
-      },
-    )),
+        child: isUploading
+            ? CircleAvatar(
+                backgroundColor: isDrawer != null
+                    ? const Color(secondaryColor)
+                    : const Color(mainColor),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: isDrawer != null
+                        ? const Color(mainColor)
+                        : const Color(secondaryColor),
+                  ),
+                ),
+              )
+            : FastCachedImage(
+                url: url,
+                fit: BoxFit.fill,
+                width: isDrawer != null ? 90 : 40,
+                height: isDrawer != null ? 90 : 40,
+                fadeInDuration: const Duration(milliseconds: 500),
+                errorBuilder: (context, exception, stacktrace) {
+                  return Container();
+                },
+                loadingBuilder: (context, progress) {
+                  return CircleAvatar(
+                    backgroundColor: isDrawer != null
+                        ? const Color(secondaryColor)
+                        : const Color(mainColor),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: isDrawer != null
+                            ? const Color(mainColor)
+                            : const Color(secondaryColor),
+                      ),
+                    ),
+                  );
+                },
+              )),
   );
 }

@@ -13,11 +13,11 @@ Container usersSelectionTextField(
   String? taskPilotorCopit,
   String? title,
 }) {
-  final ProjectController projectController = Get.find();
-  final AuthController authController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
+  final AuthController authController = Get.find<AuthController>();
   return Container(
     width: 450,
-    height: screenHeight(context) * 0.05,
+    height: 60,
     decoration: authController.isDarkTheme.value
         ? darkThemeBoxDecoration
         : lightThemeBoxDecoration,
@@ -28,8 +28,8 @@ Container usersSelectionTextField(
           selectFromUsersPopup(context, title: title).then((value) {
             if (value != null) {
               isPilot
-                  ? projectController.projectPilot.value = value
-                  : projectController.projectCoPilot.value = value;
+                  ? projectController.currentProject.value.lead = value
+                  : projectController.currentProject.value.copilot = value;
               projectController.update();
             }
           });
@@ -51,11 +51,11 @@ Container usersSelectionTextField(
             suffixIconColor: const Color(secondaryColor),
             border: InputBorder.none,
             hintText: isPilot
-                ? projectController.projectPilot.value.isNotEmpty
-                    ? '@${projectController.projectPilot.value}'
+                ? projectController.currentProject.value.lead!.isNotEmpty
+                    ? '@${projectController.currentProject.value.lead}'
                     : taskPilotorCopit
-                : projectController.projectCoPilot.value.isNotEmpty
-                    ? '@${projectController.projectCoPilot.value}'
+                : projectController.currentProject.value.copilot!.isNotEmpty
+                    ? '@${projectController.currentProject.value.copilot}'
                     : taskPilotorCopit,
             hintStyle: GoogleFonts.montserrat(
               textStyle: const TextStyle(

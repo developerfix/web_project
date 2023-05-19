@@ -1,3 +1,4 @@
+import 'package:ava/controllers/department_controller.dart';
 import 'package:ava/widgets/popup_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,7 +12,8 @@ String categoryValue = '3D Design';
 Future<dynamic> createDepartmentPopUp(BuildContext context,
     {required final String uid}) {
   final titleController = TextEditingController();
-  final ProjectController projectController = Get.find();
+  final DepartmentController departmentController =
+      Get.find<DepartmentController>();
   final formKey = GlobalKey<FormState>();
 
   return showDialog(
@@ -25,7 +27,7 @@ Future<dynamic> createDepartmentPopUp(BuildContext context,
                 child: AlertDialog(
                   content: SizedBox(
                     height: screenHeight(context) * 0.4,
-                    width: screenWidth(context) * 0.3,
+                    width: 800,
                     child: Column(
                       children: [
                         popUpCloseButton,
@@ -63,6 +65,7 @@ Future<dynamic> createDepartmentPopUp(BuildContext context,
                                       children: [
                                         txt(
                                           txt: 'Icon:',
+                                          fontColor: const Color(0XFFab9eab),
                                           fontSize: 30,
                                         ),
                                         const Spacer(),
@@ -86,8 +89,9 @@ Future<dynamic> createDepartmentPopUp(BuildContext context,
                                   children: [
                                     popupButton(context, ontap: () {
                                       if (formKey.currentState!.validate()) {
-                                        projectController.newDepartment(
+                                        departmentController.newDepartment(
                                           uid: uid,
+                                          created: DateTime.now(),
                                           title: titleController.text,
                                         );
                                       }
@@ -114,6 +118,7 @@ Row itemRow(BuildContext context,
       txt(
         txt: '$title:',
         fontSize: 30,
+        fontColor: const Color(0XFFab9eab),
       ),
       const Spacer(),
       widget,

@@ -6,7 +6,7 @@ import '../controllers/project_controller.dart';
 
 SizedBox iconDropdown(BuildContext context, StateSetter setState,
     {String? phase}) {
-  final ProjectController projectController = Get.find();
+  final ProjectController projectController = Get.find<ProjectController>();
   return SizedBox(
     width: screenWidth(context) * 0.1,
     height: screenHeight(context) * 0.05,

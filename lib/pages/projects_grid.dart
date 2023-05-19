@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:ava/constants/style.dart';
-import 'package:ava/pages/project_dashboard.dart' as dashboard;
 import 'package:ava/widgets/loading_indicator.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/auth_controller.dart';
 import '../controllers/profile_controller.dart';
@@ -17,7 +17,6 @@ import '../widgets/custom_drawer.dart';
 import '../widgets/left_side_icons.dart';
 import '../widgets/plus_icon_widget.dart';
 import '../widgets/project_box.dart';
-import '../widgets/shared_preferences.dart';
 
 class ProjectsGrid extends StatefulWidget {
   final String departmentId;
@@ -31,9 +30,10 @@ class _ProjectsGridState extends State<ProjectsGrid> {
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
-  final ProfileController profileController = Get.find();
-  final DepartmentController departmentController = Get.find();
-  final ProjectController projectController = Get.find();
+  final ProfileController profileController = Get.find<ProfileController>();
+  final DepartmentController departmentController =
+      Get.find<DepartmentController>();
+  final ProjectController projectController = Get.find<ProjectController>();
   final _uid = AuthController.instance.user!.uid;
   final ScrollController _scrollController = ScrollController();
   List tempList = [];
@@ -47,8 +47,7 @@ class _ProjectsGridState extends State<ProjectsGrid> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       profileController.getDepartmentProjects(widget.departmentId);
       departmentController.getDepartmentInfo(_uid, widget.departmentId);
-      projectController.updateUsers(
-          uid: _uid, departmentId: widget.departmentId);
+      projectController.getUsers();
     });
   }
 
@@ -63,6 +62,8 @@ class _ProjectsGridState extends State<ProjectsGrid> {
               tempList.add(project.category);
             }
             projectsCategoriesList = tempList.toSet().toList();
+            projectsCategoriesList
+                .sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
             return Scaffold(
               key: _key,
@@ -161,7 +162,9 @@ class _ProjectsGridState extends State<ProjectsGrid> {
                                               fontColor: Colors.white),
                                         ),
                                       )
-                                    : projectTilesWidget(context),
+                                    : projectController.searchedProject.isEmpty
+                                        ? projectTilesWidget(context)
+                                        : searchedProjectTilesWidget(context)
                           ],
                         ),
                         const Spacer(),
@@ -172,10 +175,10 @@ class _ProjectsGridState extends State<ProjectsGrid> {
                               context,
                               color: Colors.white,
                               ontap: () {
-                                projectController.projectPilot.value = '';
-                                projectController.projectCoPilot.value = '';
-                                projectController.phaseValue.value =
-                                    '3D Design';
+                                profileController.projectCategory.value =
+                                    designCategory;
+                                profileController.update();
+
                                 createProjectPopUp(context, uid: _uid);
                               },
                             ),
@@ -252,6 +255,8 @@ class _ProjectsGridState extends State<ProjectsGrid> {
                           projectsListCount.add(project);
                         }
                       }
+                      projectsListCount = projectsListCount.reversed.toList();
+
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 10, right: 100),
                         child: Column(
@@ -279,6 +284,8 @@ class _ProjectsGridState extends State<ProjectsGrid> {
                                         projectsListCount[i].title!;
                                     String projectId =
                                         projectsListCount[i].projectId!;
+                                    DateTime dateTime =
+                                        projectsListCount[i].lastOpened!;
                                     return MouseRegion(
                                       onEnter: (event) {
                                         setState(() {
@@ -292,19 +299,26 @@ class _ProjectsGridState extends State<ProjectsGrid> {
                                       },
                                       child: InkWell(
                                         onTap: (() {
-                                          SharedPrefs.setData(
-                                            key: _uid + lastOpenedProjectId,
-                                            value: projectId,
-                                          );
-                                          Get.to(
-                                              () => dashboard.ProjectDashboard(
-                                                    projectId: projectId,
-                                                  ));
+                                          profileController
+                                              .updateLastOpenedProject(
+                                                  projectId,
+                                                  widget.departmentId);
+                                          projectController
+                                              .updateProjectLastOpenedParameter(
+                                                  projectId: projectId,
+                                                  deepartmentId:
+                                                      departmentController
+                                                          .currentDepartment
+                                                          .value
+                                                          .departmentId!,
+                                                  uid: _uid,
+                                                  lastOpened: DateTime.now());
                                         }),
                                         child: isHovering
                                             ? hoveredProjectBox(context,
                                                 text: projectTitle)
                                             : projectBox(context,
+                                                dateTime: dateTime,
                                                 text: projectTitle),
                                       ),
                                     );
@@ -319,38 +333,192 @@ class _ProjectsGridState extends State<ProjectsGrid> {
       ),
     );
   }
-}
 
-Row searchProjectsWidget(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    crossAxisAlignment: CrossAxisAlignment.end,
-    children: [
-      SizedBox(
-          width: screenWidth(context) * 0.17,
-          child: const TextField(
-            cursorColor: Colors.white,
-            decoration: InputDecoration(
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
+  Padding searchedProjectTilesWidget(BuildContext context) {
+    bool isHovering = false;
+    return Padding(
+      padding: const EdgeInsets.only(top: 80),
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          final metrices = notification.metrics;
+          if (metrices.pixels != 0) {
+            projectController.isRecentProjectsListAtTop.value = false;
+            projectController.update();
+            // });
+          } else {
+            projectController.isRecentProjectsListAtTop.value = true;
+            projectController.update();
+          }
+
+          return false;
+        },
+        child: AnimatedSize(
+          duration: const Duration(seconds: 1),
+          curve: Curves.easeInOut,
+          child: SizedBox(
+            height: projectController.isRecentProjectsListAtTop.value
+                ? screenHeight(context) * 0.5
+                : screenHeight(context) * 0.6,
+            width: screenWidth(context) * 0.5,
+            child: RawScrollbar(
+              thumbColor: Colors.white,
+              thumbVisibility: true,
+              trackColor: const Color(secondaryColor),
+              trackRadius: const Radius.circular(50),
+              thickness: 15,
+              trackVisibility: true,
+              interactive: true,
+              controller: _scrollController,
+              shape: const CircleBorder(
+                side: BorderSide(
+                  style: BorderStyle.none,
+                ),
               ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              border: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
+              child: FadingEdgeScrollView.fromScrollView(
+                child: ListView.separated(
+                    controller: _scrollController,
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(
+                        height: 24,
+                      );
+                    },
+                    scrollDirection: Axis.vertical,
+                    itemCount:
+                        projectController.searchedProjectsCategories.length,
+                    itemBuilder: (context, i) {
+                      projectController.getSearchedProjects(
+                          projectController.searchedProjectsCategories[i]);
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10, right: 100),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: txt(
+                                    txt: projectController
+                                        .searchedProjectsCategories[i]
+                                        .toString()
+                                        .toUpperCase(),
+                                    fontColor: Colors.white,
+                                    fontSize: 24),
+                              ),
+                              GridView.builder(
+                                  gridDelegate:
+                                      const SliverGridDelegateWithMaxCrossAxisExtent(
+                                          maxCrossAxisExtent: 200,
+                                          crossAxisSpacing: 20,
+                                          mainAxisSpacing: 20),
+                                  shrinkWrap: true,
+                                  itemCount:
+                                      projectController.searchedProjects.length,
+                                  itemBuilder: (context, i) {
+                                    String projectTitle = projectController
+                                        .searchedProjects[i].title!;
+                                    String projectId = projectController
+                                        .searchedProjects[i].projectId!;
+                                    DateTime dateTime = projectController
+                                        .searchedProjects[i].lastOpened!;
+
+                                    return MouseRegion(
+                                      onEnter: (event) {
+                                        setState(() {
+                                          isHovering = true;
+                                        });
+                                      },
+                                      onExit: (event) {
+                                        setState(() {
+                                          isHovering = false;
+                                        });
+                                      },
+                                      child: InkWell(
+                                        onTap: (() {
+                                          profileController
+                                              .updateLastOpenedProject(
+                                                  projectId,
+                                                  widget.departmentId);
+                                          projectController
+                                              .updateProjectLastOpenedParameter(
+                                                  projectId: projectId,
+                                                  deepartmentId:
+                                                      departmentController
+                                                          .currentDepartment
+                                                          .value
+                                                          .departmentId!,
+                                                  uid: _uid,
+                                                  lastOpened: DateTime.now());
+                                        }),
+                                        child: isHovering
+                                            ? hoveredProjectBox(context,
+                                                text: projectTitle)
+                                            : projectBox(context,
+                                                dateTime: dateTime,
+                                                text: projectTitle),
+                                      ),
+                                    );
+                                  })
+                            ]),
+                      );
+                    }),
               ),
             ),
-          )),
-      SizedBox(
-        height: screenHeight(context) * 0.015,
-        child: InkWell(
-            onTap: () {},
-            child: SvgPicture.asset(
-              'assets/svgs/search_icon.svg',
-              color: Colors.white,
-            )),
+          ),
+        ),
       ),
-    ],
-  );
+    );
+  }
+
+  Row searchProjectsWidget(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        SizedBox(
+            width: screenWidth(context) * 0.17,
+            child: TextField(
+              cursorColor: Colors.white,
+              onChanged: (value) {
+                if (value.isNotEmpty) {
+                  projectController.isSearchingProject.value = true;
+                  projectController.searchedProject.value = value;
+                  projectController.getSearchedProjectsCategories();
+                } else {
+                  projectController.isSearchingProject.value = true;
+                  projectController.searchedProject.value = '';
+                }
+                projectController.update();
+              },
+              style: GoogleFonts.montserrat(
+                textStyle: const TextStyle(
+                  overflow: TextOverflow.visible,
+                  letterSpacing: 2,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              decoration: const InputDecoration(
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                border: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+              ),
+            )),
+        SizedBox(
+          height: screenHeight(context) * 0.015,
+          child: InkWell(
+              onTap: () {},
+              child: SvgPicture.asset(
+                'assets/svgs/search_icon.svg',
+                color: Colors.white,
+              )),
+        ),
+      ],
+    );
+  }
 }
