@@ -91,8 +91,6 @@ class DepartmentController extends GetxController {
               .document(value.id)
               .update({'departmentId': value.id});
         });
-
-        getSuccessSnackBar("Department created successfully");
       } catch (e) {
         //define error
         getErrorSnackBar(
@@ -118,8 +116,6 @@ class DepartmentController extends GetxController {
               .doc(value.id)
               .update({'departmentId': value.id});
         });
-
-        getSuccessSnackBar("Department created successfully");
       } catch (e) {
         //define error
         getErrorSnackBar(

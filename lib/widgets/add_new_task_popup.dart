@@ -39,7 +39,6 @@ Future<dynamic> addNewTaskPopUp(BuildContext context,
                   builder: (BuildContext context, BoxConstraints constraints) {
                 return Column(
                   children: [
-                    popUpCloseButton,
                     Expanded(
                       child: Scaffold(
                         key: key,
@@ -50,16 +49,17 @@ Future<dynamic> addNewTaskPopUp(BuildContext context,
                               height: screenHeight(context) * 0.02,
                             ),
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 50),
-                                  child: txt(
-                                      txt: 'Task Details',
-                                      font: 'comfortaa',
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 30,
-                                      fontColor: const Color(secondaryColor)),
+                                Container(),
+                                txt(
+                                  txt: 'NEW TASK',
+                                  font: 'comfortaa',
+                                  letterSpacing: 5,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 40,
                                 ),
+                                popUpCloseButton,
                               ],
                             ),
                             Expanded(

@@ -44,9 +44,9 @@ Container popUpTextField(BuildContext context,
           border: InputBorder.none,
           hintText: hint,
           hintStyle: GoogleFonts.montserrat(
-            textStyle: const TextStyle(
+            textStyle: TextStyle(
               letterSpacing: 2,
-              color: Color(secondaryColor),
+              color: Color(secondaryColor).withOpacity(0.5),
               fontWeight: FontWeight.w600,
             ),
           ),

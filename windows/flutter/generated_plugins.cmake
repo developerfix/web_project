@@ -7,7 +7,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktop_drop
   desktop_webview_auth
   file_saver
-  pasteboard
   url_launcher_windows
 )
 

@@ -189,39 +189,22 @@ class _DepartmentsGridState extends State<DepartmentsGrid> {
                   shrinkWrap: true,
                   itemCount: profileController.departments.length,
                   itemBuilder: (context, i) {
-                    bool isHovering = false;
                     String departmentTitle =
                         profileController.departments[i].title!;
 
                     int departmentIconCode =
                         profileController.departments[i].iconCode!;
 
-                    return MouseRegion(
-                        onEnter: (event) {
-                          setState(() {
-                            isHovering = true;
-                          });
-                        },
-                        onExit: (event) {
-                          setState(() {
-                            isHovering = false;
-                          });
-                        },
-                        child: GestureDetector(
-                          onTap: () {
-                            Get.to(() => ProjectsGrid(
-                                  departmentId: profileController
-                                      .departments[i].departmentId!,
-                                ));
-                          },
-                          child: isHovering
-                              ? departmentBox(context,
-                                  text: departmentTitle,
-                                  iconCode: departmentIconCode)
-                              : departmentBox(context,
-                                  text: departmentTitle,
-                                  iconCode: departmentIconCode),
-                        ));
+                    return GestureDetector(
+                      onTap: () {
+                        Get.to(() => ProjectsGrid(
+                              departmentId: profileController
+                                  .departments[i].departmentId!,
+                            ));
+                      },
+                      child: departmentBox(context,
+                          text: departmentTitle, iconCode: departmentIconCode),
+                    );
                   },
                 ),
               ),

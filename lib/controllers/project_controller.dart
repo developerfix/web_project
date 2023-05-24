@@ -63,7 +63,6 @@ class ProjectController extends GetxController {
   Rx<double> deliverableUplaodingProgress = 0.0.obs;
   Rx<double> assetFileUplaodingProgress = 0.0.obs;
   Rx<String> phaseValue = "".obs;
-  Rx<int> iconCodeValue = 0xe1a3.obs;
 
   Rx<String> searchedNote = "".obs;
   Rx<String> taskPilot = "".obs;
@@ -714,7 +713,6 @@ class ProjectController extends GetxController {
           });
         });
         futureGroup.close();
-        getSuccessSnackBar("Project created successfully");
       } catch (e) {
         //define error
 
@@ -763,7 +761,6 @@ class ProjectController extends GetxController {
           });
         });
         futureGroup.close();
-        getSuccessSnackBar("Project created successfully");
       } catch (e) {
         //define error
         getErrorSnackBar(
@@ -798,8 +795,6 @@ class ProjectController extends GetxController {
           }));
         }
         futureGroup.close();
-
-        getSuccessSnackBar("Members updated successfully");
       } catch (e) {
         //define error
 
@@ -1486,7 +1481,6 @@ class ProjectController extends GetxController {
       futureGroup.close();
 
       isTasksUpdating.value = false;
-      getSuccessSnackBar("Task added successfully");
     } catch (e) {
       isTasksUpdating.value = false;
       //define error
@@ -1642,8 +1636,6 @@ class ProjectController extends GetxController {
       futureGroup.close();
 
       isTasksUpdating.value = false;
-
-      getSuccessSnackBar("task updated successfully");
     } catch (e) {
       isTasksUpdating.value = false;
       //define error
@@ -1965,8 +1957,6 @@ class ProjectController extends GetxController {
         getProjectData();
 
         isMembersUpdating.value = false;
-
-        getSuccessSnackBar("Members updated successfully");
       } catch (e) {
         isMembersUpdating.value = false;
         getErrorSnackBar(
@@ -2198,8 +2188,6 @@ class ProjectController extends GetxController {
         getProjectData();
 
         isMembersUpdating.value = false;
-
-        getSuccessSnackBar("Members updated successfully");
       } catch (e) {
         isMembersUpdating.value = false;
         getErrorSnackBar(

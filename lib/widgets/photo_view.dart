@@ -24,28 +24,44 @@ class PhotoView extends StatefulWidget {
 }
 
 class _PhotoViewState extends State<PhotoView> {
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ContextMenuOverlay(
-      /// Make a custom background
-      cardBuilder: (_, children) =>
-          Container(color: Colors.black, child: Column(children: children)),
 
-      /// Make custom buttons
-      buttonBuilder: (_, config, [__]) => TextButton(
-        onPressed: config.onPressed,
-        child: SizedBox(
-            width: double.infinity,
-            child: Text(
-              config.label,
-              style: const TextStyle(color: Colors.white),
-            )),
-      ),
-      child: TestContent(
-        url: widget.url,
-        filename: widget.filename,
-      ),
-    );
+        /// Make a custom background
+        cardBuilder: (_, children) =>
+            Container(color: Colors.black, child: Column(children: children)),
+
+        /// Make custom buttons
+        buttonBuilder: (_, config, [__]) => TextButton(
+              onPressed: config.onPressed,
+              child: SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    config.label,
+                    style: const TextStyle(color: Colors.white),
+                  )),
+            ),
+        child: RawKeyboardListener(
+          focusNode: _focusNode,
+          onKey: (event) {
+            if (event.logicalKey == LogicalKeyboardKey.escape) {
+              Get.back();
+            }
+          },
+          child: TestContent(
+            url: widget.url,
+            filename: widget.filename,
+          ),
+        ));
   }
 }
 
@@ -53,6 +69,7 @@ class TestContent extends StatelessWidget {
   const TestContent({Key? key, required this.url, required this.filename})
       : super(key: key);
   final String filename;
+
   final String url;
   Future<Uint8List> getImageBytes(String imageUrl) async {
     final response = await http.get(Uri.parse(imageUrl));
@@ -103,26 +120,25 @@ class TestContent extends StatelessWidget {
                       await dio.download(url, fullPath);
                     }
                   }),
-                  // ContextMenuButtonConfig("Copy to clipboard",
-                  //     onPressed: () async {
-                  //   try {
-                  //     Pasteboard.writeImage(await getImageBytes(url));
-                  //   } catch (e) {
-                  //     print('erorr: $e');
-                  //   }
-
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     SnackBar(
-                  //       content:
-                  //           Center(child: const Text("Copied to Clipboard")),
-                  //       behavior: SnackBarBehavior.floating,
-                  //       width: 280, // adjust the width as needed
-                  //       shape: RoundedRectangleBorder(
-                  //         borderRadius: BorderRadius.circular(8),
-                  //       ),
-                  //     ),
-                  //   );
-                  // })
+                  ContextMenuButtonConfig("Copy to clipboard",
+                      onPressed: () async {
+                    try {
+                      // Pasteboard.writeImage(await getImageBytes(url));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content:
+                              Center(child: const Text("Copied to Clipboard")),
+                          behavior: SnackBarBehavior.floating,
+                          width: 280, // adjust the width as needed
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      );
+                    } catch (e) {
+                      print('erorr: $e');
+                    }
+                  })
                 ],
               ),
               child: photoview.PhotoView(

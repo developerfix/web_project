@@ -94,25 +94,28 @@ class _EndDrawerWidgetState extends State<EndDrawerWidget> {
                       drawerRow(
                         title: 'Dark mode',
                         trailing: ObxValue(
-                          (data) => FlutterSwitch(
-                            width: 80.0,
-                            height: 30.0,
-                            activeColor: const Color(mainColor),
-                            value: authController.isDarkTheme.value,
-                            borderRadius: 30.0,
-                            padding: 8.0,
-                            showOnOff: false,
-                            onToggle: (val) {
-                              authController.isDarkTheme.value = val;
-                              authController.update();
+                          (data) => MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: FlutterSwitch(
+                              width: 80.0,
+                              height: 30.0,
+                              activeColor: const Color(mainColor),
+                              value: authController.isDarkTheme.value,
+                              borderRadius: 30.0,
+                              padding: 8.0,
+                              showOnOff: false,
+                              onToggle: (val) {
+                                authController.isDarkTheme.value = val;
+                                authController.update();
 
-                              Get.changeThemeMode(
-                                authController.isDarkTheme.value
-                                    ? ThemeMode.dark
-                                    : ThemeMode.light,
-                              );
-                              _saveThemeStatus();
-                            },
+                                Get.changeThemeMode(
+                                  authController.isDarkTheme.value
+                                      ? ThemeMode.dark
+                                      : ThemeMode.light,
+                                );
+                                _saveThemeStatus();
+                              },
+                            ),
                           ),
                           false.obs,
                         ),

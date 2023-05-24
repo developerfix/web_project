@@ -46,7 +46,7 @@ class Asset {
       pathName: snapshot['pathName'],
       assetID: snapshot['assetID'],
       type: snapshot['type'],
-      created: snapshot['created'],
+      created: snapshot['created'].toDate(),
       assetCategory: snapshot['assetCategory'],
     );
   }

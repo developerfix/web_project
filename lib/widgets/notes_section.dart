@@ -15,6 +15,7 @@ import 'package:path/path.dart';
 import '../constants/style.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/profile_controller.dart';
+import 'comntbox_file_preview_widget.dart';
 import 'loading_indicator.dart';
 
 final formKey = GlobalKey<FormState>();
@@ -29,24 +30,28 @@ Widget notesSection(BoxConstraints constraints, BuildContext context,
     if (trimmedValue.length >= 5) {
       if (projectController.commentFiles.isNotEmpty) {
         await projectController.addNewCommentFile(
+          username: profileController!.currentUser.value.name,
+          created: DateTime.now(),
+          comment: trimmedValue,
+          result: projectController.commentFiles,
+        );
+      } else {
+        if (trimmedValue.isNotEmpty) {
+          await projectController.addNewComment(
+            comment: trimmedValue,
             username: profileController!.currentUser.value.name,
             created: DateTime.now(),
-            comment: commentController.text,
-            result: projectController.commentFiles);
-      } else {
-        if (commentController.text.isNotEmpty) {
-          await projectController.addNewComment(
-              comment: commentController.text,
-              username: profileController!.currentUser.value.name,
-              created: DateTime.now());
+          );
         }
       }
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (scrollController!.hasClients) {
-          scrollController.animateTo(scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut);
+          scrollController.animateTo(
+            scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
         }
       });
     }
@@ -364,70 +369,12 @@ Obx commentBox(
           commentTextfieldWidget(
               commentController, submitComment, attachFile, projectController),
           projectController.commentFiles.isNotEmpty
-              ? filePreviewInCommentBoxWidget(
-                  context, projectController.commentFiles)
+              ? FilePreviewInCommentBoxWidget(projectController.commentFiles)
               : Container()
         ],
       ),
     );
   });
-}
-
-Expanded filePreviewInCommentBoxWidget(
-    BuildContext context, List<File> commentFiles) {
-  return Expanded(
-    child: ScrollConfiguration(
-      behavior: ScrollConfiguration.of(context).copyWith(
-        dragDevices: {
-          PointerDeviceKind.touch,
-          PointerDeviceKind.mouse,
-        },
-      ),
-      child: ListView.builder(
-        shrinkWrap: true,
-        scrollDirection: Axis.horizontal,
-        itemCount: commentFiles.length,
-        itemBuilder: (BuildContext context, int index) {
-          final file = commentFiles[index];
-          return SizedBox(
-              height: screenHeight(context) * 0.1,
-              width: screenWidth(context) * 0.05,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: getFileType(file.path) == 'image'
-                          ? Image.file(file)
-                          : Container(
-                              color: const Color(mainColor),
-                              child: Center(
-                                  child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: txt(
-                                    txt: getFileName(file.path),
-                                    textAlign: TextAlign.center,
-                                    overflow: TextOverflow.ellipsis,
-                                    fontSize: 12),
-                              )),
-                            ),
-                    ),
-                    Align(
-                        alignment: Alignment.topRight,
-                        child: InkWell(
-                            onTap: () {
-                              commentFiles.removeAt(index);
-                            },
-                            child: Container(
-                                color: Colors.black45,
-                                child: const Icon(Icons.close))))
-                  ],
-                ),
-              ));
-        },
-      ),
-    ),
-  );
 }
 
 Expanded commentTextfieldWidget(

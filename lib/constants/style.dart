@@ -49,29 +49,14 @@ var firebaseStorage = FirebaseStorage.instance;
 var firestore = FirebaseFirestore.instance;
 var firedartFirestore = firedart.Firestore.instance;
 
-Widget popUpCloseButton = Row(children: [
-  const Spacer(),
-  ElevatedButton(
-    onPressed: () {
-      Get.back();
-    },
-    style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade300),
-    child: const Icon(
-      Icons.close,
-      color: Colors.white,
-    ),
+Widget popUpCloseButton = InkWell(
+  onTap: () {
+    Get.back();
+  },
+  child: const Icon(
+    Icons.close,
   ),
-]);
-
-// final TextStyle montserratTextStyle = GoogleFonts.montserrat(
-//         textStyle: TextStyle(
-//             overflow: TextOverflow.visible,
-//             color: authController.isDarkTheme.value
-//                 ? Colors.white60
-//                 : const brownishColor,
-//             fontWeight: fontWeight ?? FontWeight.w600,
-//             fontSize: fontSize ?? 14),
-//       )
+);
 
 BoxDecoration darkThemeBoxDecoration = BoxDecoration(
   color: Colors.black45,
@@ -177,19 +162,19 @@ getErrorSnackBar(String message) {
   );
 }
 
-getSuccessSnackBar(String message) {
-  Get.snackbar(
-    message,
-    'Success',
-    maxWidth: 600,
-    snackPosition: SnackPosition.BOTTOM,
-    backgroundColor: const Color(0xff4CAF50),
-    titleText: txt(txt: 'Success', fontSize: 24, fontColor: Colors.white),
-    messageText: txt(txt: message, fontSize: 22, fontColor: Colors.white),
-    borderRadius: 10,
-    margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
-  );
-}
+// getSuccessSnackBar(String message) {
+//   Get.snackbar(
+//     message,
+//     'Success',
+//     maxWidth: 600,
+//     snackPosition: SnackPosition.BOTTOM,
+//     backgroundColor: const Color(0xff4CAF50),
+//     titleText: txt(txt: 'Success', fontSize: 24, fontColor: Colors.white),
+//     messageText: txt(txt: message, fontSize: 22, fontColor: Colors.white),
+//     borderRadius: 10,
+//     margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
+//   );
+// }
 
 double screenHeight(BuildContext context) {
   return MediaQuery.of(context).size.height;

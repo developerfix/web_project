@@ -79,7 +79,6 @@ dependencies:
   fading_edge_scrollview: ^3.0.0
   desktop_drop: ^0.4.1
   mime: ^1.0.4
-  pasteboard: ^0.2.0
   
 msix_config:
   display_name: Ava App

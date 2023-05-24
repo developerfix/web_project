@@ -272,21 +272,24 @@ GetBuilder fileContainerForUserMsg(
                           child: Column(
                             children: [
                               Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: Image.network(
-                                    thumbnailUrl,
-                                    fit: BoxFit.cover,
-                                    // loadingBuilder:
-                                    //     (context, error, stackTrace) {
-                                    //   print('error: $error');
-                                    //   return Center(
-                                    //       child:
-                                    //           const CircularProgressIndicator());
-                                    // },
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            const Icon(Icons.error),
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    child: Image.network(
+                                      thumbnailUrl,
+                                      fit: BoxFit.cover,
+                                      // loadingBuilder:
+                                      //     (context, error, stackTrace) {
+                                      //   print('error: $error');
+                                      //   return Center(
+                                      //       child:
+                                      //           const CircularProgressIndicator());
+                                      // },
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              const Icon(Icons.error),
+                                    ),
                                   ),
                                 ),
                               ),

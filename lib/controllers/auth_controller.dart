@@ -74,8 +74,6 @@ class AuthController extends GetxController {
             .doc(cred.user!.uid)
             .set(user.toJson());
       }
-
-      getSuccessSnackBar("Successfully logged in");
     } on FirebaseAuthException {
       //define error
       getErrorSnackBar(
@@ -89,7 +87,6 @@ class AuthController extends GetxController {
       isLoging = true;
       update();
       await _auth.signInWithEmailAndPassword(email: email, password: password);
-      getSuccessSnackBar("Successfully logged In");
     } on FirebaseAuthException {
       //define error
       getErrorSnackBar(
@@ -144,7 +141,6 @@ class AuthController extends GetxController {
               .document(registereduser.uid)
               .set(user.toJson());
 
-          getSuccessSnackBar("Successfully logged in");
           client.close();
         });
       } catch (err) {
@@ -185,8 +181,6 @@ class AuthController extends GetxController {
               .collection('users')
               .doc(registereduser.uid)
               .set(user.toJson());
-
-          getSuccessSnackBar("Successfully logged in");
         }
         // } on FirebaseAuthException {
         //   getErrorSnackBar(
@@ -207,7 +201,7 @@ class AuthController extends GetxController {
   void forgorPassword(email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
-      getSuccessSnackBar("Reset mail sent successfully. Check mail!");
+      // getSuccessSnackBar("Reset mail sent successfully. Check mail!");
     } on FirebaseAuthException {
       getErrorSnackBar(
         "Error",

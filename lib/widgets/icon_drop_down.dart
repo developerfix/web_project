@@ -1,3 +1,4 @@
+import 'package:ava/controllers/department_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -6,7 +7,8 @@ import '../controllers/project_controller.dart';
 
 SizedBox iconDropdown(BuildContext context, StateSetter setState,
     {String? phase}) {
-  final ProjectController projectController = Get.find<ProjectController>();
+  final DepartmentController departmentController =
+      Get.find<DepartmentController>();
   return SizedBox(
     width: screenWidth(context) * 0.1,
     height: screenHeight(context) * 0.05,
@@ -19,7 +21,7 @@ SizedBox iconDropdown(BuildContext context, StateSetter setState,
       menuMaxHeight: screenHeight(context) * 0.4,
       hint: Align(
         alignment: Alignment.center,
-        child: Icon(IconData(projectController.iconCodeValue.value,
+        child: Icon(IconData(departmentController.iconCodeValue.value,
             fontFamily: 'MaterialIcons')),
       ),
       items: <IconData>[
@@ -42,8 +44,8 @@ SizedBox iconDropdown(BuildContext context, StateSetter setState,
         setState(() {
           IconData homeIcon = value as IconData;
           int homeCode = homeIcon.codePoint;
-          projectController.iconCodeValue.value = homeCode;
-          projectController.update();
+          departmentController.iconCodeValue.value = homeCode;
+          departmentController.update();
         });
       },
     ),

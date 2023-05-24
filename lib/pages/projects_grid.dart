@@ -198,7 +198,6 @@ class _ProjectsGridState extends State<ProjectsGrid> {
   }
 
   Padding projectTilesWidget(BuildContext context) {
-    bool isHovering = false;
     return Padding(
       padding: const EdgeInsets.only(top: 80),
       child: NotificationListener<ScrollNotification>(
@@ -286,41 +285,25 @@ class _ProjectsGridState extends State<ProjectsGrid> {
                                         projectsListCount[i].projectId!;
                                     DateTime dateTime =
                                         projectsListCount[i].lastOpened!;
-                                    return MouseRegion(
-                                      onEnter: (event) {
-                                        setState(() {
-                                          isHovering = true;
-                                        });
-                                      },
-                                      onExit: (event) {
-                                        setState(() {
-                                          isHovering = false;
-                                        });
-                                      },
-                                      child: InkWell(
-                                        onTap: (() {
-                                          profileController
-                                              .updateLastOpenedProject(
-                                                  projectId,
-                                                  widget.departmentId);
-                                          projectController
-                                              .updateProjectLastOpenedParameter(
-                                                  projectId: projectId,
-                                                  deepartmentId:
-                                                      departmentController
-                                                          .currentDepartment
-                                                          .value
-                                                          .departmentId!,
-                                                  uid: _uid,
-                                                  lastOpened: DateTime.now());
-                                        }),
-                                        child: isHovering
-                                            ? hoveredProjectBox(context,
-                                                text: projectTitle)
-                                            : projectBox(context,
-                                                dateTime: dateTime,
-                                                text: projectTitle),
-                                      ),
+                                    return InkWell(
+                                      onTap: (() {
+                                        profileController
+                                            .updateLastOpenedProject(
+                                                projectId, widget.departmentId);
+                                        projectController
+                                            .updateProjectLastOpenedParameter(
+                                                projectId: projectId,
+                                                deepartmentId:
+                                                    departmentController
+                                                        .currentDepartment
+                                                        .value
+                                                        .departmentId!,
+                                                uid: _uid,
+                                                lastOpened: DateTime.now());
+                                      }),
+                                      child: projectBox(context,
+                                          dateTime: dateTime,
+                                          text: projectTitle),
                                     );
                                   })
                             ]),
@@ -335,7 +318,6 @@ class _ProjectsGridState extends State<ProjectsGrid> {
   }
 
   Padding searchedProjectTilesWidget(BuildContext context) {
-    bool isHovering = false;
     return Padding(
       padding: const EdgeInsets.only(top: 80),
       child: NotificationListener<ScrollNotification>(
@@ -421,41 +403,25 @@ class _ProjectsGridState extends State<ProjectsGrid> {
                                     DateTime dateTime = projectController
                                         .searchedProjects[i].lastOpened!;
 
-                                    return MouseRegion(
-                                      onEnter: (event) {
-                                        setState(() {
-                                          isHovering = true;
-                                        });
-                                      },
-                                      onExit: (event) {
-                                        setState(() {
-                                          isHovering = false;
-                                        });
-                                      },
-                                      child: InkWell(
-                                        onTap: (() {
-                                          profileController
-                                              .updateLastOpenedProject(
-                                                  projectId,
-                                                  widget.departmentId);
-                                          projectController
-                                              .updateProjectLastOpenedParameter(
-                                                  projectId: projectId,
-                                                  deepartmentId:
-                                                      departmentController
-                                                          .currentDepartment
-                                                          .value
-                                                          .departmentId!,
-                                                  uid: _uid,
-                                                  lastOpened: DateTime.now());
-                                        }),
-                                        child: isHovering
-                                            ? hoveredProjectBox(context,
-                                                text: projectTitle)
-                                            : projectBox(context,
-                                                dateTime: dateTime,
-                                                text: projectTitle),
-                                      ),
+                                    return InkWell(
+                                      onTap: (() {
+                                        profileController
+                                            .updateLastOpenedProject(
+                                                projectId, widget.departmentId);
+                                        projectController
+                                            .updateProjectLastOpenedParameter(
+                                                projectId: projectId,
+                                                deepartmentId:
+                                                    departmentController
+                                                        .currentDepartment
+                                                        .value
+                                                        .departmentId!,
+                                                uid: _uid,
+                                                lastOpened: DateTime.now());
+                                      }),
+                                      child: projectBox(context,
+                                          dateTime: dateTime,
+                                          text: projectTitle),
                                     );
                                   })
                             ]),

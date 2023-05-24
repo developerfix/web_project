@@ -40,6 +40,6 @@ class Comment {
         comment: snapshot['comment'],
         username: snapshot['username'],
         fileNameAndDownloadUrl: snapshot['fileNameAndDownloadUrl'],
-        createdAt: snapshot['createdAt']);
+        createdAt: snapshot['createdAt'].toDate());
   }
 }
