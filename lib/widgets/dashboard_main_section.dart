@@ -53,7 +53,6 @@ Expanded dashboardMainSection(BuildContext context, BoxConstraints constraints,
                   ],
                 ),
               ),
-
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -223,28 +222,6 @@ Expanded dashboardMainSection(BuildContext context, BoxConstraints constraints,
                         )
                 ],
               ),
-
-              // Column(
-              //   crossAxisAlignment: CrossAxisAlignment.start,
-              //   children: [
-              //     txt(
-              //       txt:
-              //           projectController.project['lead'] == 'assign lead'
-              //               ? projectController.project['lead']
-              //               : '@${projectController.project['lead']} ',
-              //       fontSize: 20,
-              //       minFontSize: 8,
-              //       overflow: TextOverflow.ellipsis,
-              //     ),
-              //     txt(
-              //       txt: projectController.project['copilot'] ==
-              //               'assign co-pilot'
-              //           ? projectController.project['copilot']
-              //           : '@${projectController.project['copilot']} ',
-              //       fontSize: 20,
-              //       minFontSize: 8,
-              //       overflow: TextOverflow.ellipsis,
-              //     ),
             ],
           ),
           SizedBox(
@@ -353,43 +330,45 @@ Column completedKanbanList(
                           itemCount: projectController.completedTasks.length,
 
                           itemBuilder: (context, i) {
-                            final String taskTitle = projectController
-                                .completedTasks[i]['taskTitle'];
+                            final String taskTitle =
+                                projectController.completedTasks[i].taskTitle!;
                             final String phase =
-                                projectController.completedTasks[i]['phase'];
+                                projectController.completedTasks[i].phase!;
                             final String taskDescription = projectController
-                                .completedTasks[i]['taskDescription'];
+                                .completedTasks[i].taskDescription!;
                             final String pilot =
-                                projectController.completedTasks[i]['pilot'];
+                                projectController.completedTasks[i].pilot!;
                             final String copilot =
-                                projectController.completedTasks[i]['copilot'];
-                            final String startDate = projectController
-                                .completedTasks[i]['startDate'];
+                                projectController.completedTasks[i].copilot!;
+                            final String startDate =
+                                projectController.completedTasks[i].startDate!;
                             final String endDate =
-                                projectController.completedTasks[i]['endDate'];
+                                projectController.completedTasks[i].endDate!;
+                            final String daysToComplete = projectController
+                                .completedTasks[i].daysToComplete!;
 
                             final int priorityLevel = projectController
-                                .completedTasks[i]['priorityLevel'];
+                                .completedTasks[i].priorityLevel!;
                             final int deliverablesRequiredOrNot =
                                 projectController.completedTasks[i]
-                                    ['isDeliverableNeededForCompletion'];
+                                    .isDeliverableNeededForCompletion!;
                             final String status =
-                                projectController.completedTasks[i]['status'];
+                                projectController.completedTasks[i].status!;
                             final String taskID =
-                                projectController.completedTasks[i]['taskID'];
+                                projectController.completedTasks[i].taskID!;
 
                             final List taskDeliverables = [];
                             final List requiredDeliverables = [];
 
-                            for (var item in projectController.completedTasks[i]
-                                ['deliverables']) {
+                            for (var item in projectController
+                                .completedTasks[i].deliverables!) {
                               taskDeliverables.add(item);
                             }
-                            if (projectController.completedTasks[i]
-                                    ['requiredDeliverables'] !=
+                            if (projectController
+                                    .completedTasks[i].requiredDeliverables !=
                                 null) {
                               for (var item in projectController
-                                  .completedTasks[i]['requiredDeliverables']) {
+                                  .completedTasks[i].requiredDeliverables!) {
                                 requiredDeliverables.add(item);
                               }
                             }
@@ -400,6 +379,7 @@ Column completedKanbanList(
                                 taskTitle,
                                 phase,
                                 taskDescription,
+                                daysToComplete,
                                 pilot,
                                 copilot,
                                 priorityLevel,
@@ -470,38 +450,48 @@ Column inprogressKanbanList(
                           itemCount: projectController.inProgressTasks.length,
 
                           itemBuilder: (context, i) {
-                            final String taskTitle = projectController
-                                .inProgressTasks[i]['taskTitle'];
+                            final String taskTitle =
+                                projectController.inProgressTasks[i].taskTitle!;
                             final String phase =
-                                projectController.inProgressTasks[i]['phase'];
+                                projectController.inProgressTasks[i].phase!;
                             final String taskDescription = projectController
-                                .inProgressTasks[i]['taskDescription'];
+                                .inProgressTasks[i].taskDescription!;
                             final String pilot =
-                                projectController.inProgressTasks[i]['pilot'];
+                                projectController.inProgressTasks[i].pilot!;
                             final String copilot =
-                                projectController.inProgressTasks[i]['copilot'];
-                            final String startDate = projectController
-                                .inProgressTasks[i]['startDate'];
+                                projectController.inProgressTasks[i].copilot!;
+                            final String startDate =
+                                projectController.inProgressTasks[i].startDate!;
                             final String endDate =
-                                projectController.inProgressTasks[i]['endDate'];
+                                projectController.completedTasks[i].endDate!;
+                            final String daysToComplete = projectController
+                                .inProgressTasks[i].daysToComplete!;
 
                             final int priorityLevel = projectController
-                                .inProgressTasks[i]['priorityLevel'];
+                                .inProgressTasks[i].priorityLevel!;
                             final int deliverablesRequiredOrNot =
                                 projectController.inProgressTasks[i]
-                                    ['isDeliverableNeededForCompletion'];
+                                    .isDeliverableNeededForCompletion!;
                             final String status =
-                                projectController.inProgressTasks[i]['status'];
+                                projectController.inProgressTasks[i].status!;
                             final String taskID =
-                                projectController.inProgressTasks[i]['taskID'];
+                                projectController.inProgressTasks[i].taskID!;
 
                             final List taskDeliverables = [];
+                            final List requiredDeliverables = [];
 
                             for (var item in projectController
-                                .inProgressTasks[i]['deliverables']) {
+                                .inProgressTasks[i].deliverables!) {
                               taskDeliverables.add(item);
                             }
-
+                            if (projectController
+                                    .inProgressTasks[i].requiredDeliverables !=
+                                null) {
+                              for (var item in projectController
+                                  .inProgressTasks[i].requiredDeliverables!) {
+                                requiredDeliverables.add(item);
+                              }
+                            }
                             return listOfTasks(
                                 context,
                                 projectController,
@@ -509,6 +499,7 @@ Column inprogressKanbanList(
                                 taskTitle,
                                 phase,
                                 taskDescription,
+                                daysToComplete,
                                 pilot,
                                 copilot,
                                 priorityLevel,
@@ -576,34 +567,46 @@ Column todoKanbanList(
                           itemCount: projectController.toDoTasks.length,
                           itemBuilder: (context, i) {
                             final String taskTitle =
-                                projectController.toDoTasks[i]['taskTitle'];
+                                projectController.toDoTasks[i].taskTitle!;
                             final String phase =
-                                projectController.toDoTasks[i]['phase'];
-                            final String taskDescription = projectController
-                                .toDoTasks[i]['taskDescription'];
+                                projectController.toDoTasks[i].phase!;
+                            final String taskDescription =
+                                projectController.toDoTasks[i].taskDescription!;
                             final String pilot =
-                                projectController.toDoTasks[i]['pilot'];
+                                projectController.toDoTasks[i].pilot!;
                             final String copilot =
-                                projectController.toDoTasks[i]['copilot'];
+                                projectController.toDoTasks[i].copilot!;
                             final String startDate =
-                                projectController.toDoTasks[i]['startDate'];
+                                projectController.toDoTasks[i].startDate!;
                             final String endDate =
-                                projectController.toDoTasks[i]['endDate'];
-                            final String taskID =
-                                projectController.toDoTasks[i]['taskID'];
+                                projectController.toDoTasks[i].endDate!;
+                            final String daysToComplete =
+                                projectController.toDoTasks[i].daysToComplete!;
 
                             final int priorityLevel =
-                                projectController.toDoTasks[i]['priorityLevel'];
+                                projectController.toDoTasks[i].priorityLevel!;
                             final int deliverablesRequiredOrNot =
                                 projectController.toDoTasks[i]
-                                    ['isDeliverableNeededForCompletion'];
+                                    .isDeliverableNeededForCompletion!;
                             final String status =
-                                projectController.toDoTasks[i]['status'];
-                            final List taskDeliverables = [];
+                                projectController.toDoTasks[i].status!;
+                            final String taskID =
+                                projectController.toDoTasks[i].taskID!;
 
-                            for (var item in projectController.toDoTasks[i]
-                                ['deliverables']) {
+                            final List taskDeliverables = [];
+                            final List requiredDeliverables = [];
+
+                            for (var item in projectController
+                                .toDoTasks[i].deliverables!) {
                               taskDeliverables.add(item);
+                            }
+                            if (projectController
+                                    .toDoTasks[i].requiredDeliverables !=
+                                null) {
+                              for (var item in projectController
+                                  .toDoTasks[i].requiredDeliverables!) {
+                                requiredDeliverables.add(item);
+                              }
                             }
 
                             return listOfTasks(
@@ -613,6 +616,7 @@ Column todoKanbanList(
                                 taskTitle,
                                 phase,
                                 taskDescription,
+                                daysToComplete,
                                 pilot,
                                 copilot,
                                 priorityLevel,

@@ -35,6 +35,10 @@ const String noCategory = 'No category';
 const String newProjectCategory = 'Create new category';
 const String designCategory = '3D design';
 const String opticalCategory = 'Optical Design';
+//projectCategories
+const String newTaskCategory = 'Create new phase';
+const String noPhase = 'No phase';
+
 //assetType
 const String linkAssetType = 'linkAssetType';
 const String fileAssetType = 'fileAssetType';
@@ -55,6 +59,7 @@ Widget popUpCloseButton = InkWell(
   },
   child: const Icon(
     Icons.close,
+    size: 60,
   ),
 );
 

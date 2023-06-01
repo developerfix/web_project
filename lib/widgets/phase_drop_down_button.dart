@@ -6,13 +6,15 @@ import '../constants/style.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/project_controller.dart';
 
-Container phaseDropDownButton(BuildContext context, StateSetter setState,
-    {String? phase}) {
+Container phaseDropDownButton(
+  BuildContext context,
+  StateSetter setState,
+) {
   final ProjectController projectController = Get.find<ProjectController>();
   final AuthController authController = Get.find<AuthController>();
   return Container(
-    width: 450,
-    height: screenHeight(context) * 0.05,
+    width: 300,
+    height: 60,
     decoration: authController.isDarkTheme.value
         ? darkThemeBoxDecoration
         : lightThemeBoxDecoration,
@@ -20,7 +22,7 @@ Container phaseDropDownButton(BuildContext context, StateSetter setState,
       child: DropdownButtonFormField(
         // itemHeight: 15,
         // menuMaxHeight: 30,
-        items: <String>['3D Design', 'Optical Design'].map((String value) {
+        items: projectController.taskCategories.map((String value) {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(value),
@@ -29,7 +31,7 @@ Container phaseDropDownButton(BuildContext context, StateSetter setState,
 
         onChanged: (value) {
           setState(() {
-            projectController.phaseValue.value = value.toString();
+            projectController.taskCategory.value = value.toString();
             projectController.update();
           });
         },
@@ -52,7 +54,7 @@ Container phaseDropDownButton(BuildContext context, StateSetter setState,
               fontWeight: FontWeight.w600,
             ),
           ),
-          hintText: phase ?? projectController.phaseValue.value,
+          hintText: projectController.taskCategory.value,
           fillColor:
               authController.isDarkTheme.value ? Colors.black12 : Colors.white,
         ),

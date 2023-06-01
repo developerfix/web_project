@@ -45,8 +45,8 @@ class _TimelineeState extends State<Timelinee> with TickerProviderStateMixin {
   tasks() {
     for (int i = 0; i < projectController.toDoTasks.length; i++) {
       //start date
-      String startDate = projectController.toDoTasks[i]['startDate'];
-      String taskID = projectController.toDoTasks[i]['taskID'];
+      String startDate = projectController.toDoTasks[i].startDate!;
+      String taskID = projectController.toDoTasks[i].taskID!;
 
       List<String> startDateSplitted = startDate.split('/');
       String startDateYear = startDateSplitted[0];
@@ -62,7 +62,7 @@ class _TimelineeState extends State<Timelinee> with TickerProviderStateMixin {
           DateTime.parse('$startDateYear$startDateMonth$startDateDay');
 
       //end date
-      String endDate = projectController.toDoTasks[i]['endDate'];
+      String endDate = projectController.toDoTasks[i].endDate!;
 
       List<String> endDateSplitted = endDate.split('/');
       String endDateYear = startDateSplitted[0];
@@ -83,13 +83,13 @@ class _TimelineeState extends State<Timelinee> with TickerProviderStateMixin {
             startTime: parsedStartDate,
             endTime: parsedEndDate,
             number: 1,
-            title: projectController.toDoTasks[i]['taskTitle']),
+            title: projectController.toDoTasks[i].taskTitle),
       );
     }
     for (int i = 0; i < projectController.inProgressTasks.length; i++) {
       //start date
-      String startDate = projectController.inProgressTasks[i]['startDate'];
-      String taskID = projectController.inProgressTasks[i]['taskID'];
+      String startDate = projectController.inProgressTasks[i].startDate!;
+      String taskID = projectController.inProgressTasks[i].taskID!;
 
       List<String> startDateSplitted = startDate.split('/');
       String startDateYear = startDateSplitted[0];
@@ -105,7 +105,7 @@ class _TimelineeState extends State<Timelinee> with TickerProviderStateMixin {
           DateTime.parse('$startDateYear$startDateMonth$startDateDay');
 
       //end date
-      String endDate = projectController.inProgressTasks[i]['endDate'];
+      String endDate = projectController.completedTasks[i].endDate!;
 
       List<String> endDateSplitted = endDate.split('/');
       String endDateYear = startDateSplitted[0];
@@ -125,12 +125,12 @@ class _TimelineeState extends State<Timelinee> with TickerProviderStateMixin {
           startTime: parsedStartDate,
           endTime: parsedEndDate,
           number: 2,
-          title: projectController.toDoTasks[i]['taskTitle']));
+          title: projectController.toDoTasks[i].taskTitle));
     }
     for (int i = 0; i < projectController.completedTasks.length; i++) {
       //start date
-      String startDate = projectController.completedTasks[i]['startDate'];
-      String taskID = projectController.completedTasks[i]['taskID'];
+      String startDate = projectController.inProgressTasks[i].startDate!;
+      String taskID = projectController.inProgressTasks[i].taskID!;
 
       List<String> startDateSplitted = startDate.split('/');
       String startDateYear = startDateSplitted[0];
@@ -146,7 +146,7 @@ class _TimelineeState extends State<Timelinee> with TickerProviderStateMixin {
           DateTime.parse('$startDateYear$startDateMonth$startDateDay');
 
       //end date
-      String endDate = projectController.completedTasks[i]['endDate'];
+      String endDate = projectController.completedTasks[i].endDate!;
 
       List<String> endDateSplitted = endDate.split('/');
       String endDateYear = startDateSplitted[0];
@@ -166,7 +166,7 @@ class _TimelineeState extends State<Timelinee> with TickerProviderStateMixin {
           startTime: parsedStartDate,
           endTime: parsedEndDate,
           number: 3,
-          title: projectController.toDoTasks[i]['taskTitle']));
+          title: projectController.toDoTasks[i].taskTitle));
     }
 
     GanttChartController.instance.gitHub!.getIssuesList(issuesList: tasksList);

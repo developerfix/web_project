@@ -8,6 +8,7 @@ import '../controllers/auth_controller.dart';
 Container popUpTextField(BuildContext context,
     {TextEditingController? controller,
     double? height,
+    double? width,
     String? hint,
     int? isObscure,
     Widget? trailing,
@@ -15,8 +16,8 @@ Container popUpTextField(BuildContext context,
   final AuthController authController = Get.find<AuthController>();
   bool isObscurePlus = isObscure == 1 ? true : false;
   return Container(
-    width: 450,
-    height: height ?? 70,
+    width: width ?? 450,
+    height: height ?? 60,
     decoration: authController.isDarkTheme.value
         ? darkThemeBoxDecoration
         : lightThemeBoxDecoration,
@@ -46,7 +47,7 @@ Container popUpTextField(BuildContext context,
           hintStyle: GoogleFonts.montserrat(
             textStyle: TextStyle(
               letterSpacing: 2,
-              color: Color(secondaryColor).withOpacity(0.5),
+              color: const Color(secondaryColor).withOpacity(0.5),
               fontWeight: FontWeight.w600,
             ),
           ),

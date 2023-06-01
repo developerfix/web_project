@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firedart/firedart.dart';
 
 class Task {
   String? taskTitle;
@@ -9,6 +10,7 @@ class Task {
   String? startDate;
   String? endDate;
   int? priorityLevel;
+  String? daysToComplete;
   String? taskID;
   String? status;
   int? isDeliverableNeededForCompletion;
@@ -22,6 +24,7 @@ class Task {
       this.taskDescription,
       this.pilot,
       this.copilot,
+      this.daysToComplete,
       this.startDate,
       this.taskID,
       this.endDate,
@@ -36,6 +39,7 @@ class Task {
         "isDeliverableNeededForCompletion": isDeliverableNeededForCompletion,
         "taskDescription": taskDescription,
         "taskID": taskID,
+        "daysToComplete": daysToComplete,
         "deliverables": deliverables,
         "requiredDeliverables": requiredDeliverables,
         "pilot": pilot,
@@ -45,6 +49,27 @@ class Task {
         "status": status,
         "priorityLevel": priorityLevel
       };
+
+  static Task fromDocumentSnap(Document snap) {
+    var snapshot = snap;
+    return Task(
+      taskTitle: snapshot['taskTitle'],
+      phase: snapshot['phase'],
+      taskID: snapshot['taskID'],
+      isDeliverableNeededForCompletion:
+          snapshot['isDeliverableNeededForCompletion'],
+      taskDescription: snapshot['taskDescription'],
+      deliverables: snapshot['deliverables'],
+      requiredDeliverables: snapshot['requiredDeliverables'],
+      pilot: snapshot['pilot'],
+      daysToComplete: snapshot['daysToComplete'],
+      copilot: snapshot['copilot'],
+      startDate: snapshot['startDate'],
+      endDate: snapshot['endDate'],
+      status: snapshot['status'],
+      priorityLevel: snapshot['priorityLevel'],
+    );
+  }
 
   static Task fromSnap(DocumentSnapshot snap) {
     var snapshot = snap.data() as Map<String, dynamic>;
@@ -58,6 +83,7 @@ class Task {
       deliverables: snapshot['deliverables'],
       requiredDeliverables: snapshot['requiredDeliverables'],
       pilot: snapshot['pilot'],
+      daysToComplete: snapshot['daysToComplete'],
       copilot: snapshot['copilot'],
       startDate: snapshot['startDate'],
       endDate: snapshot['endDate'],

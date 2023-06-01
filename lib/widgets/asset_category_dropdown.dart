@@ -31,7 +31,7 @@ Container assetCategoryDropDownButton(
 
         onChanged: (value) {
           setState(() {
-            projectController.phaseValue.value = value.toString();
+            projectController.assetCategory.value = value.toString();
             projectController.update();
           });
         },
@@ -54,7 +54,7 @@ Container assetCategoryDropDownButton(
               fontWeight: FontWeight.w600,
             ),
           ),
-          hintText: phase ?? projectController.phaseValue.value,
+          hintText: phase ?? projectController.assetCategory.value,
           fillColor:
               authController.isDarkTheme.value ? Colors.black12 : Colors.white,
         ),

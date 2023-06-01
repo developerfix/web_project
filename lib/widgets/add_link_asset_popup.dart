@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../controllers/auth_controller.dart';
 import '../controllers/project_controller.dart';
+import 'add_new_task_popup.dart';
 import 'asset_catagory_widgets.dart';
 
 Future<dynamic> addLinkAssetPopUp(BuildContext context) {
@@ -33,19 +34,11 @@ Future<dynamic> addLinkAssetPopUp(BuildContext context) {
                   width: 1000,
                   child: Column(
                     children: [
-                      popUpCloseButton,
+                      popupHeader('ADD HYPERLINK'),
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Column(children: <Widget>[
-                            txt(
-                              txt: 'ADD HYPERLINK',
-                              font: 'comfortaa',
-                              fontSize: 40,
-                              letterSpacing: 6,
-                              fontWeight: FontWeight.w700,
-                            ),
-                            const Spacer(),
                             Column(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [

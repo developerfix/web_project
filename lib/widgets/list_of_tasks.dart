@@ -1,4 +1,4 @@
-import 'package:ava/widgets/profile_avatar.dart';
+import 'package:ava/widgets/pilot_copilot_avatar.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:ava/controllers/project_controller.dart';
@@ -17,6 +17,7 @@ Widget listOfTasks(
   String taskTitle,
   String phase,
   String taskDescription,
+  String daysToComplete,
   String pilot,
   String copilot,
   int priorityLevel,
@@ -59,6 +60,7 @@ Widget listOfTasks(
                     status,
                     copilot,
                     endDate,
+                    daysToComplete,
                     phase,
                     pilot,
                     priorityLevel,
@@ -160,11 +162,8 @@ GestureDetector collapsedWidgetKanbanTask(
                           const SizedBox(
                             height: 5,
                           ),
-                          profileAvatar(
-                            context,
-                            maxRadius: 20,
-                            fontSize: 16,
-                          ),
+                          taskPilotCopilotAvatar(projectController, context,
+                              imageUrl: pilot),
                         ],
                       ),
                     )
@@ -200,6 +199,7 @@ GestureDetector expandedWidgetKanbanTask(
     String status,
     String copilot,
     String endDate,
+    String daysToComplete,
     String phase,
     String pilot,
     int priorityLevel,
@@ -292,11 +292,25 @@ GestureDetector expandedWidgetKanbanTask(
                   children: [
                     Expanded(
                       flex: 2,
-                      child: txt(
-                          txt: taskDescription,
-                          fontWeight: FontWeight.w500,
-                          maxLines: 5000,
-                          fontSize: 18),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          txt(
+                              txt: taskDescription,
+                              fontWeight: FontWeight.w500,
+                              maxLines: 5000,
+                              fontSize: 18),
+                          const Divider(
+                            color: Color(secondaryColor),
+                            thickness: 2,
+                          ),
+                          txt(
+                              txt: '$daysToComplete days to complete',
+                              maxLines: 1,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                        ],
+                      ),
                     ),
                     Expanded(
                       child: Column(
@@ -304,6 +318,7 @@ GestureDetector expandedWidgetKanbanTask(
                           txt(
                               txt: startDate,
                               maxLines: 1,
+                              textAlign: TextAlign.center,
                               fontWeight: FontWeight.bold,
                               fontSize: 20),
                           const SizedBox(
@@ -312,34 +327,30 @@ GestureDetector expandedWidgetKanbanTask(
                           txt(
                               txt: endDate,
                               maxLines: 1,
+                              textAlign: TextAlign.center,
                               fontWeight: FontWeight.bold,
                               fontSize: 20),
                           const SizedBox(
                             height: 5,
                           ),
-                          profileAvatar(
-                            context,
-                            maxRadius: 20,
-                            fontSize: 16,
-                          ),
+                          taskPilotCopilotAvatar(projectController, context,
+                              imageUrl: pilot),
                           const SizedBox(
                             height: 5,
                           ),
-                          profileAvatar(
-                            context,
-                            maxRadius: 20,
-                            fontSize: 16,
-                          ),
+                          taskPilotCopilotAvatar(projectController, context,
+                              imageUrl: pilot),
                           const SizedBox(
                             height: 5,
                           ),
                           txt(
                               txt: priorityLevel == 1
-                                  ? 'High Priority'
+                                  ? 'Future Priority'
                                   : priorityLevel == 2
                                       ? 'Regular Priority'
-                                      : 'Future Priority',
+                                      : 'High Priority',
                               maxLines: 2,
+                              textAlign: TextAlign.center,
                               font: 'Comfortaa',
                               fontWeight: FontWeight.bold,
                               fontSize: 20),
@@ -348,9 +359,9 @@ GestureDetector expandedWidgetKanbanTask(
                     )
                   ],
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
+                // const SizedBox(
+                //   height: 10,
+                // ),
                 taskDeliverables.isEmpty
                     ? Container()
                     : Row(
@@ -365,9 +376,9 @@ GestureDetector expandedWidgetKanbanTask(
                 taskDeliverables.isEmpty
                     ? Container()
                     : deliverablesGrid(taskDeliverables),
-                const SizedBox(
-                  height: 10,
-                ),
+                // const SizedBox(
+                //   height: 10,
+                // ),
                 // board == todo || board == 'inProgress'
                 //     ? Container()
                 //     : requiredDeliverables != null
@@ -577,7 +588,8 @@ PopupMenuButton<int> popupMenuButtonWidget(
         }
       } else if (value == 3) {
         projectController.selectedDeliverables.value = taskDeliverables;
-        projectController.phaseValue.value = '';
+        projectController.taskCategory.value = noPhase;
+
         editTaskPopUp(
           context,
           copilot: copilot,

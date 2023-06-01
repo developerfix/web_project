@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../constants/style.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/profile_controller.dart';
+import 'add_new_task_popup.dart';
 
 Column newProjectCategoryTextField(
     BuildContext context, TextEditingController categoryTitleController) {
@@ -19,6 +20,29 @@ Column newProjectCategoryTextField(
           const Spacer(),
           popUpTextField(context,
               controller: categoryTitleController, hint: 'exp: Optical Design'),
+        ],
+      ),
+    ],
+  );
+}
+
+Column newTaskCategoryTextField(
+    BuildContext context, TextEditingController categoryTitleController) {
+  return Column(
+    children: [
+      Row(
+        children: [
+          textWidgetTaskPopup(
+            context,
+            'New phase:',
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          popUpTextField(context,
+              width: 300,
+              controller: categoryTitleController,
+              hint: 'exp: Optical Design'),
         ],
       ),
     ],

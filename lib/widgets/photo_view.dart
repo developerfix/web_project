@@ -24,44 +24,46 @@ class PhotoView extends StatefulWidget {
 }
 
 class _PhotoViewState extends State<PhotoView> {
-  late final FocusNode _focusNode;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _focusNode = FocusNode();
+    _focusNode.requestFocus();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ContextMenuOverlay(
-
+    return Scaffold(
+        body: RawKeyboardListener(
+      focusNode: _focusNode,
+      onKey: (event) {
+        if (event.logicalKey == LogicalKeyboardKey.escape) {
+          Get.back();
+          // Perform your desired action for the ESC key press here
+        }
+      },
+      child: ContextMenuOverlay(
         /// Make a custom background
         cardBuilder: (_, children) =>
             Container(color: Colors.black, child: Column(children: children)),
 
         /// Make custom buttons
         buttonBuilder: (_, config, [__]) => TextButton(
-              onPressed: config.onPressed,
-              child: SizedBox(
-                  width: double.infinity,
-                  child: Text(
-                    config.label,
-                    style: const TextStyle(color: Colors.white),
-                  )),
-            ),
-        child: RawKeyboardListener(
-          focusNode: _focusNode,
-          onKey: (event) {
-            if (event.logicalKey == LogicalKeyboardKey.escape) {
-              Get.back();
-            }
-          },
-          child: TestContent(
-            url: widget.url,
-            filename: widget.filename,
-          ),
-        ));
+          onPressed: config.onPressed,
+          child: SizedBox(
+              width: double.infinity,
+              child: Text(
+                config.label,
+                style: const TextStyle(color: Colors.white),
+              )),
+        ),
+        child: TestContent(
+          url: widget.url,
+          filename: widget.filename,
+        ),
+      ),
+    ));
   }
 }
 
@@ -88,67 +90,97 @@ class TestContent extends StatelessWidget {
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          InkWell(
-            onTap: (() => Get.back()),
-            child: const Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-                size: 40,
-              ),
-            ),
-          ),
           Expanded(
             child:
 
                 /// Custom Context Menu for an Image
-                ContextMenuRegion(
-              contextMenu: GenericContextMenu(
-                buttonConfigs: [
-                  ContextMenuButtonConfig("Download", onPressed: () async {
-                    String? res = await FilePicker.platform.saveFile(
-                      fileName: filename.split('.').first,
-                    );
+                //   ContextMenuRegion(
+                // contextMenu: GenericContextMenu(
+                //   buttonConfigs: [
+                //     ContextMenuButtonConfig("Download", onPressed: () async {
+                //       String? res = await FilePicker.platform.saveFile(
+                //         fileName: filename.split('.').first,
+                //       );
 
-                    if (res != null) {
-                      var dio = Dio();
+                //       if (res != null) {
+                //         var dio = Dio();
 
-                      var ext = filename.split('.').last;
+                //         var ext = filename.split('.').last;
 
-                      String fullPath = "$res.$ext";
-                      await dio.download(url, fullPath);
-                    }
-                  }),
-                  ContextMenuButtonConfig("Copy to clipboard",
-                      onPressed: () async {
-                    try {
-                      // Pasteboard.writeImage(await getImageBytes(url));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content:
-                              Center(child: const Text("Copied to Clipboard")),
-                          behavior: SnackBarBehavior.floating,
-                          width: 280, // adjust the width as needed
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      );
-                    } catch (e) {
-                      print('erorr: $e');
-                    }
-                  })
-                ],
-              ),
-              child: photoview.PhotoView(
-                imageProvider: NetworkImage(url),
-                enableRotation: true,
-                filterQuality: FilterQuality.high,
-                gestureDetectorBehavior: HitTestBehavior.deferToChild,
-              ),
+                //         String fullPath = "$res.$ext";
+                //         await dio.download(url, fullPath);
+                //       }
+                //     }),
+                //     ContextMenuButtonConfig("Copy to clipboard",
+                //         onPressed: () async {
+                //       try {
+                //         // Pasteboard.writeImage(await getImageBytes(url));
+                //         ScaffoldMessenger.of(context).showSnackBar(
+                //           SnackBar(
+                //             content:
+                //                 Center(child: const Text("Copied to Clipboard")),
+                //             behavior: SnackBarBehavior.floating,
+                //             width: 280, // adjust the width as needed
+                //             shape: RoundedRectangleBorder(
+                //               borderRadius: BorderRadius.circular(8),
+                //             ),
+                //           ),
+                //         );
+                //       } catch (e) {
+                //         print('erorr: $e');
+                //       }
+                //     })
+                //   ],
+                // ),
+                // child:
+                photoview.PhotoView(
+              imageProvider: NetworkImage(url),
+              enableRotation: true,
+              filterQuality: FilterQuality.high,
+              gestureDetectorBehavior: HitTestBehavior.deferToChild,
             ),
+            // ),
           ),
+          Column(
+            children: [
+              InkWell(
+                onTap: (() => Get.back()),
+                child: const Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              InkWell(
+                onTap: (() async {
+                  String? res = await FilePicker.platform.saveFile(
+                    fileName: filename.split('.').first,
+                  );
+
+                  if (res != null) {
+                    var dio = Dio();
+
+                    var ext = filename.split('.').last;
+
+                    String fullPath = "$res.$ext";
+                    await dio.download(url, fullPath);
+                  }
+                }),
+                child: const Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Icon(
+                    Icons.download_for_offline_outlined,
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                ),
+              ),
+            ],
+          )
         ],
       ),
     );

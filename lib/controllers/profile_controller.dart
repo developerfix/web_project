@@ -25,7 +25,9 @@ class ProfileController extends GetxController {
   RxList<Project> departmentProjects = <Project>[].obs;
   //projectCategories
   RxList<String> projectCategories = <String>[].obs;
+
   Rx<String> projectCategory = "".obs;
+
   final Rx<String> _uid = "".obs;
   // ignore: prefer_typing_uninitialized_variables
   var app;

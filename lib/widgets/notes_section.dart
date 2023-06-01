@@ -523,6 +523,7 @@ ScrollConfiguration notesListViewBuilder(BuildContext context,
             String? comment = projectController.comments[i].comment;
             String? type = projectController.comments[i].type;
             String? username = projectController.comments[i].username;
+            String? profileUrl = projectController.comments[i].profileUrl;
 
             DateTime created = projectController.comments[i].createdAt!;
 
@@ -536,6 +537,7 @@ ScrollConfiguration notesListViewBuilder(BuildContext context,
               return usersMsg(context,
                   created: created,
                   username: username,
+                  profileUrl: profileUrl,
                   nameFirstChar: firstChar[0],
                   type: type,
                   files: projectController.comments[i].fileNameAndDownloadUrl,
@@ -545,6 +547,7 @@ ScrollConfiguration notesListViewBuilder(BuildContext context,
                   ? usersMsg(context,
                       created: created,
                       username: username,
+                      profileUrl: profileUrl,
                       nameFirstChar: firstChar[0],
                       type: type,
                       files:
@@ -585,6 +588,7 @@ ScrollConfiguration searchedNotesListViewBuilder(
             String comment = projectController.comments[i].comment ?? '';
             String type = projectController.comments[i].type ?? '';
             String username = projectController.comments[i].username ?? '';
+            String profileUrl = projectController.comments[i].profileUrl ?? '';
 
             var created = projectController.comments[i].createdAt;
 
@@ -599,6 +603,7 @@ ScrollConfiguration searchedNotesListViewBuilder(
             if (lowerCaseComment.contains(lowerCaseSearchedNote)) {
               return usersMsg(context,
                   created: created,
+                  profileUrl: profileUrl,
                   nameFirstChar: firstChar[0],
                   type: type,
                   files: projectController.comments[i].fileNameAndDownloadUrl,

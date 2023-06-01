@@ -10,13 +10,14 @@ Container selectMember(BuildContext context,
     {String? pilotOrCopilot,
     String? pilotOrCopilotValue,
     String? oldPilotorCopilot,
-    required TextEditingController controller}) {
+    required TextEditingController controller,
+    required TextEditingController idController}) {
   final ProjectController projectController = Get.find<ProjectController>();
   final AuthController authController = Get.find<AuthController>();
 
   return Container(
-    width: screenWidth(context) * 0.2,
-    height: screenHeight(context) * 0.05,
+    width: 300,
+    height: 60,
     decoration: authController.isDarkTheme.value
         ? darkThemeBoxDecoration
         : lightThemeBoxDecoration,
@@ -32,7 +33,8 @@ Container selectMember(BuildContext context,
               .then(
             (value) {
               if (value != null) {
-                controller.text = value;
+                controller.text = value[0];
+                idController.text = value[1];
                 pilotOrCopilotValue = '@$value';
                 projectController.update();
               }

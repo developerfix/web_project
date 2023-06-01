@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:async/async.dart';
 import 'package:ava/controllers/department_controller.dart';
 import 'package:ava/controllers/profile_controller.dart';
@@ -19,6 +18,7 @@ import '../constants/style.dart';
 import 'package:firebase_dart/storage.dart' as firebase_dart_storage;
 
 import '../models/comment.dart';
+import '../models/task.dart';
 import '../models/user.dart';
 
 class ProjectController extends GetxController {
@@ -45,24 +45,25 @@ class ProjectController extends GetxController {
   RxList<Asset> assets = <Asset>[].obs;
   RxList<String> assetsCategories = <String>[].obs;
   Rx<String> assetCategory = "".obs;
-
+//task phases/categories
+  RxList<String> taskCategories = <String>[].obs;
+  Rx<String> taskCategory = "".obs;
   //
   RxList<User> users = <User>[].obs;
   RxList<dynamic> projectMembers = <dynamic>[].obs;
-  RxList<dynamic> toDoTasks = <dynamic>[].obs;
-  RxList<dynamic> inProgressTasks = <dynamic>[].obs;
-  RxList<dynamic> completedTasks = <dynamic>[].obs;
+  RxList<task_model.Task> toDoTasks = <task_model.Task>[].obs;
+  RxList<task_model.Task> inProgressTasks = <task_model.Task>[].obs;
+  RxList<task_model.Task> completedTasks = <task_model.Task>[].obs;
   RxList<dynamic> selectedDeliverables = <dynamic>[].obs;
   RxList<dynamic> selectedAssetFiles = <dynamic>[].obs;
   final uploadProgress = {}.obs;
   final selectedAssetFilesUploadProgress = {}.obs;
   Rx<double> progress = 0.0.obs;
   Rx<int> commentsFilter = 1.obs;
-  Rx<int> taskPrioritySelectedValue = 1.obs;
+  Rx<int> taskPrioritySelectedValue = 2.obs;
   Rx<int> taskSelectedValue = 1.obs;
   Rx<double> deliverableUplaodingProgress = 0.0.obs;
   Rx<double> assetFileUplaodingProgress = 0.0.obs;
-  Rx<String> phaseValue = "".obs;
 
   Rx<String> searchedNote = "".obs;
   Rx<String> taskPilot = "".obs;
@@ -310,12 +311,12 @@ class ProjectController extends GetxController {
     FutureGroup futureGroup = FutureGroup();
     try {
       status == todo
-          ? toDoTasks.removeWhere((element) => element['taskID'] == taskID)
+          ? toDoTasks.removeWhere((element) => element.taskID == taskID)
           : status == inProgress
               ? inProgressTasks
-                  .removeWhere((element) => element['taskID'] == taskID)
+                  .removeWhere((element) => element.taskID == taskID)
               : completedTasks
-                  .removeWhere((element) => element['taskID'] == taskID);
+                  .removeWhere((element) => element.taskID == taskID);
       update();
       if (!kIsWeb) {
         for (var i = 0; i < projectMembers.length; i++) {
@@ -383,11 +384,10 @@ class ProjectController extends GetxController {
 
     try {
       status == todo
-          ? toDoTasks.removeWhere((element) => element['taskID'] == taskID)
-          : completedTasks
-              .removeWhere((element) => element['taskID'] == taskID);
+          ? toDoTasks.removeWhere((element) => element.taskID == taskID)
+          : completedTasks.removeWhere((element) => element.taskID == taskID);
 
-      inProgressTasks.add(task.toJson());
+      inProgressTasks.add(task);
       if (!kIsWeb) {
         for (var i = 0; i < projectMembers.length; i++) {
           futureGroup.add(firedartFirestore
@@ -454,12 +454,10 @@ class ProjectController extends GetxController {
         priorityLevel: priorityLevel);
     try {
       status == inProgress
-          ? inProgressTasks
-              .removeWhere((element) => element['taskID'] == taskID)
-          : completedTasks
-              .removeWhere((element) => element['taskID'] == taskID);
+          ? inProgressTasks.removeWhere((element) => element.taskID == taskID)
+          : completedTasks.removeWhere((element) => element.taskID == taskID);
 
-      toDoTasks.add(task.toJson());
+      toDoTasks.add(task);
       if (!kIsWeb) {
         for (var i = 0; i < projectMembers.length; i++) {
           futureGroup.add(firedartFirestore
@@ -527,11 +525,10 @@ class ProjectController extends GetxController {
         priorityLevel: priorityLevel);
     try {
       status == todo
-          ? toDoTasks.removeWhere((element) => element['taskID'] == taskID)
-          : inProgressTasks
-              .removeWhere((element) => element['taskID'] == taskID);
+          ? toDoTasks.removeWhere((element) => element.taskID == taskID)
+          : inProgressTasks.removeWhere((element) => element.taskID == taskID);
 
-      completedTasks.add(task.toJson());
+      completedTasks.add(task);
       if (!kIsWeb) {
         for (var i = 0; i < projectMembers.length; i++) {
           futureGroup.add(firedartFirestore
@@ -1036,6 +1033,10 @@ class ProjectController extends GetxController {
     toDoTasks.clear();
     inProgressTasks.clear();
     completedTasks.clear();
+
+    List<String> tempCats = [];
+    taskCategories.clear();
+
     if (!kIsWeb) {
       var projectTasks = await firedartFirestore
           .collection('users')
@@ -1049,11 +1050,11 @@ class ProjectController extends GetxController {
 
       for (var task in projectTasks) {
         if (task['status'] == todo) {
-          toDoTasks.add(task);
+          toDoTasks.add(task_model.Task.fromDocumentSnap(task));
         } else if (task['status'] == inProgress) {
-          inProgressTasks.add(task);
+          inProgressTasks.add(task_model.Task.fromDocumentSnap(task));
         } else {
-          completedTasks.add(task);
+          completedTasks.add(task_model.Task.fromDocumentSnap(task));
         }
       }
     } else {
@@ -1079,9 +1080,22 @@ class ProjectController extends GetxController {
         }
       }
     }
+    List<Task> addedTasks = toDoTasks + inProgressTasks + completedTasks;
+    for (var task in addedTasks) {
+      tempCats.add(task.phase!);
+    }
+    taskCategories.value = [
+      ...{...tempCats}
+    ];
+
+    taskCategories.add(newTaskCategory);
+    if (!taskCategories.contains(noPhase)) {
+      taskCategories.add(noPhase);
+    }
   }
 
-  addNewCommentFile({comment, username, created, List<File>? result}) async {
+  addNewCommentFile(
+      {comment, username, created, profileUrl, List<File>? result}) async {
     uploadProgress.clear();
     try {
       Comment commenttt = Comment();
@@ -1092,6 +1106,7 @@ class ProjectController extends GetxController {
       Comment commentt = Comment(
           type: 'file',
           comment: comment,
+          profileUrl: profileUrl,
           createdAt: created,
           fileNameAndDownloadUrl: fileNameAndDownloadUrl,
           username: username);
@@ -1117,7 +1132,7 @@ class ProjectController extends GetxController {
           fileNameAndDownloadUrl[fileName] = urlDownload;
           int percentage = (progress * 100).round();
 
-          uploadProgress[fileName] = percentage;
+          uploadProgress[urlDownload] = percentage;
 
           update();
         });
@@ -1136,6 +1151,7 @@ class ProjectController extends GetxController {
           type: 'file',
           comment: comment,
           createdAt: created,
+          profileUrl: profileUrl,
           fileNameAndDownloadUrl: fileNameAndDownloadUrl,
           username: username);
 
@@ -1294,13 +1310,14 @@ class ProjectController extends GetxController {
     }
   }
 
-  addNewComment({comment, username, created}) async {
+  addNewComment({comment, username, created, profileUrl}) async {
     FutureGroup futureGroup = FutureGroup();
 
     Comment commentt = Comment(
         type: 'text',
         comment: comment,
         createdAt: created,
+        profileUrl: profileUrl,
         fileNameAndDownloadUrl: null,
         username: username);
     comments.add(commentt);
@@ -1355,6 +1372,7 @@ class ProjectController extends GetxController {
       String? copilot,
       String? startDate,
       int? isDeliverableNeededForCompletion,
+      String? daysToComplete,
       String? endDate,
       String? status,
       List? deliverables,
@@ -1372,6 +1390,7 @@ class ProjectController extends GetxController {
         taskDescription: taskDescription,
         pilot: pilot,
         copilot: copilot,
+        daysToComplete: daysToComplete,
         startDate: startDate,
         requiredDeliverables: null,
         endDate: endDate,
@@ -1396,6 +1415,7 @@ class ProjectController extends GetxController {
                 taskTitle: taskTitle,
                 phase: phase,
                 taskID: value.id,
+                daysToComplete: daysToComplete,
                 isDeliverableNeededForCompletion:
                     isDeliverableNeededForCompletion,
                 taskDescription: taskDescription,
@@ -1409,11 +1429,11 @@ class ProjectController extends GetxController {
                 priorityLevel: priorityLevel);
             if (projectMembers[i]['uid'] == uuid.value) {
               if (status == todo) {
-                toDoTasks.add(updatedTaskWithID.toJson());
+                toDoTasks.add(updatedTaskWithID);
               } else if (status == inProgress) {
-                inProgressTasks.add(updatedTaskWithID.toJson());
+                inProgressTasks.add(updatedTaskWithID);
               } else {
-                completedTasks.add(updatedTaskWithID.toJson());
+                completedTasks.add(updatedTaskWithID);
               }
             }
             firedartFirestore
@@ -1449,6 +1469,7 @@ class ProjectController extends GetxController {
                 taskDescription: taskDescription,
                 pilot: pilot,
                 copilot: copilot,
+                daysToComplete: daysToComplete,
                 startDate: startDate,
                 requiredDeliverables: null,
                 endDate: endDate,
@@ -1457,11 +1478,11 @@ class ProjectController extends GetxController {
                 priorityLevel: priorityLevel);
             if (projectMembers[i]['uid'] == uuid.value) {
               if (status == todo) {
-                toDoTasks.add(updatedTaskWithID.toJson());
+                toDoTasks.add(updatedTaskWithID);
               } else if (status == inProgress) {
-                inProgressTasks.add(updatedTaskWithID.toJson());
+                inProgressTasks.add(updatedTaskWithID);
               } else {
-                completedTasks.add(updatedTaskWithID.toJson());
+                completedTasks.add(updatedTaskWithID);
               }
             }
 
@@ -1544,6 +1565,7 @@ class ProjectController extends GetxController {
     String? pilot,
     String? copilot,
     String? startDate,
+    String? daysToComplete,
     String? endDate,
     String? status,
     List? taskDeliverables,
@@ -1560,6 +1582,7 @@ class ProjectController extends GetxController {
         taskDescription: taskDescription,
         isDeliverableNeededForCompletion: isDeliverableNeededForCompletion,
         pilot: pilot,
+        daysToComplete: daysToComplete,
         copilot: copilot,
         startDate: startDate,
         endDate: endDate,
@@ -1568,14 +1591,14 @@ class ProjectController extends GetxController {
         priorityLevel: priorityLevel);
 
     if (status == todo) {
-      toDoTasks.removeWhere((element) => element['taskID'] == taskID);
-      toDoTasks.add(task.toJson());
+      toDoTasks.removeWhere((element) => element.taskID == taskID);
+      toDoTasks.add(task);
     } else if (status == inProgress) {
-      inProgressTasks.removeWhere((element) => element['taskID'] == taskID);
-      inProgressTasks.add(task.toJson());
+      inProgressTasks.removeWhere((element) => element.taskID == taskID);
+      inProgressTasks.add(task);
     } else {
-      completedTasks.removeWhere((element) => element['taskID'] == taskID);
-      completedTasks.add(task.toJson());
+      completedTasks.removeWhere((element) => element.taskID == taskID);
+      completedTasks.add(task);
     }
 
     try {
@@ -1939,17 +1962,7 @@ class ProjectController extends GetxController {
                   .collection('projects')
                   .document(_projectId.value)
                   .collection('tasks')
-                  .add({
-                'taskTitle': task['taskTitle'],
-                'phase': task['phase'],
-                'taskDescription': task['taskDescription'],
-                'pilot': task['pilot'],
-                'copilot': task['copilot'],
-                'startDate': task['startDate'],
-                'endDate': task['endDate'],
-                'status': task['status'],
-                'priorityLevel': task['priorityLevel']
-              }));
+                  .add(task.toJson()));
             }
           }
         }
@@ -2169,17 +2182,7 @@ class ProjectController extends GetxController {
                     .collection('projects')
                     .doc(_projectId.value)
                     .collection('tasks')
-                    .add({
-                  'taskTitle': task['taskTitle'],
-                  'phase': task['phase'],
-                  'taskDescription': task['taskDescription'],
-                  'pilot': task['pilot'],
-                  'copilot': task['copilot'],
-                  'startDate': task['startDate'],
-                  'endDate': task['endDate'],
-                  'status': task['status'],
-                  'priorityLevel': task['priorityLevel']
-                }));
+                    .add(task.toJson()));
               }
             }
           });

@@ -6,6 +6,7 @@ class Comment {
   String? comment;
   Map? fileNameAndDownloadUrl;
   String? username;
+  String? profileUrl;
   DateTime? createdAt;
 
   Comment(
@@ -13,12 +14,14 @@ class Comment {
       this.comment,
       this.fileNameAndDownloadUrl,
       this.username,
+      this.profileUrl,
       this.createdAt});
 
   Map<String, dynamic> toJson() => {
         "type": type,
         "comment": comment,
         "username": username,
+        "profileUrl": profileUrl,
         "fileNameAndDownloadUrl": fileNameAndDownloadUrl,
         "createdAt": createdAt
       };
@@ -29,6 +32,7 @@ class Comment {
         type: snapshot['type'],
         comment: snapshot['comment'],
         username: snapshot['username'],
+        profileUrl: snapshot['profileUrl'],
         fileNameAndDownloadUrl: snapshot['fileNameAndDownloadUrl'],
         createdAt: snapshot['createdAt']);
   }
@@ -39,6 +43,7 @@ class Comment {
         type: snapshot['type'],
         comment: snapshot['comment'],
         username: snapshot['username'],
+        profileUrl: snapshot['profileUrl'],
         fileNameAndDownloadUrl: snapshot['fileNameAndDownloadUrl'],
         createdAt: snapshot['createdAt'].toDate());
   }

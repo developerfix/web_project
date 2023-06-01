@@ -3,17 +3,30 @@ import 'package:flutter/material.dart';
 import '../constants/style.dart';
 
 InkWell popupButton(BuildContext context,
-    {required String text, Function()? ontap}) {
+    {required String text, required Function() ontap}) {
   return InkWell(
     onTap: ontap,
     child: Container(
-      width: screenWidth(context) < 800
-          ? screenWidth(context) * 0.3
-          : screenWidth(context) * 0.1,
-      height: screenHeight(context) * 0.05,
-      decoration: brownishBoxDecoration,
-      child:
-          Center(child: txt(txt: text, fontSize: 15, fontColor: Colors.white)),
+      decoration: BoxDecoration(
+        color: const Color(mainColor),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(secondaryColor),
+          width: 2,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(30.0),
+        child: txt(
+          minFontSize: 24,
+          maxLines: 1,
+          letterSpacing: 3,
+          fontColor: Colors.white,
+          font: 'comfortaa',
+          txt: text,
+          fontSize: 30,
+        ),
+      ),
     ),
   );
 }

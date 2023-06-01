@@ -4,6 +4,7 @@ import '../constants/style.dart';
 import 'package:flutter/material.dart';
 
 import 'add_file_asset_popup.dart';
+import 'add_new_task_popup.dart';
 
 Future<dynamic> addAssetPopUp(BuildContext context) {
   return showDialog(
@@ -15,19 +16,11 @@ Future<dynamic> addAssetPopUp(BuildContext context) {
             width: 1000,
             child: Column(
               children: [
-                popUpCloseButton,
+                popupHeader('ADD ASSET'),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(children: <Widget>[
-                      txt(
-                        txt: 'ADD ASSET',
-                        font: 'comfortaa',
-                        fontSize: 40,
-                        letterSpacing: 6,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      const Spacer(),
                       InkWell(
                         onTap: () {
                           Get.back();

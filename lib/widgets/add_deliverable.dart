@@ -5,6 +5,7 @@ import '../constants/style.dart';
 import 'package:flutter/material.dart';
 
 import '../controllers/project_controller.dart';
+import 'add_new_task_popup.dart';
 
 Future<dynamic> addTaskDeliverableDialog(
     BuildContext context,
@@ -24,82 +25,66 @@ Future<dynamic> addTaskDeliverableDialog(
   return showDialog(
       context: context,
       builder: (BuildContext context) {
-        final formKey = GlobalKey<FormState>();
-        return Form(
-          key: formKey,
-          child: AlertDialog(
-            content: SizedBox(
+        return AlertDialog(
+          content: SizedBox(
               height: screenHeight(context) * 0.4,
-              width: screenWidth(context) * 0.5,
-              child: Padding(
-                padding: screenWidth(context) < 800
-                    ? const EdgeInsets.all(8.0)
-                    : const EdgeInsets.all(20.0),
-                child: Column(children: <Widget>[
-                  txt(
-                    txt: 'Add Deliverables\n',
-                    textAlign: TextAlign.center,
-                    font: 'comfortaa',
-                    fontSize: screenWidth(context) < 800 ? 20 : 40,
-                    letterSpacing: 6,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  txt(
-                    txt:
-                        'This task requires deliverables before marking it as complete',
-                    fontSize: screenWidth(context) < 800 ? 15 : 20,
-                  ),
-                  const Spacer(),
-                  taskDeliverablesWidget(context),
-                  const Spacer(),
-                  Row(
-                    mainAxisAlignment: screenWidth(context) < 1000
-                        ? MainAxisAlignment.start
-                        : MainAxisAlignment.end,
-                    children: [
-                      popupButton(context, ontap: () {
-                        Get.back();
-                      }, text: 'Back'),
-                      SizedBox(
-                        width: screenWidth(context) * 0.01,
+              width: 1000,
+              child: Column(children: [
+                popupHeader('Add Deliverables'),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(children: <Widget>[
+                      txt(
+                        txt:
+                            'This task requires deliverables before marking it as complete',
+                        fontSize: 20,
                       ),
-                      popupButton(context, ontap: () {
-                        if (projectController.selectedDeliverables.isNotEmpty) {
-                          projectController.addRequiredTaskDeliverables(
-                              taskID: taskID,
-                              requiredDeliverables:
-                                  projectController.selectedDeliverables);
-                          projectController.addToCompleted(
-                              copilot: copilot,
-                              endDate: endDate,
-                              phase: phase,
-                              pilot: pilot,
-                              taskID: taskID,
-                              priorityLevel: priorityLevel,
-                              startDate: startDate,
-                              status: status,
-                              taskDescription: taskDescription,
-                              deliverablesRequiredOrNot:
-                                  deliverablesRequiredOrNot,
-                              taskDeliverables: taskDeliverables,
-                              requiredDeliverables:
-                                  projectController.selectedDeliverables,
-                              taskTitle: taskTitle);
+                      const Spacer(),
+                      taskDeliverablesWidget(context),
+                      const Spacer(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          popupButton(context, ontap: () {
+                            if (projectController
+                                .selectedDeliverables.isNotEmpty) {
+                              projectController.addRequiredTaskDeliverables(
+                                  taskID: taskID,
+                                  requiredDeliverables:
+                                      projectController.selectedDeliverables);
+                              projectController.addToCompleted(
+                                  copilot: copilot,
+                                  endDate: endDate,
+                                  phase: phase,
+                                  pilot: pilot,
+                                  taskID: taskID,
+                                  priorityLevel: priorityLevel,
+                                  startDate: startDate,
+                                  status: status,
+                                  taskDescription: taskDescription,
+                                  deliverablesRequiredOrNot:
+                                      deliverablesRequiredOrNot,
+                                  taskDeliverables: taskDeliverables,
+                                  requiredDeliverables:
+                                      projectController.selectedDeliverables,
+                                  taskTitle: taskTitle);
 
-                          Get.back();
-                        } else {
-                          getErrorSnackBar('Please upload deliverables first');
-                        }
-                      }, text: 'Add to completed'),
-                    ],
+                              Get.back();
+                            } else {
+                              getErrorSnackBar(
+                                  'Please upload deliverables first');
+                            }
+                          }, text: 'Add'),
+                        ],
+                      ),
+                      SizedBox(
+                        height: screenHeight(context) * 0.005,
+                      )
+                    ]),
                   ),
-                  SizedBox(
-                    height: screenHeight(context) * 0.005,
-                  )
-                ]),
-              ),
-            ),
-          ),
+                ),
+              ])),
         );
       });
 }

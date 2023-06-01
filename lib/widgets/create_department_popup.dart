@@ -6,6 +6,7 @@ import 'package:ava/controllers/project_controller.dart';
 import 'package:ava/widgets/popup_textfield.dart';
 
 import '../constants/style.dart';
+import 'add_new_task_popup.dart';
 import 'icon_drop_down.dart';
 
 String categoryValue = '3D Design';
@@ -30,25 +31,14 @@ Future<dynamic> createDepartmentPopUp(BuildContext context,
                     width: 800,
                     child: Column(
                       children: [
-                        popUpCloseButton,
+                        popupHeader(
+                          'NEW DEPARTMENT',
+                        ),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Column(
                               children: <Widget>[
-                                txt(
-                                  txt: 'NEW DEPARTMENT',
-                                  fontSize: 50,
-                                  fontColor: const Color(0XFFab9eab),
-                                  font: 'Comfortaa',
-                                  letterSpacing: 6,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 10),
-                                  child: Divider(
-                                      thickness: 3, color: Color(0xffab9eab)),
-                                ),
                                 Expanded(
                                     child: Column(
                                   mainAxisAlignment:

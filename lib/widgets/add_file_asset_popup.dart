@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../constants/style.dart';
 import 'package:flutter/material.dart';
 
+import 'add_new_task_popup.dart';
 import 'asset_catagory_widgets.dart';
 import 'asset_files_widget.dart';
 
@@ -32,21 +33,11 @@ Future<dynamic> addFileAssetPopUp(BuildContext context) {
                   child: Obx(
                     () => Column(
                       children: [
-                        popUpCloseButton,
+                        popupHeader('UPLOAD FILES'),
                         Expanded(
                           child: Padding(
-                            padding: screenWidth(context) < 800
-                                ? const EdgeInsets.all(8.0)
-                                : const EdgeInsets.all(20.0),
+                            padding: const EdgeInsets.all(20.0),
                             child: Column(children: <Widget>[
-                              txt(
-                                txt: 'UPLOAD FILES',
-                                font: 'comfortaa',
-                                fontSize: screenWidth(context) < 800 ? 20 : 40,
-                                letterSpacing: 6,
-                                fontWeight: FontWeight.w700,
-                              ),
-                              const Spacer(),
                               assetFilesWidget(context),
                               SizedBox(
                                 height: screenHeight(context) * 0.04,
