@@ -67,23 +67,24 @@ Future<dynamic> editTaskPopUp(
                                         height: screenHeight(context) * 0.02,
                                       ),
                                       titleWidget(context,
+                                          taskTitle: taskTitle,
                                           titleController: titleController),
                                       SizedBox(
                                         height: screenHeight(context) * 0.02,
                                       ),
-                                      phaseWidget(
-                                        context,
-                                      ),
+                                      phaseWidget(context, phase: phase),
                                       SizedBox(
                                         height: screenHeight(context) * 0.02,
                                       ),
                                       descriptionWidget(context,
+                                          description: taskDescription,
                                           descriptionController:
                                               descriptionController),
                                       SizedBox(
                                         height: screenHeight(context) * 0.02,
                                       ),
                                       pilotWidget(context,
+                                          oldPilotorCopilot: pilot,
                                           taskPilotController:
                                               taskPilotController,
                                           taskPilotIDController:
@@ -92,6 +93,7 @@ Future<dynamic> editTaskPopUp(
                                         height: screenHeight(context) * 0.02,
                                       ),
                                       copilotWidget(context,
+                                          oldPilotorCopilot: copilot,
                                           taskCoPilotController:
                                               taskCoPilotIDController,
                                           taskCoPilotIDController:
