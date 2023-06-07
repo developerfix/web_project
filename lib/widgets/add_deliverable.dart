@@ -14,6 +14,7 @@ Future<dynamic> addTaskDeliverableDialog(
     String status,
     String copilot,
     String endDate,
+    String daysToComplete,
     String phase,
     String pilot,
     int priorityLevel,
@@ -56,6 +57,7 @@ Future<dynamic> addTaskDeliverableDialog(
                               projectController.addToCompleted(
                                   copilot: copilot,
                                   endDate: endDate,
+                                  daysToComplete: daysToComplete,
                                   phase: phase,
                                   pilot: pilot,
                                   taskID: taskID,

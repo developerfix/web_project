@@ -122,7 +122,7 @@ GestureDetector collapsedWidgetKanbanTask(
               decoration: BoxDecoration(
                 color: board == todo
                     ? Colors.grey.shade500
-                    : board == 'inProgress'
+                    : board == inProgress
                         ? Colors.yellow.shade600
                         : Colors.greenAccent,
                 borderRadius: const BorderRadius.only(
@@ -272,6 +272,7 @@ GestureDetector expandedWidgetKanbanTask(
                         projectController,
                         copilot,
                         endDate,
+                        daysToComplete,
                         phase,
                         pilot,
                         priorityLevel,
@@ -339,7 +340,7 @@ GestureDetector expandedWidgetKanbanTask(
                             height: 5,
                           ),
                           taskPilotCopilotAvatar(projectController, context,
-                              imageUrl: pilot),
+                              imageUrl: copilot),
                           const SizedBox(
                             height: 5,
                           ),
@@ -359,9 +360,6 @@ GestureDetector expandedWidgetKanbanTask(
                     )
                   ],
                 ),
-                // const SizedBox(
-                //   height: 10,
-                // ),
                 taskDeliverables.isEmpty
                     ? Container()
                     : Row(
@@ -376,31 +374,6 @@ GestureDetector expandedWidgetKanbanTask(
                 taskDeliverables.isEmpty
                     ? Container()
                     : deliverablesGrid(taskDeliverables),
-                // const SizedBox(
-                //   height: 10,
-                // ),
-                // board == todo || board == 'inProgress'
-                //     ? Container()
-                //     : requiredDeliverables != null
-                //         ? requiredDeliverables.isEmpty
-                //             ? Container()
-                //             : Row(
-                //                 children: [
-                //                   txt(
-                //                       txt: 'Required Deliverables:',
-                //                       maxLines: 2,
-                //                       font: 'Comfortaa',
-                //                       fontSize: 24),
-                //                 ],
-                //               )
-                //         : Container(),
-                // board == todo || board == 'inProgress'
-                //     ? Container()
-                //     : requiredDeliverables != null
-                //         ? requiredDeliverables!.isEmpty
-                //             ? Container()
-                //             : deliverablesGrid(requiredDeliverables)
-                //         : Container(),
                 const Divider(
                   color: Color(secondaryColor),
                   thickness: 2,
@@ -469,6 +442,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
     ProjectController projectController,
     String copilot,
     String endDate,
+    String daysToComplete,
     String phase,
     String pilot,
     int priorityLevel,
@@ -486,6 +460,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
             ? projectController.addToInProgress(
                 copilot: copilot,
                 endDate: endDate,
+                daysToComplete: daysToComplete,
                 taskID: taskID,
                 phase: phase,
                 pilot: pilot,
@@ -501,6 +476,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     copilot: copilot,
                     taskID: taskID,
                     endDate: endDate,
+                    daysToComplete: daysToComplete,
                     phase: phase,
                     pilot: pilot,
                     priorityLevel: priorityLevel,
@@ -514,6 +490,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                     taskID: taskID,
                     copilot: copilot,
                     endDate: endDate,
+                    daysToComplete: daysToComplete,
                     phase: phase,
                     pilot: pilot,
                     priorityLevel: priorityLevel,
@@ -529,6 +506,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
               ? projectController.addToCompleted(
                   copilot: copilot,
                   endDate: endDate,
+                  daysToComplete: daysToComplete,
                   phase: phase,
                   pilot: pilot,
                   taskID: taskID,
@@ -544,6 +522,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                   ? projectController.addToCompleted(
                       copilot: copilot,
                       endDate: endDate,
+                      daysToComplete: daysToComplete,
                       phase: phase,
                       taskID: taskID,
                       pilot: pilot,
@@ -558,6 +537,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
                   : projectController.addToInProgress(
                       copilot: copilot,
                       endDate: endDate,
+                      daysToComplete: daysToComplete,
                       taskID: taskID,
                       phase: phase,
                       pilot: pilot,
@@ -577,6 +557,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
               status,
               copilot,
               endDate,
+              daysToComplete,
               phase,
               pilot,
               priorityLevel,
@@ -588,7 +569,7 @@ PopupMenuButton<int> popupMenuButtonWidget(
         }
       } else if (value == 3) {
         projectController.selectedDeliverables.value = taskDeliverables;
-        projectController.taskCategory.value = noPhase;
+        projectController.taskCategory.value = phase;
 
         editTaskPopUp(
           context,

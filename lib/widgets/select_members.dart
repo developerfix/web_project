@@ -8,11 +8,10 @@ import '../controllers/project_controller.dart';
 
 Container selectMember(BuildContext context,
     {String? pilotOrCopilot,
-    String? pilotOrCopilotValue,
-    String? oldPilotorCopilot,
     required TextEditingController controller,
     required TextEditingController idController}) {
   final ProjectController projectController = Get.find<ProjectController>();
+
   final AuthController authController = Get.find<AuthController>();
 
   return Container(
@@ -29,13 +28,18 @@ Container selectMember(BuildContext context,
                   isUser: false,
                   listOfMembers: projectController.projectMembers,
                   title:
-                      'Select ${pilotOrCopilot == 'CoPilot' ? 'CoPilot' : 'Pilot'}  for this task')
+                      'Select ${pilotOrCopilot == 'copilot' ? 'CoPilot' : 'Pilot'}  for this task')
               .then(
             (value) {
               if (value != null) {
                 controller.text = value[0];
                 idController.text = value[1];
-                pilotOrCopilotValue = '@$value';
+                if (pilotOrCopilot == 'copilot') {
+                  projectController.taskCoPilot.value = '@$value';
+                } else {
+                  projectController.taskPilot.value = '@$value';
+                }
+
                 projectController.update();
               }
             },
@@ -51,7 +55,7 @@ Container selectMember(BuildContext context,
               suffixIcon: const Icon(Icons.person_add),
               suffixIconColor: const Color(secondaryColor),
               border: InputBorder.none,
-              hintText: oldPilotorCopilot ?? pilotOrCopilotValue,
+              hintText: '',
               hintStyle: const TextStyle(
                   color: brownishColor, fontWeight: FontWeight.w600)),
         ),

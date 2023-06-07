@@ -46,7 +46,7 @@ Padding usersMsg(BuildContext context,
                 maxRadius: 20,
                 child: Center(
                   child: txt(
-                      txt: username![0].toUpperCase(),
+                      txt: username != null ? username[0].toUpperCase() : 'U',
                       fontSize: 20,
                       fontColor: Colors.white),
                 ),
@@ -158,12 +158,7 @@ Widget fileContainerForUserMsg(
   BuildContext context,
   Map files,
 ) {
-  List commentFiles = [];
-  files.forEach((key, value) {
-    commentFiles.add([key, value]);
-  });
-
-  return commentFiles.isEmpty
+  return files.isEmpty
       ? const SizedBox(
           height: 200,
           width: 200,
@@ -185,18 +180,18 @@ Widget fileContainerForUserMsg(
                 maxCrossAxisExtent: 300,
               ),
               shrinkWrap: true,
-              itemCount: commentFiles.length,
+              itemCount: files.length,
               itemBuilder: (context, i) {
-                String fileExtension = commentFiles[i][0].split('.').last;
+                String fileExtension = files.keys.elementAt(i).split('.').last;
                 String thumbnailUrl;
                 if (fileExtension == 'jpg' ||
                     fileExtension == 'jpeg' ||
                     fileExtension == 'png' ||
                     fileExtension == 'gif') {
-                  thumbnailUrl = commentFiles[i][1];
+                  thumbnailUrl = files.values.elementAt(i);
                 } else if (fileExtension == 'pdf') {
                   thumbnailUrl =
-                      'https://e7.pngegg.com/pngimages/943/136/png-clipart-pdf-thumbnail-computer-icons-pdf-pdf-miscellaneous-angle-thumbnail.png';
+                      'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/PDF_file_icon.svg/1200px-PDF_file_icon.svg.png';
                 } else if (fileExtension == 'doc' || fileExtension == 'docx') {
                   thumbnailUrl =
                       'https://w7.pngwing.com/pngs/111/216/png-transparent-doc-docx-symbol-web-save-file-document-icon-word-button-thumbnail.png';
@@ -225,7 +220,7 @@ Widget fileContainerForUserMsg(
                   fileNameWidget = Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: txt(
-                        txt: commentFiles[i][0],
+                        txt: files.keys.elementAt(i),
                         fontColor: const Color(secondaryColor),
                         fontSize: 16),
                   );
@@ -239,33 +234,50 @@ Widget fileContainerForUserMsg(
                     fileExtension == 'gif') {
                   fileSizeWidget = const SizedBox();
                 } else {
-                  fileSizeWidget = FutureBuilder<http.Response>(
-                    future: http.get(Uri.parse(commentFiles[i][1])),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        // If the response is available, calculate and display the file size
-                        int fileSizeInBytes = snapshot.data!.bodyBytes.length;
-                        String fileSize = filesize(fileSizeInBytes);
+                  fileSizeWidget = const SizedBox();
+                  // fileSizeWidget = FutureBuilder<http.Response>(
+                  //   future: http.get(Uri.parse(files.values.elementAt(i))),
+                  //   builder: (context, snapshot) {
+                  //     try {
+                  //       if (snapshot.hasData) {
+                  //         // If the response is available, calculate and display the file size
+                  //         int fileSizeInBytes = snapshot.data!.bodyBytes.length;
+                  //         String fileSize = filesize(fileSizeInBytes);
 
-                        return Text(
-                          fileSize,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontWeight: FontWeight.w400,
-                            fontSize: 12,
-                          ),
-                        );
-                      } else {
-                        // No data available
-                        return const SizedBox();
-                      }
-                    },
-                  );
+                  //         return Text(
+                  //           fileSize,
+                  //           style: const TextStyle(
+                  //             color: Colors.grey,
+                  //             fontWeight: FontWeight.w400,
+                  //             fontSize: 12,
+                  //           ),
+                  //         );
+                  //       } else {
+                  //         // No data available
+                  //         return const SizedBox();
+                  //       }
+                  //     } catch (e) {
+                  //       print('Error fetching file size: $e');
+                  //       // Handle the exception gracefully, e.g., display an error message
+                  //       return Text(
+                  //         'Error fetching file size',
+                  //         style: const TextStyle(
+                  //           color: Colors.red,
+                  //           fontWeight: FontWeight.bold,
+                  //           fontSize: 12,
+                  //         ),
+                  //       );
+                  //     }
+                  //   },
+                  // );
                 }
 
-                return controller.uploadProgress[commentFiles[i][1]] != null &&
-                        controller.uploadProgress[commentFiles[i][1]] >= 0 &&
-                        controller.uploadProgress[commentFiles[i][1]] < 100
+                return controller.uploadProgress[files.values.elementAt(i)] !=
+                            null &&
+                        controller.uploadProgress[files.values.elementAt(i)] >=
+                            0 &&
+                        controller.uploadProgress[files.values.elementAt(i)] <
+                            100
                     ? Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -283,12 +295,13 @@ Widget fileContainerForUserMsg(
                                           const AlwaysStoppedAnimation<Color>(
                                               Color(mainColor)),
                                       value: double.parse(controller
-                                          .uploadProgress[commentFiles[i][0]]
+                                          .uploadProgress[
+                                              files.values.elementAt(i)]
                                           .toString()),
                                     ),
                                   ),
                                   Text(
-                                    '${controller.uploadProgress[commentFiles[i][0]]}%',
+                                    '${controller.uploadProgress[files.values.elementAt(i)]}%',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -301,11 +314,12 @@ Widget fileContainerForUserMsg(
                             const SizedBox(
                               height: 10,
                             ),
-                            txt(txt: commentFiles[i][0], fontSize: 16),
+                            txt(txt: files.keys.elementAt(i), fontSize: 16),
                           ])
                     : GestureDetector(
                         onTap: () {
-                          downloadFile(commentFiles[i][1], commentFiles[i][0]);
+                          downloadFile(files.values.elementAt(i),
+                              files.keys.elementAt(i));
                         },
                         child: Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -318,20 +332,12 @@ Widget fileContainerForUserMsg(
                                         borderRadius: BorderRadius.circular(20),
                                         child: FastCachedImage(
                                           url: thumbnailUrl,
-                                          fit: BoxFit.fill,
+                                          fit: BoxFit.cover,
                                           fadeInDuration:
                                               const Duration(milliseconds: 500),
                                           errorBuilder:
                                               (context, exception, stacktrace) {
-                                            return const CircleAvatar(
-                                              backgroundColor: Color(mainColor),
-                                              child: Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  color: Color(secondaryColor),
-                                                ),
-                                              ),
-                                            );
+                                            return Container();
                                           },
                                           loadingBuilder: (context, progress) {
                                             return const CircleAvatar(

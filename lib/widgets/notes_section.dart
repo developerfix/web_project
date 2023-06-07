@@ -60,9 +60,10 @@ Widget notesSection(BoxConstraints constraints, BuildContext context,
   attachFile() async {
     FilePickerResult? result = await FilePicker.platform
         .pickFiles(withData: true, allowMultiple: true);
-
-    for (var result in result!.files) {
-      projectController.commentFiles.add(File(result.path!));
+    if (result != null) {
+      for (var result in result.files) {
+        projectController.commentFiles.add(File(result.path!));
+      }
     }
   }
 
@@ -603,6 +604,7 @@ ScrollConfiguration searchedNotesListViewBuilder(
             if (lowerCaseComment.contains(lowerCaseSearchedNote)) {
               return usersMsg(context,
                   created: created,
+                  username: username,
                   profileUrl: profileUrl,
                   nameFirstChar: firstChar[0],
                   type: type,

@@ -61,7 +61,7 @@ class ProjectController extends GetxController {
   Rx<double> progress = 0.0.obs;
   Rx<int> commentsFilter = 1.obs;
   Rx<int> taskPrioritySelectedValue = 2.obs;
-  Rx<int> taskSelectedValue = 1.obs;
+  Rx<int> taskSelectedValue = 2.obs;
   Rx<double> deliverableUplaodingProgress = 0.0.obs;
   Rx<double> assetFileUplaodingProgress = 0.0.obs;
 
@@ -363,6 +363,7 @@ class ProjectController extends GetxController {
       String? startDate,
       String? endDate,
       String? status,
+      String? daysToComplete,
       List? taskDeliverables,
       int? priorityLevel,
       int? deliverablesRequiredOrNot}) async {
@@ -372,6 +373,7 @@ class ProjectController extends GetxController {
         phase: phase,
         taskID: taskID,
         taskDescription: taskDescription,
+        daysToComplete: daysToComplete,
         pilot: pilot,
         copilot: copilot,
         startDate: startDate,
@@ -433,6 +435,7 @@ class ProjectController extends GetxController {
       String? copilot,
       String? startDate,
       String? endDate,
+      String? daysToComplete,
       String? status,
       List? taskDeliverables,
       int? priorityLevel,
@@ -447,6 +450,7 @@ class ProjectController extends GetxController {
         copilot: copilot,
         startDate: startDate,
         endDate: endDate,
+        daysToComplete: daysToComplete,
         status: todo,
         isDeliverableNeededForCompletion: deliverablesRequiredOrNot,
         deliverables: taskDeliverables,
@@ -503,6 +507,7 @@ class ProjectController extends GetxController {
       String? copilot,
       String? startDate,
       String? endDate,
+      String? daysToComplete,
       String? status,
       List? taskDeliverables,
       List? requiredDeliverables,
@@ -515,6 +520,7 @@ class ProjectController extends GetxController {
         taskDescription: taskDescription,
         pilot: pilot,
         taskID: taskID,
+        daysToComplete: daysToComplete,
         copilot: copilot,
         startDate: startDate,
         endDate: endDate,
@@ -1080,7 +1086,12 @@ class ProjectController extends GetxController {
         }
       }
     }
-    List<Task> addedTasks = toDoTasks + inProgressTasks + completedTasks;
+
+    List<Task> addedTasks = [
+      ...toDoTasks,
+      ...inProgressTasks,
+      ...completedTasks
+    ];
     for (var task in addedTasks) {
       tempCats.add(task.phase!);
     }
@@ -1095,7 +1106,7 @@ class ProjectController extends GetxController {
   }
 
   addNewCommentFile(
-      {comment, username, created, profileUrl, List<File>? result}) async {
+      {comment, username, profileUrl, created, List<File>? result}) async {
     uploadProgress.clear();
     try {
       Comment commenttt = Comment();
@@ -1150,8 +1161,8 @@ class ProjectController extends GetxController {
       commenttt = Comment(
           type: 'file',
           comment: comment,
-          createdAt: created,
           profileUrl: profileUrl,
+          createdAt: created,
           fileNameAndDownloadUrl: fileNameAndDownloadUrl,
           username: username);
 

@@ -463,7 +463,7 @@ Column inprogressKanbanList(
                             final String startDate =
                                 projectController.inProgressTasks[i].startDate!;
                             final String endDate =
-                                projectController.completedTasks[i].endDate!;
+                                projectController.inProgressTasks[i].endDate!;
                             final String daysToComplete = projectController
                                 .inProgressTasks[i].daysToComplete!;
 
@@ -495,7 +495,7 @@ Column inprogressKanbanList(
                             return listOfTasks(
                                 context,
                                 projectController,
-                                'inProgress',
+                                inProgress,
                                 taskTitle,
                                 phase,
                                 taskDescription,

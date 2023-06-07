@@ -242,7 +242,6 @@ Row copilotWidget(BuildContext context,
     {required TextEditingController taskCoPilotController,
     required TextEditingController taskCoPilotIDController,
     String? oldPilotorCopilot}) {
-  final ProjectController projectController = Get.find<ProjectController>();
   return Row(
     children: [
       textWidgetTaskPopup(
@@ -253,10 +252,8 @@ Row copilotWidget(BuildContext context,
         width: 10,
       ),
       selectMember(context,
-          pilotOrCopilotValue: projectController.taskCoPilot.value,
           controller: taskCoPilotController,
           idController: taskCoPilotIDController,
-          oldPilotorCopilot: oldPilotorCopilot,
           pilotOrCopilot: 'copilot')
     ],
   );
@@ -266,7 +263,6 @@ Row pilotWidget(BuildContext context,
     {required TextEditingController taskPilotController,
     required TextEditingController taskPilotIDController,
     String? oldPilotorCopilot}) {
-  final ProjectController projectController = Get.find<ProjectController>();
   return Row(
     children: [
       textWidgetTaskPopup(
@@ -277,10 +273,8 @@ Row pilotWidget(BuildContext context,
         width: 10,
       ),
       selectMember(context,
-          pilotOrCopilotValue: projectController.taskPilot.value,
           controller: taskPilotController,
           idController: taskPilotIDController,
-          oldPilotorCopilot: oldPilotorCopilot,
           pilotOrCopilot: 'pilot')
     ],
   );

@@ -230,7 +230,7 @@ class _TimelineeState extends State<Timelinee> with TickerProviderStateMixin {
                     children: [
                       txt(
                           txt:
-                              '${projectController.currentProject.value.title!} 2022',
+                              '${projectController.currentProject.value.title ?? ''} 2022',
                           font: 'comfortaa',
                           fontSize: 25,
                           letterSpacing: 5,
@@ -241,7 +241,7 @@ class _TimelineeState extends State<Timelinee> with TickerProviderStateMixin {
                       ),
                       txt(
                           txt:
-                              '-  ${projectController.currentProject.value.subtitle} ',
+                              '-  ${projectController.currentProject.value.subtitle ?? ''} ',
                           font: 'comfortaa',
                           fontSize: 20,
                           fontWeight: FontWeight.w200,

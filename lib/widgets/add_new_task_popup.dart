@@ -15,6 +15,8 @@ Future<dynamic> addNewTaskPopUp(BuildContext context,
   AuthController authController = Get.find<AuthController>();
   projectController.selectedDeliverables.clear();
   projectController.taskCategory.value = noPhase;
+  projectController.taskPilot.value = '';
+  projectController.taskCoPilot.value = '';
 
   DateTime startdate = DateTime.now();
   DateTime endDate = DateTime.now();
@@ -54,7 +56,6 @@ Future<dynamic> addNewTaskPopUp(BuildContext context,
                             child: Padding(
                               padding: const EdgeInsets.all(20),
                               child: ListView(
-                                // crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   SizedBox(
                                     height: screenHeight(context) * 0.02,
@@ -190,8 +191,12 @@ Future<dynamic> addNewTaskPopUp(BuildContext context,
                                           Get.back();
                                           projectController.addNewTask(
                                               taskTitle: titleController.text,
-                                              phase: projectController
-                                                  .taskCategory.value,
+                                              phase: taskCategoryTitleController
+                                                      .text.isEmpty
+                                                  ? projectController
+                                                      .taskCategory.value
+                                                  : taskCategoryTitleController
+                                                      .text,
                                               daysToComplete:
                                                   daysBetween.toString(),
                                               taskDescription:
